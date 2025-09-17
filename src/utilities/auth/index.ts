@@ -34,7 +34,7 @@ export async function verifyToken(token: string): Promise<TokenPayload | null> {
       typeof payload.username === 'string' &&
       typeof payload.email === 'string'
     ) {
-      return payload as TokenPayload;
+      return payload as unknown as TokenPayload;
     }
     
     return null;

@@ -24,7 +24,8 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: createTweet,
+        mutationFn: ({ authorId, text, photoFile }: { authorId: string; text: string; photoFile?: File }) => 
+            createTweet(authorId, text, photoFile),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tweets"] });
         },
@@ -50,16 +51,15 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            if (photoFile) {
-                const path: string | void = await uploadFile(photoFile);
-                if (!path) throw new Error("Error uploading image.");
-                values.photoUrl = path;
-                setPhotoFile(null);
-            }
-            mutation.mutate(JSON.stringify(values));
+            mutation.mutate({
+                authorId: values.authorId,
+                text: values.text,
+                photoFile: photoFile || undefined
+            });
             resetForm();
             setCount(0);
             setShowDropzone(false);
+            setPhotoFile(null);
             if (handleSubmit) handleSubmit();
         },
     });

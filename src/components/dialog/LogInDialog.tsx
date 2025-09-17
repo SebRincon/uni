@@ -17,12 +17,10 @@ export default function LogInDialog({ open, handleLogInClose }: LogInDialogProps
     const router = useRouter();
 
     const validationSchema = yup.object({
-        username: yup
+        email: yup
             .string()
-            .min(3, "Username should be of minimum 3 characters length.")
-            .max(20, "Username should be of maximum 20 characters length.")
-            .matches(/^[a-zA-Z0-9_]{1,14}[a-zA-Z0-9]$/, "Username is invalid")
-            .required("Username is required."),
+            .email("Enter a valid email")
+            .required("Email is required."),
         password: yup
             .string()
             .min(8, "Password should be of minimum 8 characters length.")
@@ -32,13 +30,13 @@ export default function LogInDialog({ open, handleLogInClose }: LogInDialogProps
 
     const formik = useFormik({
         initialValues: {
-            username: "",
+            email: "",
             password: "",
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
             try {
-                await signIn({ username: values.username, password: values.password });
+                await signIn({ username: values.email, password: values.password });
                 resetForm();
                 handleLogInClose();
                 router.push("/explore");
@@ -59,16 +57,14 @@ export default function LogInDialog({ open, handleLogInClose }: LogInDialogProps
                         <div className="input">
                             <TextField
                                 fullWidth
-                                name="username"
-                                label="Username"
-                                placeholder="username"
-                                InputProps={{
-                                    startAdornment: <InputAdornment position="start">@</InputAdornment>,
-                                }}
-                                value={formik.values.username}
+                                name="email"
+                                label="Email"
+                                type="email"
+                                placeholder="email@example.com"
+                                value={formik.values.email}
                                 onChange={formik.handleChange}
-                                error={formik.touched.username && Boolean(formik.errors.username)}
-                                helperText={formik.touched.username && formik.errors.username}
+                                error={formik.touched.email && Boolean(formik.errors.email)}
+                                helperText={formik.touched.email && formik.errors.email}
                                 autoFocus
                             />
                         </div>

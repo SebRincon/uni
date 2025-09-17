@@ -20,7 +20,7 @@ const schema = a
       notifications: a.hasMany("Notification", "userId"),
       likes: a.hasMany("UserLikes", "userId"),
       retweets: a.hasMany("UserRetweets", "userId"),
-    }),
+    }).identifier(["username"]),
 
     Tweet: a.model({
       text: a.string().required(),
@@ -28,13 +28,17 @@ const schema = a
       isRetweet: a.boolean().default(false),
       isReply: a.boolean().default(false),
       // Relationships
-      authorId: a.id(),
+      authorId: a.id().required(),
       author: a.belongsTo("User", "authorId"),
       likes: a.hasMany("UserLikes", "tweetId"),
       retweets: a.hasMany("UserRetweets", "tweetId"),
       replies: a.hasMany("Tweet", "repliedToId"),
       repliedToId: a.id(),
       repliedTo: a.belongsTo("Tweet", "repliedToId"),
+      retweetOfId: a.id(),
+      retweetOf: a.belongsTo("Tweet", "retweetOfId"),
+      // For tracking original tweets that were retweeted
+      retweetedVersions: a.hasMany("Tweet", "retweetOfId"),
     }),
   
     Message: a.model({
@@ -58,27 +62,36 @@ const schema = a
 
     // Join table for User following User (many-to-many)
     UserFollows: a.model({
-      followerId: a.id(),
+      followerId: a.id().required(),
       follower: a.belongsTo("User", "followerId"),
-      followingId: a.id(),
+      followingId: a.id().required(),
       following: a.belongsTo("User", "followingId"),
-    }),
+    }).secondaryIndexes((index) => [
+      index("followerId"),
+      index("followingId"),
+    ]),
 
     // Join table for User likes Tweet (many-to-many)
     UserLikes: a.model({
-      userId: a.id(),
+      userId: a.id().required(),
       user: a.belongsTo("User", "userId"),
-      tweetId: a.id(),
+      tweetId: a.id().required(),
       tweet: a.belongsTo("Tweet", "tweetId"),
-    }),
+    }).secondaryIndexes((index) => [
+      index("userId"),
+      index("tweetId"),
+    ]),
 
     // Join table for User retweets Tweet (many-to-many)
     UserRetweets: a.model({
-      userId: a.id(),
+      userId: a.id().required(),
       user: a.belongsTo("User", "userId"),
-      tweetId: a.id(),
+      tweetId: a.id().required(),
       tweet: a.belongsTo("Tweet", "tweetId"),
-    }),
+    }).secondaryIndexes((index) => [
+      index("userId"),
+      index("tweetId"),
+    ]),
   })
   .authorization((allow) => [
     allow.publicApiKey().to(["read"]),

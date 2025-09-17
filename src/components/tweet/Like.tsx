@@ -22,11 +22,11 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
 
     const { isFetched, data } = useQuery({
         queryKey: queryKey,
-        queryFn: () => getUserTweet(tweetId, tweetAuthor),
+        queryFn: () => getUserTweet(tweetAuthor, tweetId),
     });
 
     const likeMutation = useMutation({
-        mutationFn: (tokenOwnerId: string) => updateTweetLikes(tweetId, tweetAuthor, tokenOwnerId, false),
+        mutationFn: (tokenOwnerId: string) => updateTweetLikes(tokenOwnerId, tweetId, 'like'),
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
@@ -54,7 +54,7 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
     });
 
     const unlikeMutation = useMutation({
-        mutationFn: (tokenOwnerId) => updateTweetLikes(tweetId, tweetAuthor, tokenOwnerId, true),
+        mutationFn: (tokenOwnerId: string) => updateTweetLikes(tokenOwnerId, tweetId, 'unlike'),
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
