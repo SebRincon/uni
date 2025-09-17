@@ -1,44 +1,68 @@
-import React from "react";
-import Cookies from "universal-cookie";
+"use client";
+import { useState, useEffect } from "react";
+import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
+import { Hub } from 'aws-amplify/utils';
+import { AuthProps, VerifiedToken } from "@/types/TokenProps";
+import { UserProps } from "@/types/UserProps";
 
-import { verifyJwtToken } from "@/utilities/auth";
-import { VerifiedToken } from "@/types/TokenProps";
+export default function useAuth(): AuthProps {
+  const [token, setToken] = useState<VerifiedToken>(null);
+  const [isPending, setIsPending] = useState(true);
 
-const fromServer = async () => {
-    const cookies = require("next/headers").cookies;
-    const cookieList = cookies();
-    const { value: token } = cookieList.get("token") ?? { value: null };
-    const verifiedToken = token && (await verifyJwtToken(token));
-    return verifiedToken;
-};
+  const getVerifiedToken = async () => {
+    setIsPending(true);
+    try {
+      const user = await getCurrentUser();
+      const attributes = await fetchUserAttributes();
+      // This is a simplified mapping. You might need to adjust based on your custom attributes.
+      const userProfile: UserProps = {
+          id: user.userId,
+          username: user.username,
+          name: attributes.name || '',
+          description: attributes['custom:description'] || '',
+          location: attributes['custom:location'] || '',
+          website: attributes['custom:website'] || '',
+          isPremium: attributes['custom:isPremium'] === 'true' || false,
+          photoUrl: attributes.picture || '',
+          headerUrl: attributes['custom:headerUrl'] || '',
+          // These are relational and need to be fetched separately when needed.
+          followers: [],
+          following: [],
+          // Timestamps from Cognito are numbers (seconds since epoch), convert them
+          createdAt: attributes.updated_at ? new Date(attributes.updated_at) : new Date(),
+          updatedAt: attributes.updated_at ? new Date(attributes.updated_at) : new Date(),
 
-export default function useAuth() {
-    const [token, setToken] = React.useState<VerifiedToken>(null);
-    const [isPending, setIsPending] = React.useState<boolean>(true);
+      };
+      setToken(userProfile);
+    } catch (error) {
+      setToken(null);
+    } finally {
+      setIsPending(false);
+    }
+  };
 
-    const getVerifiedToken = async () => {
-        setIsPending(true);
-        const cookies = new Cookies();
-        const token = cookies.get("token") ?? null;
-        const verifiedToken = token && (await verifyJwtToken(token));
-        setToken(verifiedToken);
-        setIsPending(false);
+  const refreshToken = () => {
+    getVerifiedToken();
+  };
+
+  useEffect(() => {
+    getVerifiedToken();
+
+    const hubListener = Hub.listen('auth', ({ payload }) => {
+      switch (payload.event) {
+        case 'signedIn':
+          getVerifiedToken();
+          break;
+        case 'signedOut':
+          setToken(null);
+          break;
+      }
+    });
+
+    return () => {
+      hubListener();
     };
+  }, []);
 
-    const refreshToken = async () => {
-        const cookies = new Cookies();
-        const token = cookies.get("token") ?? null;
-        const verifiedToken = token && (await verifyJwtToken(token));
-        setToken(verifiedToken);
-    };
-
-    React.useEffect(() => {
-        getVerifiedToken();
-    }, []);
-
-    return { token, isPending, refreshToken };
+  return { token, isPending, refreshToken };
 }
-
-useAuth.fromServer = fromServer;
-
-// Custom hook for authorization which works with server (fromServer) and client side

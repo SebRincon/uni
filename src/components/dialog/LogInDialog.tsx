@@ -4,9 +4,9 @@ import { useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle, TextField, InputAdornment } from "@mui/material";
 import Image from "next/image";
 import * as yup from "yup";
+import { signIn } from 'aws-amplify/auth';
 
 import { LogInDialogProps } from "@/types/DialogProps";
-import { logIn } from "@/utilities/fetch";
 import CircularLoading from "../misc/CircularLoading";
 import { SnackbarProps } from "@/types/SnackbarProps";
 import CustomSnackbar from "../misc/CustomSnackbar";
@@ -37,14 +37,15 @@ export default function LogInDialog({ open, handleLogInClose }: LogInDialogProps
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            const response = await logIn(JSON.stringify(values));
-            if (!response.success) {
-                setSnackbar({ message: response.message, severity: "error", open: true });
-                return;
+            try {
+                await signIn({ username: values.username, password: values.password });
+                resetForm();
+                handleLogInClose();
+                router.push("/explore");
+            } catch (error) {
+                console.error('Error signing in:', error);
+                setSnackbar({ message: (error as Error).message, severity: "error", open: true });
             }
-            resetForm();
-            handleLogInClose();
-            router.push("/explore");
         },
     });
 

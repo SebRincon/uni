@@ -4,9 +4,9 @@ import { useFormik } from "formik";
 import { Dialog, DialogContent, DialogTitle, InputAdornment, TextField } from "@mui/material";
 import * as yup from "yup";
 import Image from "next/image";
+import { signUp, signIn } from 'aws-amplify/auth';
 
 import { SignUpDialogProps } from "@/types/DialogProps";
-import { checkUserExists, createUser } from "@/utilities/fetch";
 import CircularLoading from "../misc/CircularLoading";
 import CustomSnackbar from "../misc/CustomSnackbar";
 import { SnackbarProps } from "@/types/SnackbarProps";
@@ -22,14 +22,7 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
             .min(3, "Username should be of minimum 3 characters length.")
             .max(20, "Username should be of maximum 20 characters length.")
             .matches(/^[a-zA-Z0-9_]{1,14}[a-zA-Z0-9]$/, "Username is invalid")
-            .required("Username is required.")
-            .test("checkUserExists", "User already exists.", async (value) => {
-                if (value) {
-                    const response = await checkUserExists(value);
-                    if (response.success) return false;
-                }
-                return true;
-            }),
+            .required("Username is required."),
         password: yup
             .string()
             .min(8, "Password should be of minimum 8 characters length.")
@@ -46,17 +39,25 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            const response = await createUser(JSON.stringify(values));
-            if (!response.success) {
-                return setSnackbar({
-                    message: "Something went wrong. Please try again.",
-                    severity: "error",
-                    open: true,
+            try {
+                await signUp({
+                    username: values.username,
+                    password: values.password,
+                    options: {
+                        userAttributes: {
+                            name: values.name,
+                        },
+                    },
                 });
+                // Optional: sign in the user directly after sign up
+                await signIn({ username: values.username, password: values.password });
+                resetForm();
+                handleSignUpClose();
+                router.push("/explore");
+            } catch (error) {
+                console.error('Error signing up:', error);
+                setSnackbar({ message: (error as Error).message, severity: "error", open: true });
             }
-            resetForm();
-            handleSignUpClose();
-            router.push("/explore");
         },
     });
 
@@ -80,8 +81,8 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                                 }}
                                 value={formik.values.username}
                                 onChange={formik.handleChange}
-                                error={Boolean(formik.errors.username)}
-                                helperText={formik.errors.username}
+                                error={formik.touched.username && Boolean(formik.errors.username)}
+                                helperText={formik.touched.username && formik.errors.username}
                                 autoFocus
                             />
                         </div>
@@ -94,8 +95,8 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                                 type="password"
                                 value={formik.values.password}
                                 onChange={formik.handleChange}
-                                error={Boolean(formik.errors.password)}
-                                helperText={formik.errors.password}
+                                error={formik.touched.password && Boolean(formik.errors.password)}
+                                helperText={formik.touched.password && formik.errors.password}
                             />
                         </div>
                         <div className="input">

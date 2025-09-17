@@ -1,16 +1,23 @@
-import { createClient } from "@supabase/supabase-js";
-
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY;
-
-if (!URL || !KEY) throw new Error("Supabase credentials are not provided.");
-
-export const supabase = createClient(URL, KEY);
+import { uploadData, getUrl } from 'aws-amplify/storage';
 
 export const uploadFile = async (file: File) => {
-    const { data, error } = await supabase.storage.from("media").upload(`${Date.now()}`, file);
-    if (error) {
-        return console.log(error);
+    try {
+        const result = await uploadData({
+            path: `media/${Date.now()}-${file.name}`,
+            data: file,
+        }).result;
+        return result.path;
+    } catch (error) {
+        console.error('Error uploading file:', error);
+        throw error;
     }
-    return data.path;
 };
+
+export const getStorageUrl = async (path: string) => {
+    try {
+        const getUrlResult = await getUrl({ path });
+        return getUrlResult.url.toString();
+    } catch (error) {
+        console.error('Error getting URL:', error);
+    }
+}

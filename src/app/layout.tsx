@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "../styles/reset.scss";
 import "../styles/globals.scss";
 import Providers from "./providers";
+import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 
 export const metadata = {
     title: "Fettan | Twitter",
@@ -60,6 +61,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     return (
         <html lang="en" className={`${roboto.variable} ${poppins.variable}`}>
             <body>
+                <ConfigureAmplifyClientSide />
                 <Providers>{children}</Providers>
             </body>
         </html>
