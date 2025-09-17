@@ -25,6 +25,9 @@
         "postinstall": "cd src && npx prisma generate"
     },
     "dependencies": {
+        "@aws-amplify/adapter-nextjs": "^1.6.9",
+        "@aws-amplify/backend": "^1.16.1",
+        "@aws-amplify/ui-react": "^6.12.0",
         "@emoji-mart/data": "^1.1.2",
         "@emoji-mart/react": "^1.1.1",
         "@emotion/react": "^11.11.0",
@@ -36,6 +39,7 @@
         "@types/node": "^18.16.13",
         "@types/react": "^18.2.6",
         "@types/react-dom": "^18.2.4",
+        "aws-amplify": "^6.15.6",
         "bcrypt": "^5.1.0",
         "date-fns": "^2.30.0",
         "emoji-mart": "^5.5.2",
@@ -54,12 +58,21 @@
         "yup": "^1.1.1"
     },
     "devDependencies": {
+        "@aws-amplify/backend-cli": "^1.8.0",
+        "@types/aws-lambda": "^8.10.152",
+        "@types/json-schema": "^7.0.15",
+        "@types/uuid": "^10.0.0",
+        "aws-cdk": "^2.1029.2",
+        "aws-cdk-lib": "^2.215.0",
+        "constructs": "^10.4.2",
         "encoding": "^0.1.13",
+        "esbuild": "^0.25.10",
         "eslint-config-prettier": "^8.8.0",
         "prettier": "^2.8.8",
         "prisma": "^4.14.1",
         "sass": "^1.62.1",
         "ts-node": "^10.9.1",
+        "tsx": "^4.20.5",
         "typescript": "^5.0.4"
     }
 }
