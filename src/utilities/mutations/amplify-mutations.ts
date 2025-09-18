@@ -42,7 +42,7 @@ export async function updateUser(userId: string, updates: Partial<User>) {
     }
     
     const { data } = await client.models.User.update({
-      id: userId,
+      username: userId, // username is the primary key
       ...updates
     });
     

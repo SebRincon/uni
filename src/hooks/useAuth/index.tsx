@@ -4,7 +4,7 @@ import { getCurrentUser, fetchUserAttributes } from 'aws-amplify/auth';
 import { Hub } from 'aws-amplify/utils';
 import { AuthProps, VerifiedToken } from "@/types/TokenProps";
 import { UserProps } from "@/types/UserProps";
-import { client } from '@/lib/amplify-client';
+import { getClient } from '@/lib/amplify-client';
 
 export default function useAuth(): AuthProps {
   const [token, setToken] = useState<VerifiedToken>(null);
@@ -30,13 +30,15 @@ export default function useAuth(): AuthProps {
         try {
           // Try to find the user in our database
           console.log('🔍 Looking for user in database...');
-          const { data: users } = await client.models.User.list({
+          const client = getClient();
+          const listResult = await client.models.User.list({
             filter: {
               username: {
                 eq: username
               }
             }
           });
+          const users = listResult?.data;
           console.log('📊 Database response:', users);
           
           if (users && users.length > 0) {
@@ -64,12 +66,21 @@ export default function useAuth(): AuthProps {
           } else {
             // If user doesn't exist in DB, create them
             console.log('❌ User not found in database, creating new user...');
-            const { data: newUser } = await client.models.User.create({
+            console.log('📝 Creating user with data:', {
               username: username,
               name: attributes.name || username,
               isPremium: false,
             });
-            console.log('✅ Created new user:', newUser);
+            
+            try {
+              const createResult = await client.models.User.create({
+                username: username,
+                name: attributes.name || username,
+                isPremium: false,
+              });
+              console.log('✅ Create result:', createResult);
+              const newUser = createResult?.data;
+              console.log('✅ Created new user:', newUser);
             
             if (newUser) {
               const userProfile: UserProps = {
@@ -90,6 +101,9 @@ export default function useAuth(): AuthProps {
               console.log('👤 Setting new user profile:', userProfile);
               setToken(userProfile);
               return; // Success, exit the function
+            } catch (createError) {
+              console.error('❌ Error creating user:', createError);
+              throw createError;
             }
           }
           break; // If we get here, exit the retry loop
