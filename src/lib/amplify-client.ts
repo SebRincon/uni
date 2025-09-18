@@ -3,7 +3,9 @@ import type { Schema } from '../../amplify/data/resource';
 
 // Don't create client on import, create it when needed
 export function getClient() {
-  return generateClient<Schema>();
+  return generateClient<Schema>({
+    authMode: 'userPool' // Use Cognito authentication for mutations
+  });
 }
 
 // For backward compatibility, create a getter
