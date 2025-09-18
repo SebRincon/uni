@@ -9,7 +9,7 @@ type Message = any; // Models['Message']['type'];
 type Notification = any; // Models['Notification']['type'];
 
 // Selection sets for complex queries
-const userSelectionSet = ['id', 'username', 'name', 'description', 'location', 
+const userSelectionSet = ['username', 'name', 'description', 'location', 
   'website', 'photoUrl', 'headerUrl', 'isPremium', 'createdAt', 'updatedAt'] as const;
 
 const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 
@@ -31,11 +31,11 @@ export async function getUser(username: string) {
     
     // Get followers and following counts
     const { data: followers } = await client.models.UserFollows.list({
-      filter: { followingId: { eq: user.id } }
+      filter: { followingId: { eq: user.username } }
     });
     
     const { data: following } = await client.models.UserFollows.list({
-      filter: { followerId: { eq: user.id } }
+      filter: { followerId: { eq: user.username } }
     });
     
     return {
@@ -53,7 +53,7 @@ export async function getUserExists(username: string) {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
-      selectionSet: ['id']
+      selectionSet: ['username']
     });
     
     return { exists: users && users.length > 0 };
@@ -89,14 +89,14 @@ export async function getTweets(username: string) {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
-      selectionSet: ['id']
+      selectionSet: ['username']
     });
     
     if (!users || users.length === 0) {
       return [];
     }
     
-    const userId = users[0].id;
+    const userId = users[0].username;
     
     const { data: tweets } = await client.models.Tweet.list({
       filter: {
@@ -113,7 +113,7 @@ export async function getTweets(username: string) {
     const tweetsWithAuthors = await Promise.all(
       (tweets || []).map(async (tweet) => {
         const { data: author } = await client.models.User.get(
-          { id: tweet.authorId },
+          { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
         return { ...tweet, author };
@@ -130,7 +130,7 @@ export async function getTweets(username: string) {
 export async function getTweet(username: string, tweetId: string) {
   try {
     const { data: tweet } = await client.models.Tweet.get(
-      { id: tweetId },
+      { username: tweetId },
       { selectionSet: tweetSelectionSet }
     );
     
@@ -140,7 +140,7 @@ export async function getTweet(username: string, tweetId: string) {
     
     // Get author details
     const { data: author } = await client.models.User.get(
-      { id: tweet.authorId },
+      { username: tweet.authorId },
       { selectionSet: userSelectionSet }
     );
     
@@ -178,14 +178,14 @@ export async function getUserLikes(username: string) {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
-      selectionSet: ['id']
+      selectionSet: ['username']
     });
     
     if (!users || users.length === 0) {
       return [];
     }
     
-    const userId = users[0].id;
+    const userId = users[0].username;
     
     // Get user's liked tweet IDs
     const { data: userLikes } = await client.models.UserLikes.list({
@@ -201,13 +201,13 @@ export async function getUserLikes(username: string) {
     const likedTweets = await Promise.all(
       userLikes.map(async (like) => {
         const { data: tweet } = await client.models.Tweet.get(
-          { id: like.tweetId },
+          { username: like.tweetId },
           { selectionSet: tweetSelectionSet }
         );
         
         if (tweet) {
           const { data: author } = await client.models.User.get(
-            { id: tweet.authorId },
+            { username: tweet.authorId },
             { selectionSet: userSelectionSet }
           );
           return { ...tweet, author, likedAt: like.createdAt };
@@ -227,14 +227,14 @@ export async function getUserMedia(username: string) {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
-      selectionSet: ['id']
+      selectionSet: ['username']
     });
     
     if (!users || users.length === 0) {
       return [];
     }
     
-    const userId = users[0].id;
+    const userId = users[0].username;
     
     const { data: tweets } = await client.models.Tweet.list({
       filter: {
@@ -251,7 +251,7 @@ export async function getUserMedia(username: string) {
     const tweetsWithAuthors = await Promise.all(
       (tweets || []).map(async (tweet) => {
         const { data: author } = await client.models.User.get(
-          { id: tweet.authorId },
+          { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
         return { ...tweet, author };
@@ -269,14 +269,14 @@ export async function getUserReplies(username: string) {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
-      selectionSet: ['id']
+      selectionSet: ['username']
     });
     
     if (!users || users.length === 0) {
       return [];
     }
     
-    const userId = users[0].id;
+    const userId = users[0].username;
     
     const { data: tweets } = await client.models.Tweet.list({
       filter: {
@@ -293,19 +293,19 @@ export async function getUserReplies(username: string) {
     const tweetsWithDetails = await Promise.all(
       (tweets || []).map(async (tweet) => {
         const { data: author } = await client.models.User.get(
-          { id: tweet.authorId },
+          { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
         
         let repliedTo = null;
         if (tweet.repliedToId) {
           const { data: parentTweet } = await client.models.Tweet.get(
-            { id: tweet.repliedToId },
+            { username: tweet.repliedToId },
             { selectionSet: tweetSelectionSet }
           );
           if (parentTweet) {
             const { data: parentAuthor } = await client.models.User.get(
-              { id: parentTweet.authorId },
+              { username: parentTweet.authorId },
               { selectionSet: userSelectionSet }
             );
             repliedTo = { ...parentTweet, author: parentAuthor };
@@ -336,7 +336,7 @@ export async function getAllTweets(limit: number = 50) {
     const tweetsWithAuthors = await Promise.all(
       (tweets || []).map(async (tweet) => {
         const { data: author } = await client.models.User.get(
-          { id: tweet.authorId },
+          { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
         
@@ -366,7 +366,7 @@ export async function getRelatedTweets(tweetId: string) {
   try {
     // Get the original tweet
     const { data: originalTweet } = await client.models.Tweet.get(
-      { id: tweetId },
+      { username: tweetId },
       { selectionSet: tweetSelectionSet }
     );
     
@@ -392,7 +392,7 @@ export async function getRelatedTweets(tweetId: string) {
     const tweetsWithAuthors = await Promise.all(
       (authorTweets || []).map(async (tweet) => {
         const { data: author } = await client.models.User.get(
-          { id: tweet.authorId },
+          { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
         return { ...tweet, author };
@@ -435,7 +435,7 @@ export async function search(query: string) {
     const tweetsWithAuthors = await Promise.all(
       (tweets || []).map(async (tweet) => {
         const { data: author } = await client.models.User.get(
-          { id: tweet.authorId },
+          { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
         return { ...tweet, author };
@@ -457,14 +457,14 @@ export async function getMessages(username: string) {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
-      selectionSet: ['id']
+      selectionSet: ['username']
     });
     
     if (!users || users.length === 0) {
       return [];
     }
     
-    const userId = users[0].id;
+    const userId = users[0].username;
     
     // Get messages where user is sender or recipient
     const [sent, received] = await Promise.all([
@@ -488,7 +488,7 @@ export async function getMessages(username: string) {
       
       if (!conversations.has(otherUserId)) {
         const { data: otherUser } = await client.models.User.get(
-          { id: otherUserId },
+          { username: otherUserId },
           { selectionSet: userSelectionSet }
         );
         
