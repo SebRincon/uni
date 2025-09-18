@@ -40,6 +40,7 @@ export async function getUser(username: string) {
     
     return {
       ...user,
+      id: user.username, // Add id field for compatibility
       followers: followers || [],
       following: following || []
     };
@@ -77,7 +78,10 @@ export async function getRandomUsers(limit: number = 5) {
     
     // Shuffle and take first 'limit' users
     const shuffled = [...allUsers].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, limit);
+    return shuffled.slice(0, limit).map(user => ({
+      ...user,
+      id: user.username // Add id field for compatibility
+    }));
   } catch (error) {
     console.error('Error fetching random users:', error);
     return [];
@@ -116,7 +120,7 @@ export async function getTweets(username: string) {
           { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
-        return { ...tweet, author };
+        return { ...tweet, author: { ...author, id: author?.username } };
       })
     );
     
@@ -210,7 +214,7 @@ export async function getUserLikes(username: string) {
             { username: tweet.authorId },
             { selectionSet: userSelectionSet }
           );
-          return { ...tweet, author, likedAt: like.createdAt };
+          return { ...tweet, author: { ...author, id: author?.username }, likedAt: like.createdAt };
         }
         return null;
       })
@@ -254,7 +258,7 @@ export async function getUserMedia(username: string) {
           { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
-        return { ...tweet, author };
+        return { ...tweet, author: { ...author, id: author?.username } };
       })
     );
     
@@ -312,7 +316,7 @@ export async function getUserReplies(username: string) {
           }
         }
         
-        return { ...tweet, author, repliedTo };
+        return { ...tweet, author: { ...author, id: author?.username }, repliedTo };
       })
     );
     
@@ -395,7 +399,7 @@ export async function getRelatedTweets(tweetId: string) {
           { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
-        return { ...tweet, author };
+        return { ...tweet, author: { ...author, id: author?.username } };
       })
     );
     
@@ -438,7 +442,7 @@ export async function search(query: string) {
           { username: tweet.authorId },
           { selectionSet: userSelectionSet }
         );
-        return { ...tweet, author };
+        return { ...tweet, author: { ...author, id: author?.username } };
       })
     );
     
@@ -493,7 +497,7 @@ export async function getMessages(username: string) {
         );
         
         conversations.set(otherUserId, {
-          user: otherUser,
+          user: { ...otherUser, id: otherUser?.username },
           messages: []
         });
       }
