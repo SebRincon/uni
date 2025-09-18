@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Tooltip } from "@mui/material";
 import { FaArrowRight } from "react-icons/fa";
 import Image from "next/image";
 import Link from "next/link";
+import { getCurrentUser } from "aws-amplify/auth";
 
 import SignUpDialog from "@/components/dialog/SignUpDialog";
 import LogInDialog from "@/components/dialog/LogInDialog";
@@ -18,9 +19,25 @@ export default function RootPage() {
     const [isSignUpOpen, setIsSignUpOpen] = useState(false);
     const [isLogInOpen, setIsLogInOpen] = useState(false);
     const [isLoggingAsTest, setIsLoggingAsTest] = useState(false);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const [snackbar, setSnackbar] = useState<SnackbarProps>({ message: "", severity: "success", open: false });
 
     const router = useRouter();
+
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            try {
+                await getCurrentUser();
+                // User is authenticated, redirect to home
+                router.push("/home");
+            } catch (error) {
+                // User is not authenticated, stay on this page
+                setIsCheckingAuth(false);
+            }
+        };
+
+        checkAuthStatus();
+    }, [router]);
 
     const handleSignUpClick = () => {
         setIsSignUpOpen(true);
@@ -39,7 +56,7 @@ export default function RootPage() {
         setSnackbar({ message: "Test login is not supported with Amplify Auth. Please create an account.", severity: "info", open: true });
     };
 
-    if (isLoggingAsTest) return <GlobalLoading />;
+    if (isLoggingAsTest || isCheckingAuth) return <GlobalLoading />;
 
     return (
         <>
