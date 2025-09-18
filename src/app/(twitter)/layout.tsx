@@ -12,6 +12,13 @@ const AuthContext = createContext<AuthProps>({ token: null, isPending: true, ref
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
     const auth = useAuth();
+    
+    // Debug auth state
+    console.log('🏠 HomeLayout Auth State:', {
+        token: auth.token,
+        isPending: auth.isPending,
+        hasToken: !!auth.token
+    });
 
     return (
         <AuthContext.Provider value={auth}>

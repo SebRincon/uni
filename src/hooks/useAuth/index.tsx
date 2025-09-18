@@ -13,17 +13,23 @@ export default function useAuth(): AuthProps {
   const getVerifiedToken = async () => {
     setIsPending(true);
     try {
+      console.log('🔍 Getting current user...');
       const user = await getCurrentUser();
+      console.log('✅ Current user:', user);
+      
       const attributes = await fetchUserAttributes();
+      console.log('✅ User attributes:', attributes);
       
       // Get the username from attributes
       const username = attributes.preferred_username || user.username;
+      console.log('📝 Username:', username);
       
       // Add retry logic for database operations
       let retries = 3;
       while (retries > 0) {
         try {
           // Try to find the user in our database
+          console.log('🔍 Looking for user in database...');
           const { data: users } = await client.models.User.list({
             filter: {
               username: {
@@ -31,11 +37,13 @@ export default function useAuth(): AuthProps {
               }
             }
           });
+          console.log('📊 Database response:', users);
           
           if (users && users.length > 0) {
             const dbUser = users[0];
+            console.log('✅ Found user in database:', dbUser);
             const userProfile: UserProps = {
-              id: (dbUser as any).id,
+              id: (dbUser as any).username, // username is the primary key in Amplify
               username: (dbUser as any).username,
               name: (dbUser as any).name || '',
               description: (dbUser as any).description || '',
@@ -50,19 +58,22 @@ export default function useAuth(): AuthProps {
               createdAt: new Date((dbUser as any).createdAt || Date.now()),
               updatedAt: new Date((dbUser as any).updatedAt || Date.now()),
             };
+            console.log('👤 Setting user profile:', userProfile);
             setToken(userProfile);
             return; // Success, exit the function
           } else {
             // If user doesn't exist in DB, create them
+            console.log('❌ User not found in database, creating new user...');
             const { data: newUser } = await client.models.User.create({
               username: username,
               name: attributes.name || username,
               isPremium: false,
             });
+            console.log('✅ Created new user:', newUser);
             
             if (newUser) {
               const userProfile: UserProps = {
-                id: (newUser as any).id,
+                id: (newUser as any).username, // username is the primary key in Amplify
                 username: (newUser as any).username,
                 name: (newUser as any).name || '',
                 description: (newUser as any).description || '',
@@ -76,6 +87,7 @@ export default function useAuth(): AuthProps {
                 createdAt: new Date((newUser as any).createdAt || Date.now()),
                 updatedAt: new Date((newUser as any).updatedAt || Date.now()),
               };
+              console.log('👤 Setting new user profile:', userProfile);
               setToken(userProfile);
               return; // Success, exit the function
             }
