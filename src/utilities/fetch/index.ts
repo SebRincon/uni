@@ -40,6 +40,8 @@ export { getMessages as getUserMessages } from './amplify-fetch';
 export { markNotificationAsRead as markNotificationsRead } from '../mutations/amplify-mutations';
 export { getRandomUsers as getRandomThreeUsers } from './amplify-fetch';
 export { getUserExists as checkUserExists } from './amplify-fetch';
+export { getUserReplies as getReplies } from './amplify-fetch';
+export { updateUser as editUser } from '../mutations/amplify-mutations';
 
 // Helper functions that were used in components
 export async function retweetTweet(userId: string, tweetId: string) {
@@ -91,4 +93,25 @@ export async function deleteConversation(conversationId: string) {
   // In the new model, we would need to delete all messages in a conversation
   // This is a placeholder - implement based on your conversation model
   return deleteMessage(conversationId);
+}
+
+// Missing functions for backward compatibility
+export async function createReply(userId: string, data: { text: string; photoFile?: File; repliedToId: string }) {
+  return createTweet(userId, data.text, data.photoFile, data.repliedToId);
+}
+
+export async function updateRetweets(userId: string, tweetId: string, action: 'retweet' | 'unretweet') {
+  if (action === 'retweet') {
+    return retweet(userId, tweetId);
+  } else {
+    return unretweet(userId, tweetId);
+  }
+}
+
+export async function updateUserFollows(followerId: string, followingId: string, action: 'follow' | 'unfollow') {
+  if (action === 'follow') {
+    return followUser(followerId, followingId);
+  } else {
+    return unfollowUser(followerId, followingId);
+  }
 }
