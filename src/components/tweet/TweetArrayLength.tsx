@@ -8,5 +8,5 @@ export default function TweetArrayLength({ username }: { username: string }) {
         queryFn: () => getUserTweets(username),
     });
 
-    return <span className="text-muted">{isFetched ? data.tweets?.length : "0"} Tweets</span>;
+    return <span className="text-muted">{isFetched ? data?.length || 0 : "0"} Tweets</span>;
 }

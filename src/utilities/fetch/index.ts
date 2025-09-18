@@ -24,8 +24,6 @@ export {
   deleteTweet,
   likeTweet,
   unlikeTweet,
-  retweet,
-  unretweet,
   createMessage,
   deleteMessage,
   createNotification,
@@ -42,6 +40,24 @@ export { getRandomUsers as getRandomThreeUsers } from './amplify-fetch';
 export { getUserExists as checkUserExists } from './amplify-fetch';
 export { getUserReplies as getReplies } from './amplify-fetch';
 export { updateUser as editUser } from '../mutations/amplify-mutations';
+
+// Import fetch functions for use in helper functions
+import { getNotifications } from './amplify-fetch';
+
+// Import mutation functions for use in helper functions
+import { 
+  retweet, 
+  unretweet, 
+  likeTweet, 
+  unlikeTweet,
+  createTweet,
+  followUser,
+  unfollowUser,
+  deleteMessage
+} from '../mutations/amplify-mutations';
+
+// Also export them
+export { retweet, unretweet } from '../mutations/amplify-mutations';
 
 // Helper functions that were used in components
 export async function retweetTweet(userId: string, tweetId: string) {

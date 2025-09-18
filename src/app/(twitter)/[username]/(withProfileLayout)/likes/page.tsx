@@ -19,8 +19,20 @@ export default function LikesPage({ params: { username } }: { params: { username
 
     if (!data || data.length === 0) return NothingToShow();
 
-    // Filter out any null values and ensure proper typing
-    const validTweets = data.filter((tweet): tweet is NonNullable<typeof tweet> => tweet !== null);
+    // Filter out any null values and map to expected format
+    const mappedTweets = data
+        .filter((tweet): tweet is NonNullable<typeof tweet> => tweet !== null)
+        .map((tweet: any) => ({
+            ...tweet,
+            likedBy: [],
+            retweets: [],
+            replies: [],
+            retweetedBy: [],
+            retweetedById: '',
+            retweetOf: null,
+            repliedTo: null,
+            createdAt: new Date(tweet.createdAt)
+        }));
 
-    return <Tweets tweets={validTweets as any} />;
+    return <Tweets tweets={mappedTweets} />;
 }

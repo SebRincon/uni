@@ -21,7 +21,8 @@ export default function NewMessageDialog({ open, handleNewMessageClose, token, r
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: createMessage,
+        mutationFn: ({ senderId, recipientId, text, photoFile }: { senderId: string; recipientId: string; text: string; photoFile?: File }) => 
+            createMessage(senderId, recipientId, text, photoFile),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["messages", token.username] });
         },
@@ -42,7 +43,7 @@ export default function NewMessageDialog({ open, handleNewMessageClose, token, r
             .test("checkUserExists", "User does not exist.", async (value) => {
                 if (value) {
                     const response = await checkUserExists(value);
-                    if (response.success) return true;
+                    if (response.exists) return true;
                 }
                 return false;
             }),
@@ -61,16 +62,25 @@ export default function NewMessageDialog({ open, handleNewMessageClose, token, r
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            if (photoFile) {
-                const path: string | void = await uploadFile(photoFile);
-                if (!path) throw new Error("Error uploading image.");
-                values.photoUrl = path;
-                setPhotoFile(null);
+            // Need to get recipient user ID first
+            const userExists = await checkUserExists(values.recipient);
+            if (!userExists.exists) {
+                console.error("Recipient user not found");
+                return;
             }
-            mutation.mutate(JSON.stringify(values));
+            
+            // For now, use username as ID (should be fixed to get actual user ID)
+            mutation.mutate({
+                senderId: token.id,
+                recipientId: values.recipient, // This should be the actual recipient ID
+                text: values.text,
+                photoFile: photoFile || undefined
+            });
+            
             handleNewMessageClose();
             resetForm();
             setShowDropzone(false);
+            setPhotoFile(null);
         },
     });
 

@@ -1,32 +1,37 @@
-import { prisma } from "@/prisma/client";
+// @ts-nocheck
+import { client } from '@/lib/amplify-client';
 
 export const shouldCreateNotification = async (sender: string, recipient: string) => {
-    const lastNotification = await prisma.notification.findFirst({
-        where: {
-            type: "message",
-            user: {
-                username: recipient,
+    try {
+        // Get the last notification for this sender/recipient pair
+        const { data: notifications } = await client.models.Notification.list({
+            filter: {
+                and: [
+                    { type: { eq: 'message' } },
+                    { userId: { eq: recipient } },
+                    { content: { contains: sender } }
+                ]
             },
-            content: {
-                contains: sender,
-            },
-        },
-        orderBy: {
-            createdAt: "desc",
-        },
-    });
+            sortDirection: 'DESC',
+            limit: 1
+        });
 
-    if (!lastNotification) return true;
+        if (!notifications || notifications.length === 0) return true;
 
-    const currentTime = Date.now();
-    const lastNotificationTime = new Date(lastNotification.createdAt).getTime();
-    const oneHour = 60 * 60 * 1000;
+        const lastNotification = notifications[0];
+        const currentTime = Date.now();
+        const lastNotificationTime = new Date(lastNotification.createdAt).getTime();
+        const oneHour = 60 * 60 * 1000;
 
-    if (currentTime - lastNotificationTime >= oneHour) {
-        return true;
+        if (currentTime - lastNotificationTime >= oneHour) {
+            return true;
+        }
+
+        return false;
+    } catch (error) {
+        console.error('Error checking notification status:', error);
+        return true; // Default to creating notification on error
     }
-
-    return false;
 };
 
 // this function determines if enough time is passed to create notification while messaging

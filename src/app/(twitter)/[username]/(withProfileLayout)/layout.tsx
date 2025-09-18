@@ -21,11 +21,11 @@ export default function ProfileLayout({
 
     if (isLoading) return <CircularLoading />;
 
-    if (isFetched && (!data || !data.user)) return NotFound();
+    if (isFetched && !data) return NotFound();
 
     return (
         <div className="profile-layout">
-            {isFetched && data && <Profile profile={data.user} />}
+            {isFetched && data && <Profile profile={data} />}
             {children}
         </div>
     );

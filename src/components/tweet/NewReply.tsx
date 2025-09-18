@@ -28,7 +28,8 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
     const queryKey = ["tweets", tweet.author.username, tweet.id];
 
     const mutation = useMutation({
-        mutationFn: (reply: string) => createReply(reply, tweet.author.username, tweet.id),
+        mutationFn: (data: { text: string; photoFile?: File }) => 
+            createReply(token.id, { ...data, repliedToId: tweet.id }),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKey });
         },
@@ -60,9 +61,11 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
                 values.photoUrl = path;
                 setPhotoFile(null);
             }
-            mutation.mutate(JSON.stringify(values));
+            mutation.mutate({ text: values.text, photoFile: photoFile || undefined });
             resetForm();
             setShowDropzone(false);
+            setShowPicker(false);
+            setCount(0);
         },
     });
 

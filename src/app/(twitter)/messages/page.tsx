@@ -39,7 +39,7 @@ export default function MessagesPage() {
 
     if (isPending || !token || isLoading) return <CircularLoading />;
 
-    const conversations = data.formattedConversations;
+    const conversations = data || [];
 
     return (
         <main className="messages-page">
@@ -63,11 +63,15 @@ export default function MessagesPage() {
                     </h1>
                     {isFetched && !(conversations.length > 0) && <NothingToShow />}
                     <div>
-                        {conversations.map((conversation: ConversationResponse) => {
+                        {conversations.map((conversation: any) => {
                             return (
                                 <Conversation
-                                    key={conversation.participants.join("+")}
-                                    conversation={conversation}
+                                    key={conversation.user?.id || Math.random()}
+                                    conversation={{
+                                        participants: [token.username, conversation.user?.username || ''],
+                                        messages: conversation.messages,
+                                        user: conversation.user
+                                    } as any}
                                     token={token}
                                     handleConversations={handleConversations}
                                 />

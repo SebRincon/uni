@@ -4,7 +4,7 @@ import { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 import Tweets from "@/components/tweet/Tweets";
-import { getRelatedTweets } from "@/utilities/fetch";
+import { getAllTweets } from "@/utilities/fetch";
 import CircularLoading from "@/components/misc/CircularLoading";
 import NothingToShow from "@/components/misc/NothingToShow";
 import NewTweet from "@/components/tweet/NewTweet";
@@ -15,7 +15,7 @@ export default function HomePage() {
 
     const { isLoading, data } = useQuery({
         queryKey: ["tweets", "home"],
-        queryFn: () => getRelatedTweets(),
+        queryFn: () => getAllTweets(),
     });
 
     if (isPending || isLoading) return <CircularLoading />;
@@ -24,8 +24,24 @@ export default function HomePage() {
         <main>
             <h1 className="page-name">Home</h1>
             {token && <NewTweet token={token} />}
-            {data && data.tweets.length === 0 && <NothingToShow />}
-            <Tweets tweets={data.tweets} />
+            {data && data.length === 0 && <NothingToShow />}
+            {
+                // Map the data to the expected format
+                (() => {
+                    const mappedTweets = (data || []).map((tweet: any) => ({
+                        ...tweet,
+                        likedBy: [],
+                        retweets: [],
+                        replies: [],
+                        retweetedBy: [],
+                        retweetedById: '',
+                        retweetOf: null,
+                        repliedTo: null,
+                        createdAt: new Date(tweet.createdAt)
+                    }));
+                    return <Tweets tweets={mappedTweets} />;
+                })()
+            }
         </main>
     );
 }

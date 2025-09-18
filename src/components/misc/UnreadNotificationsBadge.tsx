@@ -1,14 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
+import { useContext } from "react";
 
 import { getNotifications } from "@/utilities/fetch";
 import { NotificationProps } from "@/types/NotificationProps";
+import { AuthContext } from "@/app/(twitter)/layout";
 
 export default function UnreadNotificationsBadge() {
-    const { data } = useQuery(["notifications"], getNotifications);
+    const { token } = useContext(AuthContext);
+    
+    const { data } = useQuery({
+        queryKey: ["notifications", token?.id],
+        queryFn: () => token ? getNotifications(token.id) : [],
+        enabled: !!token,
+    });
 
     const lengthOfUnreadNotifications =
-        data?.notifications?.filter((notification: NotificationProps) => !notification.isRead)?.length ?? 0;
+        data?.filter((notification: any) => !notification.isRead)?.length ?? 0;
 
     const animationVariants = {
         initial: { opacity: 0, scale: 0 },

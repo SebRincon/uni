@@ -35,14 +35,8 @@ export default function RootPage() {
         setIsLogInOpen(false);
     };
     const handleTestLogin = async () => {
-        setIsLoggingAsTest(true);
-        const response = await logInAsTest();
-        if (!response.success) {
-            setIsLoggingAsTest(false);
-            setSnackbar({ message: "Something went wrong! Please try again.", severity: "error", open: true });
-            return;
-        }
-        router.push("/explore");
+        setIsLoggingAsTest(false);
+        setSnackbar({ message: "Test login is not supported with Amplify Auth. Please create an account.", severity: "info", open: true });
     };
 
     if (isLoggingAsTest) return <GlobalLoading />;

@@ -16,8 +16,9 @@ export default function NotificationsPage() {
     const queryClient = useQueryClient();
 
     const { isLoading, data, isFetched } = useQuery({
-        queryKey: ["notifications"],
-        queryFn: getNotifications,
+        queryKey: ["notifications", token?.id],
+        queryFn: () => token ? getNotifications(token.id) : [],
+        enabled: !!token,
     });
 
     const mutation = useMutation({
@@ -29,11 +30,17 @@ export default function NotificationsPage() {
     });
 
     const handleNotificationsRead = () => {
-        mutation.mutate();
+        // Mark all unread notifications as read
+        if (data) {
+            const unreadNotifications = data.filter((n: any) => !n.isRead);
+            unreadNotifications.forEach((notification: any) => {
+                mutation.mutate(notification.id);
+            });
+        }
     };
 
     useEffect(() => {
-        if (isFetched && data.notifications.filter((notification: NotificationProps) => !notification.isRead).length > 0) {
+        if (isFetched && data && data.filter((notification: any) => !notification.isRead).length > 0) {
             const countdownForMarkAsRead = setTimeout(() => {
                 handleNotificationsRead();
             }, 1000);
@@ -46,16 +53,30 @@ export default function NotificationsPage() {
 
     if (isPending || !token || isLoading) return <CircularLoading />;
 
+    const notifications = data || [];
+
     return (
         <main>
             <h1 className="page-name">Notifications</h1>
-            {isFetched && data.notifications.length === 0 ? (
+            {isFetched && notifications.length === 0 ? (
                 <NothingToShow />
             ) : (
                 <div className="notifications-wrapper">
-                    {data.notifications.map((notification: NotificationProps) => (
-                        <Notification key={notification.id} notification={notification} token={token} />
-                    ))}
+                    {notifications.map((notification: any) => {
+                        // Map notification to expected format
+                        const mappedNotification = {
+                            ...notification,
+                            recipient: token.username,
+                            secret: '',
+                            user: token,
+                            notificationContent: {
+                                user: null,
+                                tweet: null
+                            },
+                            createdAt: new Date(notification.createdAt)
+                        };
+                        return <Notification key={notification.id} notification={mappedNotification} token={token} />;
+                    })}
                 </div>
             )}
         </main>

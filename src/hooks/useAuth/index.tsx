@@ -31,20 +31,20 @@ export default function useAuth(): AuthProps {
       if (users && users.length > 0) {
         const dbUser = users[0];
         const userProfile: UserProps = {
-          id: dbUser.id,
-          username: dbUser.username,
-          name: dbUser.name || '',
-          description: dbUser.description || '',
-          location: dbUser.location || '',
-          website: dbUser.website || '',
-          isPremium: dbUser.isPremium || false,
-          photoUrl: dbUser.photoUrl || '',
-          headerUrl: dbUser.headerUrl || '',
+          id: (dbUser as any).id,
+          username: (dbUser as any).username,
+          name: (dbUser as any).name || '',
+          description: (dbUser as any).description || '',
+          location: (dbUser as any).location || '',
+          website: (dbUser as any).website || '',
+          isPremium: (dbUser as any).isPremium || false,
+          photoUrl: (dbUser as any).photoUrl || '',
+          headerUrl: (dbUser as any).headerUrl || '',
           // These will be fetched separately when needed
           followers: [],
           following: [],
-          createdAt: new Date(dbUser.createdAt),
-          updatedAt: new Date(dbUser.updatedAt),
+          createdAt: new Date((dbUser as any).createdAt || Date.now()),
+          updatedAt: new Date((dbUser as any).updatedAt || Date.now()),
         };
         setToken(userProfile);
       } else {
@@ -57,19 +57,19 @@ export default function useAuth(): AuthProps {
         
         if (newUser) {
           const userProfile: UserProps = {
-            id: newUser.id,
-            username: newUser.username,
-            name: newUser.name || '',
-            description: newUser.description || '',
-            location: newUser.location || '',
-            website: newUser.website || '',
-            isPremium: newUser.isPremium || false,
-            photoUrl: newUser.photoUrl || '',
-            headerUrl: newUser.headerUrl || '',
+            id: (newUser as any).id,
+            username: (newUser as any).username,
+            name: (newUser as any).name || '',
+            description: (newUser as any).description || '',
+            location: (newUser as any).location || '',
+            website: (newUser as any).website || '',
+            isPremium: (newUser as any).isPremium || false,
+            photoUrl: (newUser as any).photoUrl || '',
+            headerUrl: (newUser as any).headerUrl || '',
             followers: [],
             following: [],
-            createdAt: new Date(newUser.createdAt),
-            updatedAt: new Date(newUser.updatedAt),
+            createdAt: new Date((newUser as any).createdAt || Date.now()),
+            updatedAt: new Date((newUser as any).updatedAt || Date.now()),
           };
           setToken(userProfile);
         }
@@ -82,8 +82,8 @@ export default function useAuth(): AuthProps {
     }
   };
 
-  const refreshToken = () => {
-    getVerifiedToken();
+  const refreshToken = async () => {
+    await getVerifiedToken();
   };
 
   useEffect(() => {

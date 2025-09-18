@@ -1,24 +1,18 @@
 {
   "version": "1",
-  "storage": {
-    "aws_region": "us-east-1",
-    "bucket_name": "amplify-twitter-storage"
-  },
   "auth": {
     "aws_region": "us-east-1",
-    "user_pool_id": "us-east-1_PLACEHOLDER",
-    "user_pool_client_id": "PLACEHOLDER_CLIENT_ID",
-    "identity_pool_id": "us-east-1:PLACEHOLDER-GUID",
-    "oauth": {},
-    "standard_required_attributes": ["email"],
-    "username_attributes": ["email"],
-    "user_verification_types": ["email"],
-    "unauthenticated_identities_enabled": true
+    "user_pool_id": "us-east-1_XXXXXXXXX",
+    "user_pool_client_id": "XXXXXXXXXXXXXXXXXXXXXXXXXX",
+    "identity_pool_id": "us-east-1:XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
   },
   "data": {
     "aws_region": "us-east-1",
-    "url": "https://placeholder.appsync-api.us-east-1.amazonaws.com/graphql",
-    "api_key": "da2-PLACEHOLDER",
-    "default_authorization_type": "API_KEY"
+    "graphql_endpoint": "https://XXXXXXXXXXXXXXXXXXXXXXXXXX.appsync-api.us-east-1.amazonaws.com/graphql",
+    "api_key": "da2-XXXXXXXXXXXXXXXXXXXXXXXXXX"
+  },
+  "storage": {
+    "aws_region": "us-east-1",
+    "bucket_name": "amplify-twitter-storage-XXXXXXXXX"
   }
 }

@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { motion } from "framer-motion";
 
-import { TweetOptionsProps, TweetResponse } from "@/types/TweetProps";
+import { TweetOptionsProps } from "@/types/TweetProps";
 import { getUserTweet, updateTweetLikes } from "@/utilities/fetch";
 import { AuthContext } from "@/app/(twitter)/layout";
 import { SnackbarProps } from "@/types/SnackbarProps";
@@ -24,29 +24,39 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
         queryKey: queryKey,
         queryFn: () => getUserTweet(tweetAuthor, tweetId),
     });
+    
+    // Fetch user likes separately to check if current user liked this tweet
+    const { data: userLikes } = useQuery({
+        queryKey: ["userLikes", token?.username, tweetId],
+        queryFn: async () => {
+            if (!token?.username) return [];
+            const { getUserLikes } = await import("@/utilities/fetch");
+            const likes = await getUserLikes(token.username);
+            return likes;
+        },
+        enabled: !!token?.username,
+    });
 
     const likeMutation = useMutation({
         mutationFn: (tokenOwnerId: string) => updateTweetLikes(tokenOwnerId, tweetId, 'like'),
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
-            const previousTweet = queryClient.getQueryData<TweetResponse>(queryKey);
+            const previousData = queryClient.getQueryData<any>(queryKey);
             setIsLiked(true);
-            if (previousTweet) {
+            if (previousData) {
                 queryClient.setQueryData(queryKey, {
-                    ...previousTweet,
-                    tweet: {
-                        ...previousTweet.tweet,
-                        likedBy: [...previousTweet.tweet.likedBy, tokenOwnerId],
-                    },
+                    ...previousData,
+                    likeCount: (previousData.likeCount || 0) + 1,
                 });
             }
-            return { previousTweet };
+            return { previousData };
         },
         onError: (err, variables, context) => {
-            if (context?.previousTweet) {
-                queryClient.setQueryData<TweetResponse>(queryKey, context.previousTweet);
+            if (context?.previousData) {
+                queryClient.setQueryData(queryKey, context.previousData);
             }
+            setIsLiked(false);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKey });
@@ -58,25 +68,21 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
-            const previous = queryClient.getQueryData<TweetResponse>(queryKey);
+            const previousData = queryClient.getQueryData<any>(queryKey);
             setIsLiked(false);
-            if (previous) {
+            if (previousData) {
                 queryClient.setQueryData(queryKey, {
-                    ...previous,
-                    tweet: {
-                        ...previous.tweet,
-                        likedBy: previous.tweet.likedBy.filter(
-                            (user: UserProps) => JSON.stringify(user.id) !== tokenOwnerId
-                        ),
-                    },
+                    ...previousData,
+                    likeCount: Math.max((previousData.likeCount || 0) - 1, 0),
                 });
             }
-            return { previous };
+            return { previousData };
         },
         onError: (err, variables, context) => {
-            if (context?.previous) {
-                queryClient.setQueryData<TweetResponse>(queryKey, context.previous);
+            if (context?.previousData) {
+                queryClient.setQueryData(queryKey, context.previousData);
             }
+            setIsLiked(true);
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: queryKey });
@@ -92,27 +98,24 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
             });
         }
 
-        const tokenOwnerId = JSON.stringify(token.id);
-        const likedBy = data.tweet?.likedBy;
-        const isLikedByTokenOwner = likedBy.some((user: { id: string }) => JSON.stringify(user.id) === tokenOwnerId);
+        const userId = token.id;
+        const isLikedByTokenOwner = isLiked; // Use the state value
 
         if (!likeMutation.isLoading && !unlikeMutation.isLoading) {
             if (isLikedByTokenOwner) {
-                unlikeMutation.mutate(tokenOwnerId);
+                unlikeMutation.mutate(userId);
             } else {
-                likeMutation.mutate(tokenOwnerId);
+                likeMutation.mutate(userId);
             }
         }
     };
 
     useEffect(() => {
-        if (!isPending && isFetched) {
-            const tokenOwnerId = JSON.stringify(token?.id);
-            const likedBy = data?.tweet?.likedBy;
-            const isLikedByTokenOwner = likedBy?.some((user: { id: string }) => JSON.stringify(user.id) === tokenOwnerId);
+        if (!isPending && userLikes) {
+            const isLikedByTokenOwner = userLikes.some((like: any) => like.id === tweetId);
             setIsLiked(isLikedByTokenOwner);
         }
-    }, [isPending, isFetched]);
+    }, [isPending, userLikes, tweetId]);
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -142,7 +145,7 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
                     </motion.span>
                 )}
                 <motion.span animate={{ scale: isLiked ? [0, 1.2, 1] : 0 }} transition={{ duration: 0.25 }} />
-                {data?.tweet?.likedBy?.length === 0 ? null : <span className="count">{data?.tweet?.likedBy?.length}</span>}
+                {data?.likeCount === 0 ? null : <span className="count">{data?.likeCount || 0}</span>}
             </motion.button>
             {snackbar.open && (
                 <CustomSnackbar message={snackbar.message} severity={snackbar.severity} setSnackbar={setSnackbar} />

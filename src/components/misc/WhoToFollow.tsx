@@ -9,7 +9,11 @@ export default function WhoToFollow() {
     const [isEnabled, setIsEnabled] = useState(true);
     const [isOpen, setIsOpen] = useState(true);
 
-    const { data, isFetched } = useQuery(["random"], getRandomThreeUsers, { enabled: isEnabled });
+    const { data, isFetched } = useQuery({
+        queryKey: ["random"],
+        queryFn: () => getRandomThreeUsers(3),
+        enabled: isEnabled,
+    });
 
     const handleClose = () => {
         setIsOpen(false);
@@ -24,7 +28,7 @@ export default function WhoToFollow() {
 
     return (
         <>
-            {isOpen && data && data.users && data.users.length > 0 && (
+            {isOpen && data && data.length > 0 && (
                 <div className="who-to-follow">
                     <h1>
                         Who to follow
@@ -33,16 +37,16 @@ export default function WhoToFollow() {
                         </button>
                     </h1>
                     <div className="user-wrapper">
-                        <User user={data.users[0]} />
+                        <User user={data[0]} />
                     </div>
-                    {data.users.length > 1 && (
+                    {data.length > 1 && (
                         <div className="user-wrapper">
-                            <User user={data.users[1]} />
+                            <User user={data[1]} />
                         </div>
                     )}
-                    {data.users.length > 2 && (
+                    {data.length > 2 && (
                         <div className="user-wrapper">
-                            <User user={data.users[2]} />
+                            <User user={data[2]} />
                         </div>
                     )}
                 </div>

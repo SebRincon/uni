@@ -21,7 +21,8 @@ export default function NewMessageBox({ messagedUsername, token, setFreshMessage
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: createMessage,
+        mutationFn: ({ senderId, recipientId, text, photoFile }: { senderId: string; recipientId: string; text: string; photoFile?: File }) => 
+            createMessage(senderId, recipientId, text, photoFile),
         onMutate: () => {
             const newMessage = {
                 photoUrl: formik.values.photoUrl,
@@ -70,7 +71,14 @@ export default function NewMessageBox({ messagedUsername, token, setFreshMessage
                 values.photoUrl = path;
                 setPhotoFile(null);
             }
-            mutation.mutate(JSON.stringify(values));
+            // Get the actual user IDs - for now using usernames as placeholders
+            // In a real app, we'd need to fetch the actual user IDs
+            mutation.mutate({
+                senderId: token.id || token.username, // Use ID if available, fallback to username
+                recipientId: messagedUsername || token.username,
+                text: values.text,
+                photoFile: photoFile || undefined
+            });
             setShowDropzone(false);
         },
     });

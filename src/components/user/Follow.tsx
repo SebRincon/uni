@@ -19,7 +19,7 @@ export default function Follow({ profile }: { profile: UserProps }) {
     const queryKey = ["users", profile.username];
 
     const followMutation = useMutation({
-        mutationFn: (tokenOwnerId: string) => updateUserFollows(profile.username, tokenOwnerId, false),
+        mutationFn: (tokenOwnerId: string) => updateUserFollows(tokenOwnerId, profile.id, 'follow'),
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
@@ -47,7 +47,7 @@ export default function Follow({ profile }: { profile: UserProps }) {
     });
 
     const unfollowMutation = useMutation({
-        mutationFn: (tokenOwnerId: string) => updateUserFollows(profile.username, tokenOwnerId, true),
+        mutationFn: (tokenOwnerId: string) => updateUserFollows(tokenOwnerId, profile.id, 'unfollow'),
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });

@@ -73,14 +73,28 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                 if (!path) throw new Error("Header upload failed.");
                 values.headerUrl = path;
             }
-            if (photoFile) {
-                const path: string | void = await uploadFile(photoFile);
-                if (!path) throw new Error("Photo upload failed.");
-                values.photoUrl = path;
-            }
-            const jsonValues = JSON.stringify(values);
-            const response = await editUser(jsonValues, profile.username);
-            if (!response.success) {
+            try {
+                // Prepare update object
+                const updates: any = {
+                    name: values.name,
+                    description: values.description,
+                    location: values.location,
+                    website: values.website,
+                };
+                
+                if (headerFile) {
+                    updates.headerUrl = headerFile;
+                }
+                if (photoFile) {
+                    updates.photoUrl = photoFile;
+                }
+                
+                const response = await editUser(profile.id, updates);
+                if (!response) {
+                    throw new Error("Failed to update profile");
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
                 return setSnackbar({
                     message: "Something went wrong while updating profile. Please try again.",
                     severity: "error",
@@ -106,8 +120,13 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
             setIsBlueLoading(false);
             return setSnackbar({ message: "Invalid blue code. Please try again.", severity: "error", open: true });
         }
-        const response = await editUser(JSON.stringify({ isPremium: true }), profile.username);
-        if (!response.success) {
+        try {
+            const response = await editUser(profile.id, { isPremium: true });
+            if (!response) {
+                throw new Error("Failed to update premium status");
+            }
+        } catch (error) {
+            console.error('Error updating premium status:', error);
             setIsBlueLoading(false);
             return setSnackbar({
                 message: "Something went wrong while getting your blue. Please try again.",

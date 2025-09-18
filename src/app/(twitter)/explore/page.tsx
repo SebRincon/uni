@@ -15,23 +15,28 @@ export default function ExplorePage() {
 
     const { data, fetchNextPage, isLoading, hasNextPage } = useInfiniteQuery(
         ["tweets"],
-        async ({ pageParam = 1 }) => getAllTweets(pageParam),
+        async ({ pageParam = 1 }) => getAllTweets(),
         {
-            getNextPageParam: (lastResponse) => {
-                if (lastResponse.nextPage > lastResponse.lastPage) return false;
-                return lastResponse.nextPage;
-            },
+            getNextPageParam: () => undefined, // No pagination support yet
         }
     );
 
-    const tweetsResponse = useMemo(
-        () =>
-            data?.pages.reduce((prev, page) => {
-                return {
-                    nextPage: page.nextPage,
-                    tweets: [...prev.tweets, ...page.tweets],
-                };
-            }),
+    const allTweets = useMemo(
+        () => {
+            const tweets = data?.pages.flat() || [];
+            // Map the data to the expected format
+            return tweets.map((tweet: any) => ({
+                ...tweet,
+                likedBy: [],
+                retweets: [],
+                replies: [],
+                retweetedBy: [],
+                retweetedById: '',
+                retweetOf: null,
+                repliedTo: null,
+                createdAt: new Date(tweet.createdAt)
+            }));
+        },
         [data]
     );
 
@@ -45,12 +50,12 @@ export default function ExplorePage() {
                 <CircularLoading />
             ) : (
                 <InfiniteScroll
-                    dataLength={tweetsResponse ? tweetsResponse.tweets.length : 0}
+                    dataLength={allTweets.length}
                     next={() => fetchNextPage()}
-                    hasMore={!!hasNextPage}
+                    hasMore={false} // No pagination support yet
                     loader={<CircularLoading />}
                 >
-                    <Tweets tweets={tweetsResponse && tweetsResponse.tweets} />
+                    <Tweets tweets={allTweets} />
                 </InfiniteScroll>
             )}
         </main>

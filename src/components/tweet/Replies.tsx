@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { TweetOptionsProps, TweetProps } from "@/types/TweetProps";
-import { getReplies } from "@/utilities/fetch";
+import { getUserTweet } from "@/utilities/fetch";
 import CircularLoading from "../misc/CircularLoading";
 import Tweet from "./Tweet";
 
@@ -10,17 +10,30 @@ export default function Replies({ tweetId, tweetAuthor }: TweetOptionsProps) {
 
     const { isLoading, data } = useQuery({
         queryKey: queryKey,
-        queryFn: () => getReplies(tweetAuthor, tweetId),
+        queryFn: () => getUserTweet(tweetAuthor, tweetId),
     });
 
     if (isLoading) return <CircularLoading />;
 
+    const replies = data?.replies || [];
+
     return (
         <div>
-            {data.tweets &&
-                data.tweets.map((tweet: TweetProps) => {
-                    return <Tweet key={tweet.id} tweet={tweet} />;
-                })}
+            {replies.map((reply: any) => {
+                // Map the reply to the expected format
+                const mappedTweet = {
+                    ...reply,
+                    likedBy: [],
+                    retweets: [],
+                    replies: [],
+                    retweetedBy: [],
+                    retweetedById: '',
+                    retweetOf: null,
+                    repliedTo: null,
+                    createdAt: new Date(reply.createdAt)
+                };
+                return <Tweet key={reply.id} tweet={mappedTweet} />;
+            })}
         </div>
     );
 }

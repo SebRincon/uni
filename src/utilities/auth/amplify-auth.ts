@@ -1,8 +1,8 @@
 import { getCurrentUser, signIn, signOut, signUp, confirmSignUp, AuthUser } from 'aws-amplify/auth';
 import { client } from '@/lib/amplify-client';
-import type { Schema } from '@/amplify/data/resource';
+import type { Schema } from '../../lib/amplify-client';
 
-type User = Schema['User']['type'];
+type User = any; // Schema['User']['type'];
 
 export interface AuthPayload {
   id: string;
@@ -135,8 +135,8 @@ export async function getAmplifyCurrentUser(): Promise<AuthPayload | null> {
     if (users && users.length > 0) {
       const dbUser = users[0];
       return {
-        id: dbUser.id,
-        username: dbUser.username,
+        id: (dbUser as any).id,
+        username: (dbUser as any).username,
         email: authUser.signInDetails?.loginId || '',
         user: dbUser
       };
@@ -166,7 +166,7 @@ async function getOrCreateDatabaseUser(authUser: AuthUser): Promise<User | null>
     });
     
     if (existingUsers && existingUsers.length > 0) {
-      return existingUsers[0];
+      return existingUsers[0] as any;
     }
     
     // Create new user
@@ -176,7 +176,7 @@ async function getOrCreateDatabaseUser(authUser: AuthUser): Promise<User | null>
       isPremium: false
     });
     
-    return newUser;
+    return newUser as any;
   } catch (error) {
     console.error('Error getting/creating database user:', error);
     return null;

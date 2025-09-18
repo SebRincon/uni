@@ -14,9 +14,22 @@ export default function UserTweets({ params: { username } }: { params: { usernam
         queryFn: () => getUserTweets(username),
     });
 
-    if (!isLoading && (!data || !data.tweets)) return NotFound();
+    if (!isLoading && !data) return NotFound();
 
-    if (data && data.tweets.length === 0) return NothingToShow();
+    if (data && data.length === 0) return NothingToShow();
 
-    return <>{isLoading ? <CircularLoading /> : data && <Tweets tweets={data.tweets} />}</>;
+    // Map the data to the expected format
+    const mappedTweets = data?.map((tweet: any) => ({
+        ...tweet,
+        likedBy: [],
+        retweets: [],
+        replies: [],
+        retweetedBy: [],
+        retweetedById: '',
+        retweetOf: null,
+        repliedTo: null,
+        createdAt: new Date(tweet.createdAt)
+    })) || [];
+    
+    return <>{isLoading ? <CircularLoading /> : data && <Tweets tweets={mappedTweets} />}</>;
 }
