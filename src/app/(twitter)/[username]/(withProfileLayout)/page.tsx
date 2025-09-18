@@ -14,9 +14,9 @@ export default function UserTweets({ params: { username } }: { params: { usernam
         queryFn: () => getUserTweets(username),
     });
 
-    if (!isLoading && !data.tweets) return NotFound();
+    if (!isLoading && (!data || !data.tweets)) return NotFound();
 
     if (data && data.tweets.length === 0) return NothingToShow();
 
-    return <>{isLoading ? <CircularLoading /> : <Tweets tweets={data.tweets} />}</>;
+    return <>{isLoading ? <CircularLoading /> : data && <Tweets tweets={data.tweets} />}</>;
 }

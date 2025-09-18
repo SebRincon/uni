@@ -23,14 +23,14 @@ export default function SingleTweetPage({
         queryFn: () => getUserTweet(tweetId, username),
     });
 
-    if (!isLoading && !data.tweet) return NotFound();
+    if (!isLoading && (!data || !data.tweet)) return NotFound();
 
     let backToProps = {
         title: username,
         url: `/${username}`,
     };
 
-    if (isFetched && data.tweet.isReply) {
+    if (isFetched && data && data.tweet && data.tweet.isReply) {
         backToProps = {
             title: "Tweet",
             url: `/${data.tweet.repliedTo.author.username}/tweets/${data.tweet.repliedTo.id}`,
@@ -40,7 +40,7 @@ export default function SingleTweetPage({
     return (
         <div>
             {isFetched && <BackToArrow title={backToProps.title} url={backToProps.url} />}
-            {isLoading || isPending ? <CircularLoading /> : <SingleTweet tweet={data.tweet} token={token} />}
+            {isLoading || isPending ? <CircularLoading /> : data && <SingleTweet tweet={data.tweet} token={token} />}
         </div>
     );
 }

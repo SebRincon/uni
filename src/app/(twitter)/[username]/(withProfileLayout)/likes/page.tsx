@@ -12,11 +12,15 @@ export default function LikesPage({ params: { username } }: { params: { username
     const { isLoading, data } = useQuery({
         queryKey: ["tweets", username, "likes"],
         queryFn: () => getUserLikes(username),
+        initialData: [],
     });
 
-    if (!isLoading && !data.tweets) return NotFound();
+    if (isLoading) return <CircularLoading />;
 
-    if (data && data.tweets.length === 0) return NothingToShow();
+    if (!data || data.length === 0) return NothingToShow();
 
-    return <>{isLoading ? <CircularLoading /> : <Tweets tweets={data.tweets} />}</>;
+    // Filter out any null values and ensure proper typing
+    const validTweets = data.filter((tweet): tweet is NonNullable<typeof tweet> => tweet !== null);
+
+    return <Tweets tweets={validTweets as any} />;
 }

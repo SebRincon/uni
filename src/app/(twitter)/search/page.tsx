@@ -26,7 +26,7 @@ export default function SearchPage() {
         <main>
             <BackToArrow title="Search results" url="/explore" />
             {isFetched && data && (!data.tweets || data.tweets.length === 0) && <NothingToShow />}
-            {isLoading ? <CircularLoading /> : <Tweets tweets={data.tweets} />}
+            {isLoading ? <CircularLoading /> : data && <Tweets tweets={data.tweets} />}
         </main>
     );
 }
