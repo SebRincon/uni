@@ -27,7 +27,12 @@ export default function LeftSidebar() {
 
     const handleLogout = async () => {
         setIsLoggingOut(true);
-        await logout();
+        try {
+            await logout();
+        } catch (error) {
+            // Since logout() now throws an error, we handle it here
+            // The actual logout is handled in LogOutDialog
+        }
         router.push("/");
     };
 
