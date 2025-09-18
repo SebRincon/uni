@@ -82,25 +82,26 @@ export default function useAuth(): AuthProps {
               const newUser = createResult?.data;
               console.log('✅ Created new user:', newUser);
             
-            if (newUser) {
-              const userProfile: UserProps = {
-                id: (newUser as any).username, // username is the primary key in Amplify
-                username: (newUser as any).username,
-                name: (newUser as any).name || '',
-                description: (newUser as any).description || '',
-                location: (newUser as any).location || '',
-                website: (newUser as any).website || '',
-                isPremium: (newUser as any).isPremium || false,
-                photoUrl: (newUser as any).photoUrl || '',
-                headerUrl: (newUser as any).headerUrl || '',
-                followers: [],
-                following: [],
-                createdAt: new Date((newUser as any).createdAt || Date.now()),
-                updatedAt: new Date((newUser as any).updatedAt || Date.now()),
-              };
-              console.log('👤 Setting new user profile:', userProfile);
-              setToken(userProfile);
-              return; // Success, exit the function
+              if (newUser) {
+                const userProfile: UserProps = {
+                  id: (newUser as any).username, // username is the primary key in Amplify
+                  username: (newUser as any).username,
+                  name: (newUser as any).name || '',
+                  description: (newUser as any).description || '',
+                  location: (newUser as any).location || '',
+                  website: (newUser as any).website || '',
+                  isPremium: (newUser as any).isPremium || false,
+                  photoUrl: (newUser as any).photoUrl || '',
+                  headerUrl: (newUser as any).headerUrl || '',
+                  followers: [],
+                  following: [],
+                  createdAt: new Date((newUser as any).createdAt || Date.now()),
+                  updatedAt: new Date((newUser as any).updatedAt || Date.now()),
+                };
+                console.log('👤 Setting new user profile:', userProfile);
+                setToken(userProfile);
+                return; // Success, exit the function
+              }
             } catch (createError) {
               console.error('❌ Error creating user:', createError);
               throw createError;
