@@ -162,7 +162,7 @@ export async function getTweets(username: string) {
 export async function getTweet(username: string, tweetId: string) {
   try {
     const { data: tweet } = await client.models.Tweet.get(
-      { username: tweetId },
+      { id: tweetId },
       { selectionSet: tweetSelectionSet }
     );
     
@@ -176,29 +176,81 @@ export async function getTweet(username: string, tweetId: string) {
       { selectionSet: userSelectionSet }
     );
     
-    // Get likes count
+    // Get likes
     const { data: likes } = await client.models.UserLikes.list({
       filter: { tweetId: { eq: tweetId } }
     });
+
+    // Resolve likedBy users
+    const likedBy = await Promise.all(
+      (likes || []).map(async (like: any) => {
+        const { data: user } = await client.models.User.get(
+          { username: like.userId },
+          { selectionSet: userSelectionSet }
+        );
+        return user ? { ...user, id: user.username } : null;
+      })
+    );
     
-    // Get retweets count
+    // Get retweets
     const { data: retweets } = await client.models.UserRetweets.list({
       filter: { tweetId: { eq: tweetId } }
     });
+
+    // Resolve retweetedBy users
+    const retweetedBy = await Promise.all(
+      (retweets || []).map(async (rt: any) => {
+        const { data: user } = await client.models.User.get(
+          { username: rt.userId },
+          { selectionSet: userSelectionSet }
+        );
+        return user ? { ...user, id: user.username } : null;
+      })
+    );
     
-    // Get replies
+    // Get replies (and hydrate with author and repliedTo.author)
     const { data: replies } = await client.models.Tweet.list({
       filter: { repliedToId: { eq: tweetId } },
       selectionSet: tweetSelectionSet
     });
+
+    const repliesDetailed = await Promise.all(
+      (replies || []).map(async (r: any) => {
+        const { data: rAuthor } = await client.models.User.get(
+          { username: r.authorId },
+          { selectionSet: userSelectionSet }
+        );
+        const repliedTo = {
+          id: tweet.id,
+          author: author ? { ...author, id: author.username } : null,
+        } as any;
+        return {
+          ...r,
+          author: rAuthor ? { ...rAuthor, id: rAuthor.username } : null,
+          repliedTo,
+          likedBy: [],
+          retweetedBy: [],
+          retweets: [],
+          replies: [],
+          createdAt: new Date(r.createdAt),
+        };
+      })
+    );
     
     return {
       ...tweet,
-      author,
+      author: author ? { ...author, id: author.username } : null,
+      createdAt: new Date(tweet.createdAt),
       likeCount: likes?.length || 0,
       retweetCount: retweets?.length || 0,
       replyCount: replies?.length || 0,
-      replies
+      replies: repliesDetailed,
+      likedBy: likedBy.filter(Boolean),
+      retweetedBy: retweetedBy.filter(Boolean),
+      retweets: [],
+      retweetedById: '',
+      retweetOf: null,
+      repliedTo: tweet.isReply ? { id: tweet.repliedToId, author: author ? { ...author, id: author.username } : null } as any : null
     };
   } catch (error) {
     console.error('Error fetching tweet:', error);
@@ -233,7 +285,7 @@ export async function getUserLikes(username: string) {
     const likedTweets = await Promise.all(
       userLikes.map(async (like) => {
         const { data: tweet } = await client.models.Tweet.get(
-          { username: like.tweetId },
+          { id: like.tweetId },
           { selectionSet: tweetSelectionSet }
         );
         
@@ -332,7 +384,7 @@ export async function getUserReplies(username: string) {
         let repliedTo = null;
         if (tweet.repliedToId) {
           const { data: parentTweet } = await client.models.Tweet.get(
-            { username: tweet.repliedToId },
+            { id: tweet.repliedToId },
             { selectionSet: tweetSelectionSet }
           );
           if (parentTweet) {
@@ -397,8 +449,8 @@ export async function getAllTweets(limit: number = 50) {
 export async function getRelatedTweets(tweetId: string) {
   try {
     // Get the original tweet
-    const { data: originalTweet } = await client.models.Tweet.get(
-      { username: tweetId },
+  const { data: originalTweet } = await client.models.Tweet.get(
+      { id: tweetId },
       { selectionSet: tweetSelectionSet }
     );
     

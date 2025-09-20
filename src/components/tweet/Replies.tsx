@@ -15,25 +15,20 @@ export default function Replies({ tweetId, tweetAuthor }: TweetOptionsProps) {
 
     if (isLoading) return <CircularLoading />;
 
-    const replies = data?.replies || [];
+    const replies = (data?.replies || []).map((reply: any) => ({
+        ...reply,
+        likedBy: reply.likedBy || [],
+        retweetedBy: reply.retweetedBy || [],
+        retweets: reply.retweets || [],
+        replies: reply.replies || [],
+        createdAt: new Date(reply.createdAt),
+    }));
 
     return (
         <div>
-            {replies.map((reply: any) => {
-                // Map the reply to the expected format
-                const mappedTweet = {
-                    ...reply,
-                    likedBy: [],
-                    retweets: [],
-                    replies: [],
-                    retweetedBy: [],
-                    retweetedById: '',
-                    retweetOf: null,
-                    repliedTo: null,
-                    createdAt: new Date(reply.createdAt)
-                };
-                return <Tweet key={reply.id} tweet={mappedTweet} />;
-            })}
+            {replies.map((reply: any) => (
+                <Tweet key={reply.id} tweet={reply} />
+            ))}
         </div>
     );
 }
