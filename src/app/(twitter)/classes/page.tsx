@@ -48,7 +48,7 @@ export default function ClassesPage() {
         ) : (
           <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--twitter-muted)'}}>
             <h3>No Courses Found</h3>
-            <p>We couldn't find any courses in Canvas for your account.</p>
+            <p>We couldn&apos;t find any courses in Canvas for your account.</p>
           </div>
         )}
       </div>
