@@ -3,17 +3,19 @@ import { Track } from 'livekit-client';
 import { useMaybeRoomContext } from '@livekit/components-react';
 import {
   MediaDeviceMenu,
-  TrackToggle,
+  TrackToggle as TrackToggleComponent,
   useRoomContext,
   useIsRecording,
   useLocalParticipantPermissions,
   DisconnectButton,
 } from '@livekit/components-react';
+
+const TrackToggle = TrackToggleComponent as any;
 import { BiCog } from 'react-icons/bi';
 import styles from './SettingsMenu.module.css';
 
 export interface SettingsMenuProps {
-  onDeviceError?: (error: MediaDeviceError) => void;
+  onDeviceError?: (error: Error) => void;
 }
 
 export function SettingsMenu({ onDeviceError }: SettingsMenuProps) {
@@ -65,7 +67,7 @@ export function SettingsMenu({ onDeviceError }: SettingsMenuProps) {
                     <TrackToggle source={Track.Source.Camera} showIcon={false}>
                       Camera
                     </TrackToggle>
-                    <MediaDeviceMenu kind="videoinput" onError={onDeviceError} />
+                    <MediaDeviceMenu kind="videoinput" />
                   </div>
 
                   <h3>Microphone</h3>
@@ -73,12 +75,12 @@ export function SettingsMenu({ onDeviceError }: SettingsMenuProps) {
                     <TrackToggle source={Track.Source.Microphone} showIcon={false}>
                       Microphone
                     </TrackToggle>
-                    <MediaDeviceMenu kind="audioinput" onError={onDeviceError} />
+                    <MediaDeviceMenu kind="audioinput" />
                   </div>
 
                   <h3>Speaker</h3>
                   <div className={styles.deviceSection}>
-                    <MediaDeviceMenu kind="audiooutput" onError={onDeviceError} />
+                    <MediaDeviceMenu kind="audiooutput" />
                   </div>
                 </div>
               )}
@@ -98,13 +100,13 @@ export function SettingsMenu({ onDeviceError }: SettingsMenuProps) {
 
 function RecordingSettings() {
   const { localParticipant } = useRoomContext();
-  const { canPublish } = useLocalParticipantPermissions();
+  const permissions = useLocalParticipantPermissions();
   const isRecording = useIsRecording();
 
   const [isStarting, setIsStarting] = React.useState(false);
 
   const handleRecording = async () => {
-    if (!canPublish) {
+    if (!permissions?.canPublish) {
       alert('You do not have permission to manage recordings');
       return;
     }

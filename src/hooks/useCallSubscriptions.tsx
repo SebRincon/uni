@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '@/amplify/data/resource';
+import { type Schema } from '../../amplify/data/resource';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import toast from 'react-hot-toast';
 

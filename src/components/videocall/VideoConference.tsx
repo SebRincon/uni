@@ -2,7 +2,7 @@
 
 import React from 'react';
 import {
-  LiveKitRoom,
+  LiveKitRoom as LiveKitRoomComponent,
   VideoConference as LiveKitVideoConference,
   formatChatMessageLinks,
   LocalUserChoices,
@@ -10,6 +10,8 @@ import {
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { useRouter } from 'next/navigation';
+
+const LiveKitRoom = LiveKitRoomComponent as any;
 
 interface VideoConferenceProps {
   roomName: string;

@@ -5,7 +5,7 @@ import { useCallSubscriptions } from '@/hooks/useCallSubscriptions';
 import { IncomingCallModal } from '@/components/videocall/IncomingCallModal';
 import { VideoCall } from '@/components/videocall/VideoCall';
 import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '@/amplify/data/resource';
+import { type Schema } from '../../amplify/data/resource';
 
 const client = generateClient<Schema>();
 

@@ -124,15 +124,17 @@ export async function getAmplifyCurrentUser(): Promise<AuthPayload | null> {
     const authUser = await getCurrentUser();
     
     // Get the user from our database
-    const { data: users } = await client.models.User.list({
-      filter: {
-        username: {
-          eq: authUser.signInDetails?.loginId || ''
-        }
-      }
-    });
+    const loginId = authUser.signInDetails?.loginId || '';
+    // Use type assertion to avoid complex union type
+    const response = await (client.models.User as any).list();
+    const allUsers = response.data;
     
-    if (users && users.length > 0) {
+    // Filter users in JavaScript
+    const users = allUsers?.filter((user: any) => 
+      user.username === loginId
+    ) || [];
+    
+    if (users.length > 0) {
       const dbUser = users[0];
       return {
         id: (dbUser as any).id,
@@ -157,20 +159,22 @@ async function getOrCreateDatabaseUser(authUser: AuthUser): Promise<User | null>
     const username = authUser.username || email.split('@')[0];
     
     // Try to find existing user
-    const { data: existingUsers } = await client.models.User.list({
-      filter: {
-        username: {
-          eq: username
-        }
-      }
-    });
+    // Use type assertion to avoid complex union type
+    const response = await (client.models.User as any).list();
+    const allUsers = response.data;
     
-    if (existingUsers && existingUsers.length > 0) {
+    // Filter users in JavaScript
+    const existingUsers = allUsers?.filter((user: any) => 
+      user.username === username
+    ) || [];
+    
+    if (existingUsers.length > 0) {
       return existingUsers[0] as any;
     }
     
     // Create new user
-    const { data: newUser } = await client.models.User.create({
+    // Use type assertion to avoid complex union type
+    const { data: newUser } = await (client.models.User as any).create({
       username,
       name: username,
       isPremium: false
@@ -188,15 +192,16 @@ async function getOrCreateDatabaseUser(authUser: AuthUser): Promise<User | null>
  */
 export async function checkUsernameAvailability(username: string): Promise<boolean> {
   try {
-    const { data: users } = await client.models.User.list({
-      filter: {
-        username: {
-          eq: username
-        }
-      }
-    });
+    // Use type assertion to avoid complex union type
+    const response = await (client.models.User as any).list();
+    const allUsers = response.data;
     
-    return !users || users.length === 0;
+    // Filter users in JavaScript
+    const users = allUsers?.filter((user: any) => 
+      user.username === username
+    ) || [];
+    
+    return users.length === 0;
   } catch (error) {
     console.error('Error checking username availability:', error);
     return false;

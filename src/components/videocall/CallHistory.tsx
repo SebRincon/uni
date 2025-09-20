@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '@/amplify/data/resource';
+import { type Schema } from '../../../amplify/data/resource';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import { Avatar } from '@mui/material';
 import { BiPhone, BiVideo, BiPhoneIncoming, BiPhoneOff } from 'react-icons/bi';
@@ -11,6 +11,20 @@ import { useStorageUrl } from '@/hooks/useStorageUrl';
 import styles from './CallHistory.module.css';
 
 const client = generateClient<Schema>();
+
+const formatDuration = (ms: number) => {
+  const seconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+
+  if (hours > 0) {
+    return `${hours}h ${minutes % 60}m`;
+  } else if (minutes > 0) {
+    return `${minutes}m ${seconds % 60}s`;
+  } else {
+    return `${seconds}s`;
+  }
+};
 
 interface CallHistoryItem {
   id: string;
@@ -95,15 +109,15 @@ export function CallHistory() {
           timestamp: call.createdAt,
           otherParticipant: {
             username: otherUser?.username || otherParticipants[0].userId,
-            name: otherUser?.name,
-            photoUrl: otherUser?.photoUrl,
+            name: otherUser?.name ?? undefined,
+            photoUrl: otherUser?.photoUrl ?? undefined,
           },
           isIncoming: call.initiatorId !== userId,
         };
       });
 
       const callHistory = (await Promise.all(callPromises))
-        .filter((call): call is CallHistoryItem => call !== null)
+        .filter((call) => call !== null)
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
       setCalls(callHistory);
@@ -111,20 +125,6 @@ export function CallHistory() {
     } catch (error) {
       console.error('Error loading call history:', error);
       setLoading(false);
-    }
-  };
-
-  const formatDuration = (ms: number) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-
-    if (hours > 0) {
-      return `${hours}h ${minutes % 60}m`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${seconds % 60}s`;
-    } else {
-      return `${seconds}s`;
     }
   };
 
@@ -191,7 +191,7 @@ function CallHistoryItemComponent({ call }: { call: CallHistoryItem }) {
             {call.status === 'missed' && <span className={styles.status}>Missed</span>}
             {call.status === 'declined' && <span className={styles.status}>Declined</span>}
           </span>
-          <span className={styles.timestamp}>{formatDate(call.timestamp)}</span>
+          <span className={styles.timestamp}>{formatDate(new Date(call.timestamp))}</span>
         </div>
       </div>
     </div>
