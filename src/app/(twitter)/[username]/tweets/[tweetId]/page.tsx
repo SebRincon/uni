@@ -20,7 +20,7 @@ export default function SingleTweetPage({
     const { token, isPending } = useContext(AuthContext);
     const { isLoading, data, isFetched } = useQuery({
         queryKey: queryKey,
-        queryFn: () => getUserTweet(tweetId, username),
+        queryFn: () => getUserTweet(username, tweetId),
     });
 
     if (!isLoading && !data) return NotFound();

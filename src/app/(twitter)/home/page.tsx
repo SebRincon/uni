@@ -35,8 +35,9 @@ export default function HomePage() {
                         replies: [],
                         retweetedBy: [],
                         retweetedById: '',
-                        retweetOf: null,
-                        repliedTo: null,
+                        // Preserve retweetOf if backend provided it
+                        retweetOf: tweet.retweetOf || null,
+                        repliedTo: tweet.repliedTo || null,
                         createdAt: new Date(tweet.createdAt)
                     }));
                     return <Tweets tweets={mappedTweets} />;

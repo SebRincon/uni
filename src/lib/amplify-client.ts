@@ -1,19 +1,27 @@
 import { generateClient } from 'aws-amplify/data';
 import type { Schema } from '../../amplify/data/resource';
 
-// Don't create client on import, create it when needed
-export function getClient() {
-  return generateClient<Schema>({
-    authMode: 'userPool' // Use Cognito authentication for mutations
-  });
+// Create clients on demand, allowing different auth modes
+export function getClient(authMode?: 'userPool' | 'apiKey') {
+  return authMode ? generateClient<Schema>({ authMode }) : generateClient<Schema>();
 }
 
-// For backward compatibility, create a getter
-export const client = {
+// Authenticated client (Cognito user pool) - use for mutations
+export const authClient = {
   get models() {
-    return getClient().models;
+    return getClient('userPool').models;
   }
 };
+
+// Public client (API key) - use for reads before auth is ready
+export const publicClient = {
+  get models() {
+    return getClient('apiKey').models;
+  }
+};
+
+// Backward compatibility: default export uses authenticated client
+export const client = authClient;
 
 // Export the Schema type for use in other files
 export type { Schema };

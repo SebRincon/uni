@@ -23,17 +23,32 @@ export default function Notification({ notification, token }: { notification: No
         setAnchorEl(null);
     };
 
+    // Gracefully handle content being JSON or plain text
     let content: any = null;
-    try {
-        content = notification.content ? JSON.parse(notification.content) : null;
-    } catch (error) {
-        console.error('Failed to parse notification content:', error);
-        // For welcome notifications or malformed content, we don't need parsed content
-        content = null;
+    const raw = notification.content;
+    if (raw && typeof raw === 'string') {
+        const trimmed = raw.trim();
+        const looksJson = trimmed.startsWith('{') || trimmed.startsWith('[');
+        if (looksJson) {
+            try {
+                content = JSON.parse(trimmed);
+            } catch (error) {
+                // Only warn if it looked like JSON but failed to parse
+                console.warn('Notification content looked like JSON but failed to parse:', error);
+                content = null;
+            }
+        } else {
+            // Plain text (e.g., welcome or legacy seed) — no parse needed
+            content = null;
+        }
+    } else if (raw && typeof raw === 'object') {
+        content = raw;
     }
 
-    const tweetUrl = `/${notification.user.username}/tweets/${content?.content?.id}`;
-    const profileUrl = `/${content?.sender.username}`;
+    const tweetId = content?.content?.id;
+    const senderUsername = content?.sender?.username;
+    const tweetUrl = tweetId ? `/${notification.user.username}/tweets/${tweetId}` : '#';
+    const profileUrl = senderUsername ? `/${senderUsername}` : '#';
 
     const popoverJSX = (
         <Popover
@@ -53,11 +68,11 @@ export default function Notification({ notification, token }: { notification: No
             onClose={handlePopoverClose}
             disableRestoreFocus
         >
-            <ProfileCard username={content?.sender.username} token={token} />
+            {senderUsername ? <ProfileCard username={senderUsername} token={token} /> : null}
         </Popover>
     );
 
-    const sharedJSX = content?.sender ? (
+    const sharedJSX = senderUsername ? (
         <div className="notification-sender">
             <Link
                 href={profileUrl}
@@ -68,12 +83,12 @@ export default function Notification({ notification, token }: { notification: No
                 <Avatar
                     sx={{ width: 33, height: 33 }}
                     alt=""
-                    src={content?.sender.photoUrl ? getFullURL(content?.sender.photoUrl) : "/assets/egg.jpg"}
+                    src={content?.sender?.photoUrl ? getFullURL(content?.sender?.photoUrl) : "/assets/egg.jpg"}
                 />
                 <div className="profile-info-main">
                     <h1>
-                        {content?.sender.name !== "" ? content?.sender.name : content?.sender.username}{" "}
-                        <span className="text-muted">(@{content?.sender.username})</span>
+                        {(content?.sender?.name ?? '') !== "" ? (content?.sender?.name ?? '') : senderUsername}{" "}
+                        <span className="text-muted">(@{senderUsername})</span>
                     </h1>
                 </div>
             </Link>
@@ -117,9 +132,13 @@ export default function Notification({ notification, token }: { notification: No
                 </div>
                 <div>
                     {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Liked your</span>{" "}
-                    <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
-                        tweet.
-                    </Link>
+                    {tweetId ? (
+                        <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
+                            tweet.
+                        </Link>
+                    ) : (
+                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>tweet.</span>
+                    )}
                 </div>
             </div>
         );
@@ -131,9 +150,13 @@ export default function Notification({ notification, token }: { notification: No
                 </div>
                 <div>
                     {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Replied to your</span>{" "}
-                    <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
-                        tweet.
-                    </Link>
+                    {tweetId ? (
+                        <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
+                            tweet.
+                        </Link>
+                    ) : (
+                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>tweet.</span>
+                    )}
                 </div>
             </div>
         );
@@ -145,9 +168,13 @@ export default function Notification({ notification, token }: { notification: No
                 </div>
                 <div>
                     {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Retweeted your</span>{" "}
-                    <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
-                        tweet.
-                    </Link>
+                    {tweetId ? (
+                        <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
+                            tweet.
+                        </Link>
+                    ) : (
+                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>tweet.</span>
+                    )}
                 </div>
             </div>
         );

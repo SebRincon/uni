@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { client } from '@/lib/amplify-client';
+import { publicClient as client } from '@/lib/amplify-client';
 import { SelectionSet } from 'aws-amplify/data';
 import type { Schema } from '@/lib/amplify-client';
 

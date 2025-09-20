@@ -29,7 +29,8 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
 
     let displayedTweet = tweet;
 
-    if (tweet.isRetweet) {
+    // If this is a retweet but the original tweet wasn't hydrated, fall back to the retweet itself
+    if (tweet.isRetweet && tweet.retweetOf) {
         displayedTweet = tweet.retweetOf;
     }
 
@@ -68,7 +69,7 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
     return (
         <motion.div
             onClick={handleTweetClick}
-            className={`tweet div-link ${tweet.isRetweet && "retweet"} ${displayedTweet.isReply && "reply"}`}
+            className={`tweet div-link ${tweet.isRetweet && "retweet"} ${displayedTweet && displayedTweet.isReply ? "reply" : ""}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
