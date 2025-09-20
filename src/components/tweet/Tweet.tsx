@@ -14,7 +14,7 @@ import Retweet from "./Retweet";
 import Like from "./Like";
 import Share from "./Share";
 import PreviewDialog from "../dialog/PreviewDialog";
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 import { AuthContext } from "@/app/(twitter)/layout";
 import RetweetIcon from "../misc/RetweetIcon";
 import ProfileCard from "../user/ProfileCard";
@@ -33,6 +33,8 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
     if (tweet.isRetweet && tweet.retweetOf) {
         displayedTweet = tweet.retweetOf;
     }
+    
+    const avatarUrl = useStorageUrl(displayedTweet.author.photoUrl);
 
     const handleTweetClick = () => {
         router.push(`/${displayedTweet.author.username}/tweets/${displayedTweet.id}`);
@@ -85,7 +87,7 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
                     className="avatar"
                     sx={{ width: 50, height: 50 }}
                     alt=""
-                    src={displayedTweet.author.photoUrl ? getFullURL(displayedTweet.author.photoUrl) : "/assets/egg.jpg"}
+                    src={avatarUrl}
                 />
             </Link>
             <div className="tweet-main">

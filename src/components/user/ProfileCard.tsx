@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { AiFillTwitterCircle } from "react-icons/ai";
 
 import { getUser } from "@/utilities/fetch";
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 import CircularLoading from "../misc/CircularLoading";
 import { UserProps } from "@/types/UserProps";
 import { VerifiedToken } from "@/types/TokenProps";
@@ -13,6 +13,8 @@ export default function ProfileCard({ username, token }: { username: string; tok
         queryKey: ["users", username],
         queryFn: () => getUser(username),
     });
+    
+    const avatarUrl = useStorageUrl(data?.photoUrl);
 
     if (isLoading || !data) return <CircularLoading />;
 
@@ -28,7 +30,7 @@ export default function ProfileCard({ username, token }: { username: string; tok
                 <Avatar
                     sx={{ width: 75, height: 75 }}
                     alt=""
-                    src={data.photoUrl ? getFullURL(data.photoUrl) : "/assets/egg.jpg"}
+                    src={avatarUrl}
                 />
             </div>
             <div className="profile-info-main">

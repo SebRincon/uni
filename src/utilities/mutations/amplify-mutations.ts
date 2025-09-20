@@ -10,18 +10,27 @@ type Message = any; // Models['Message']['type'];
 type Notification = any; // Models['Notification']['type'];
 
 // Helper function to upload media files
-async function uploadMedia(file: File): Promise<string | null> {
+async function uploadMedia(file: File, isPublic: boolean = true): Promise<string | null> {
   try {
-    // Get the current auth session to obtain the identity ID
-    const { identityId } = await fetchAuthSession();
+    // For public files (like profile images), use the public path
+    // For private files, use the protected path with identity ID
+    let fileName: string;
     
-    if (!identityId) {
-      console.error('No identity ID found');
-      return null;
+    if (isPublic) {
+      // Public path - accessible by everyone
+      fileName = `public/${Date.now()}-${file.name}`;
+    } else {
+      // Protected path - only accessible by the user
+      const { identityId } = await fetchAuthSession();
+      
+      if (!identityId) {
+        console.error('No identity ID found');
+        return null;
+      }
+      
+      fileName = `protected/${identityId}/${Date.now()}-${file.name}`;
     }
     
-    // Use the correct path format with the Cognito identity ID
-    const fileName = `media/${identityId}/${Date.now()}-${file.name}`;
     const result = await uploadData({
       path: fileName,
       data: file,

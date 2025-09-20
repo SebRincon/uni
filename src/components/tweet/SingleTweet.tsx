@@ -25,6 +25,7 @@ import CustomSnackbar from "../misc/CustomSnackbar";
 import { SnackbarProps } from "@/types/SnackbarProps";
 import CircularLoading from "../misc/CircularLoading";
 import { sleepFunction } from "@/utilities/misc/sleep";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 
 export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token: VerifiedToken }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -35,6 +36,9 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
 
     const queryClient = useQueryClient();
     const router = useRouter();
+    
+    // Use the hook for the avatar URL
+    const avatarUrl = useStorageUrl(tweet.author.photoUrl);
 
     const mutation = useMutation({
         mutationFn: () => deleteTweet(tweet.id),
@@ -97,7 +101,7 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
                                 className="avatar"
                                 sx={{ width: 50, height: 50 }}
                                 alt=""
-                                src={tweet.author.photoUrl ? getFullURL(tweet.author.photoUrl) : "/assets/egg.jpg"}
+                                src={avatarUrl}
                             />
                         </Link>
                     </div>

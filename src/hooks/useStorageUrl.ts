@@ -22,7 +22,7 @@ export function useStorageUrl(path: string | null | undefined, defaultImage: str
     }
 
     // If it's an S3 path, fetch the signed URL
-    if (path.startsWith('media/')) {
+    if (path.startsWith('media/') || path.startsWith('public/') || path.startsWith('protected/')) {
       getStorageUrl(path)
         .then(signedUrl => setUrl(signedUrl))
         .catch(error => {

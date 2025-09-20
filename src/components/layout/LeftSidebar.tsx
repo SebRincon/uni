@@ -11,7 +11,7 @@ import NewTweetDialog from "../dialog/NewTweetDialog";
 import LogOutDialog from "../dialog/LogOutDialog";
 import { logout } from "@/utilities/fetch";
 import { AuthContext } from "@/app/(twitter)/layout";
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 import UnreadNotificationsBadge from "../misc/UnreadNotificationsBadge";
 
 export default function LeftSidebar() {
@@ -21,6 +21,7 @@ export default function LeftSidebar() {
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
     const { token } = useContext(AuthContext);
+    const avatarUrl = useStorageUrl(token?.photoUrl);
 
     const router = useRouter();
     const pathname = usePathname();
@@ -136,7 +137,7 @@ export default function LeftSidebar() {
                                     <Avatar
                                         className="avatar"
                                         alt=""
-                                        src={token.photoUrl ? getFullURL(token.photoUrl) : "/assets/egg.jpg"}
+                                        src={avatarUrl}
                                     />
                                 </div>
                                 <div>

@@ -5,7 +5,7 @@ import { AiFillTwitterCircle } from "react-icons/ai";
 import { RxDotsHorizontal } from "react-icons/rx";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 import { formatDate, formatDateExtended } from "@/utilities/date";
 import ProfileCard from "../user/ProfileCard";
 import { ConversationProps } from "@/types/MessageProps";
@@ -78,6 +78,8 @@ export default function Conversation({ conversation, token, handleConversations 
         }
     }
 
+    const avatarUrl = useStorageUrl(photoUrl);
+    
     const handlePopoverOpen = (e: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(e.currentTarget);
     };
@@ -111,7 +113,7 @@ export default function Conversation({ conversation, token, handleConversations 
                     className="avatar"
                     sx={{ width: 50, height: 50 }}
                     alt=""
-                    src={photoUrl ? getFullURL(photoUrl) : "/assets/egg.jpg"}
+                    src={avatarUrl}
                 />
             </Link>
             <div className="user-wrapper">
