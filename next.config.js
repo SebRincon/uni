@@ -5,11 +5,16 @@ const nextConfig = {
         serverActions: true,
     },
     images: {
-        // TODO: Add your S3 bucket domain here once deployed
-        // Example: domains: ["twitter-clone-media-bucket-xyz.s3.us-east-1.amazonaws.com"],
         domains: [
-            // Add your Amplify S3 bucket domain here after deployment
             "localhost", // For development
+            "amplify-d3o849eq3fpd4i-ma-twitterclonemediabucket8-jx8tlzkfwzr3.s3.us-west-2.amazonaws.com", // S3 bucket
+        ],
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: '**.s3.**.amazonaws.com',
+                pathname: '/**',
+            },
         ],
     },
 };

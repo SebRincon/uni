@@ -9,7 +9,6 @@ import Image from "next/image";
 
 import { UserProps } from "@/types/UserProps";
 import CircularLoading from "../misc/CircularLoading";
-import { uploadFile } from "@/utilities/storage";
 import { editUser } from "@/utilities/fetch";
 import { getFullURL } from "@/utilities/misc/getFullURL";
 import CustomSnackbar from "../misc/CustomSnackbar";
@@ -68,11 +67,6 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
-            if (headerFile) {
-                const path: string | void = await uploadFile(headerFile);
-                if (!path) throw new Error("Header upload failed.");
-                values.headerUrl = path;
-            }
             try {
                 // Prepare update object
                 const updates: any = {
@@ -82,6 +76,7 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                     website: values.website,
                 };
                 
+                // Pass File objects directly to editUser, which will handle the upload
                 if (headerFile) {
                     updates.headerUrl = headerFile;
                 }
