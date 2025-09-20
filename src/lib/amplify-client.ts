@@ -1,8 +1,26 @@
 import { generateClient } from 'aws-amplify/data';
+import { Amplify } from 'aws-amplify';
 import type { Schema } from '../../amplify/data/resource';
+import amplifyConfig from '../../amplify_outputs.json';
+
+// Configure Amplify for both client and server-side
+// This ensures Amplify is configured during build time and runtime
+try {
+  const config = Amplify.getConfig();
+  if (!config || !config.API) {
+    Amplify.configure(amplifyConfig, { ssr: true });
+  }
+} catch (error) {
+  // If already configured, ignore the error
+  console.log('Amplify configuration:', error);
+}
 
 // Create clients on demand, allowing different auth modes
 export function getClient(authMode?: 'userPool' | 'apiKey') {
+  // Ensure configuration before generating client
+  if (!Amplify.getConfig()?.API) {
+    Amplify.configure(amplifyConfig, { ssr: true });
+  }
   return authMode ? generateClient<Schema>({ authMode }) : generateClient<Schema>();
 }
 
