@@ -7,10 +7,11 @@ import { AiFillTwitterCircle } from "react-icons/ai";
 import { UserProps } from "@/types/UserProps";
 import { AuthContext } from "@/app/(twitter)/layout";
 import Follow from "./Follow";
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 
 export default function User({ user }: { user: UserProps }) {
     const { token } = useContext(AuthContext);
+    const avatarUrl = useStorageUrl(user.photoUrl);
 
     const router = useRouter();
 
@@ -25,7 +26,7 @@ export default function User({ user }: { user: UserProps }) {
                     className="avatar"
                     sx={{ width: 50, height: 50 }}
                     alt=""
-                    src={user.photoUrl ? getFullURL(user.photoUrl) : "/assets/egg.jpg"}
+                    src={avatarUrl}
                 />
             </Link>
             <div onClick={handleProfileClick} className="user">

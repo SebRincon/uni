@@ -16,7 +16,7 @@ import { UserProps } from "@/types/UserProps";
 import TweetArrayLength from "../tweet/TweetArrayLength";
 import Follow from "./Follow";
 import User from "./User";
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useStorageUrl, useHeaderUrl } from "@/hooks/useStorageUrl";
 import PreviewDialog from "../dialog/PreviewDialog";
 import { SnackbarProps } from "@/types/SnackbarProps";
 import CustomSnackbar from "../misc/CustomSnackbar";
@@ -31,6 +31,8 @@ export default function Profile({ profile }: { profile: UserProps }) {
 
     const { token } = useContext(AuthContext);
     const pathname = usePathname();
+    const avatarUrl = useStorageUrl(profile.photoUrl);
+    const headerUrl = useHeaderUrl(profile.headerUrl);
 
     const handleDialogOpen = (type: string) => {
         if (!token) {
@@ -56,10 +58,10 @@ export default function Profile({ profile }: { profile: UserProps }) {
     const handleImageClick = (e: any) => {
         const clickedElement = e.target;
         if (clickedElement.alt === "profile-header") {
-            handlePreviewClick(profile.headerUrl ? profile.headerUrl : "/assets/header.jpg");
+            handlePreviewClick(headerUrl);
         }
         if (clickedElement.alt === "profile-photo") {
-            handlePreviewClick(profile.photoUrl ? profile.photoUrl : "/assets/egg.jpg");
+            handlePreviewClick(avatarUrl);
         }
     };
 
@@ -104,7 +106,7 @@ export default function Profile({ profile }: { profile: UserProps }) {
                         onClick={handleImageClick}
                         className="div-link"
                         alt="profile-header"
-                        src={profile.headerUrl ? getFullURL(profile.headerUrl) : "/assets/header.jpg"}
+                        src={headerUrl}
                         fill
                     />
                     <div className="avatar-wrapper">
@@ -113,7 +115,7 @@ export default function Profile({ profile }: { profile: UserProps }) {
                             onClick={handleImageClick}
                             sx={{ width: 125, height: 125 }}
                             alt="profile-photo"
-                            src={profile.photoUrl ? getFullURL(profile.photoUrl) : "/assets/egg.jpg"}
+                            src={avatarUrl}
                         />
                     </div>
                 </div>
