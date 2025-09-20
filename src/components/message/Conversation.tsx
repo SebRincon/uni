@@ -20,6 +20,29 @@ export default function Conversation({ conversation, token, handleConversations 
 
     const queryClient = useQueryClient();
 
+    // Extract photoUrl before any early returns for hooks
+    let photoUrl = "";
+    if (conversation && conversation.messages && conversation.messages.length > 0) {
+        const lastMessage = conversation.messages[conversation.messages.length - 1];
+        const messagedUsername = conversation.user.username;
+        
+        if (lastMessage) {
+            const recipient = lastMessage.recipient;
+            const sender = lastMessage.sender;
+            
+            if (recipient && recipient.username === messagedUsername) {
+                photoUrl = recipient.photoUrl || "";
+            } else if (sender && sender.username === messagedUsername) {
+                photoUrl = sender.photoUrl || "";
+            } else if (conversation.user) {
+                photoUrl = conversation.user.photoUrl || "";
+            }
+        }
+    }
+    
+    // Call hook before any returns
+    const avatarUrl = useStorageUrl(photoUrl);
+
     // Define hooks unconditionally before any early returns
     const mutation = useMutation(
         async () => {
@@ -49,7 +72,6 @@ export default function Conversation({ conversation, token, handleConversations 
     // Add defensive checks for recipient/sender data
     let name = "";
     let username = messagedUsername || "";
-    let photoUrl = "";
     let isPremium = false;
 
     if (lastMessage) {
@@ -60,25 +82,20 @@ export default function Conversation({ conversation, token, handleConversations 
         if (recipient && recipient.username === messagedUsername) {
             name = recipient.name || "";
             username = recipient.username || messagedUsername || "";
-            photoUrl = recipient.photoUrl || "";
             isPremium = recipient.isPremium || false;
         } else if (sender && sender.username === messagedUsername) {
             name = sender.name || "";
             username = sender.username || messagedUsername || "";
-            photoUrl = sender.photoUrl || "";
             isPremium = sender.isPremium || false;
         } else {
             // Fallback to conversation.user if available
             if (conversation) {
                 name = conversation.user.name || "";
                 username = conversation.user.username || messagedUsername || "";
-                photoUrl = conversation.user.photoUrl || "";
                 isPremium = conversation.user.isPremium || false;
             }
         }
     }
-
-    const avatarUrl = useStorageUrl(photoUrl);
     
     const handlePopoverOpen = (e: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(e.currentTarget);

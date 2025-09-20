@@ -1,0 +1,160 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AmplifyProjectAccess",
+      "Effect": "Allow",
+      "Action": [
+        "amplify:GetApp",
+        "amplify:GetBranch",
+        "amplify:GetJob",
+        "amplify:GetBackendEnvironment",
+        "amplify:ListApps",
+        "amplify:ListBranches",
+        "amplify:ListJobs",
+        "amplify:ListBackendEnvironments",
+        "amplify:UpdateApp",
+        "amplify:UpdateBranch",
+        "amplify:StartJob",
+        "amplify:StopJob",
+        "amplify:CreateDeployment",
+        "amplify:GenerateAccessLogs"
+      ],
+      "Resource": [
+        "arn:aws:amplify:us-west-2:*:apps/*/branches/*",
+        "arn:aws:amplify:us-west-2:*:apps/*"
+      ]
+    },
+    {
+      "Sid": "CognitoAccess",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:AdminGetUser",
+        "cognito-idp:AdminListGroupsForUser",
+        "cognito-idp:ListUsers",
+        "cognito-idp:ListUsersInGroup",
+        "cognito-idp:DescribeUserPool",
+        "cognito-idp:DescribeUserPoolClient",
+        "cognito-identity:DescribeIdentityPool",
+        "cognito-identity:GetIdentityPoolRoles"
+      ],
+      "Resource": [
+        "arn:aws:cognito-idp:us-west-2:*:userpool/us-west-2_atAWOdqhH",
+        "arn:aws:cognito-identity:us-west-2:*:identitypool/us-west-2:02afa118-2c79-4895-8598-452750e7e5e4"
+      ]
+    },
+    {
+      "Sid": "AppSyncAccess",
+      "Effect": "Allow",
+      "Action": [
+        "appsync:GetGraphqlApi",
+        "appsync:ListGraphqlApis",
+        "appsync:GetSchemaCreationStatus",
+        "appsync:GetDataSource",
+        "appsync:ListDataSources",
+        "appsync:GetFunction",
+        "appsync:ListFunctions",
+        "appsync:GetResolver",
+        "appsync:ListResolvers",
+        "appsync:GraphQL"
+      ],
+      "Resource": [
+        "arn:aws:appsync:us-west-2:*:apis/*"
+      ]
+    },
+    {
+      "Sid": "S3StorageAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:PutObject",
+        "s3:DeleteObject",
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:GetBucketVersioning",
+        "s3:PutObjectAcl",
+        "s3:GetObjectAcl"
+      ],
+      "Resource": [
+        "arn:aws:s3:::amplify-d3o849eq3fpd4i-ma-twitterclonemediabucket8-jx8tlzkfwzr3",
+        "arn:aws:s3:::amplify-d3o849eq3fpd4i-ma-twitterclonemediabucket8-jx8tlzkfwzr3/*",
+        "arn:aws:s3:::amplify-*"
+      ]
+    },
+    {
+      "Sid": "CloudFormationAccess",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeStacks",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStackResource",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:GetTemplate",
+        "cloudformation:ListStacks",
+        "cloudformation:ListStackResources"
+      ],
+      "Resource": [
+        "arn:aws:cloudformation:us-west-2:*:stack/amplify-*"
+      ]
+    },
+    {
+      "Sid": "IAMAccess",
+      "Effect": "Allow",
+      "Action": [
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListAttachedRolePolicies",
+        "iam:ListRolePolicies"
+      ],
+      "Resource": [
+        "arn:aws:iam::*:role/amplify-*"
+      ]
+    },
+    {
+      "Sid": "LambdaAccess",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:ListFunctions",
+        "lambda:InvokeFunction"
+      ],
+      "Resource": [
+        "arn:aws:lambda:us-west-2:*:function:amplify-*"
+      ]
+    },
+    {
+      "Sid": "DynamoDBAccess",
+      "Effect": "Allow",
+      "Action": [
+        "dynamodb:DescribeTable",
+        "dynamodb:ListTables",
+        "dynamodb:Query",
+        "dynamodb:Scan",
+        "dynamodb:GetItem",
+        "dynamodb:PutItem",
+        "dynamodb:UpdateItem",
+        "dynamodb:DeleteItem",
+        "dynamodb:BatchGetItem",
+        "dynamodb:BatchWriteItem"
+      ],
+      "Resource": [
+        "arn:aws:dynamodb:us-west-2:*:table/*"
+      ]
+    },
+    {
+      "Sid": "CloudWatchLogsAccess",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:GetLogEvents",
+        "logs:FilterLogEvents"
+      ],
+      "Resource": [
+        "arn:aws:logs:us-west-2:*:log-group:/aws/amplify/*",
+        "arn:aws:logs:us-west-2:*:log-group:/aws/lambda/amplify-*"
+      ]
+    }
+  ]
+}

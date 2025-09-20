@@ -35,6 +35,7 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
     }
     
     const avatarUrl = useStorageUrl(displayedTweet.author.photoUrl);
+    const tweetImageUrl = useStorageUrl(displayedTweet.photoUrl);
 
     const handleTweetClick = () => {
         router.push(`/${displayedTweet.author.username}/tweets/${displayedTweet.id}`);
@@ -134,12 +135,12 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
                     )}{" "}
                     {displayedTweet.text}
                 </div>
-                {displayedTweet.photoUrl && (
+                {displayedTweet.photoUrl && tweetImageUrl && (
                     <div onClick={handlePropagation}>
                         <div className="tweet-image">
                             <Image
                                 onClick={handleImageClick}
-                                src={getFullURL(displayedTweet.photoUrl)}
+                                src={tweetImageUrl}
                                 alt="tweet image"
                                 placeholder="blur"
                                 blurDataURL={shimmer(500, 500)}
@@ -150,7 +151,7 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
                         <PreviewDialog
                             open={isPreviewOpen}
                             handlePreviewClose={handlePreviewClose}
-                            url={displayedTweet.photoUrl}
+                            url={tweetImageUrl}
                         />
                     </div>
                 )}
