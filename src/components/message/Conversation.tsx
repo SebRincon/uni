@@ -20,6 +20,11 @@ export default function Conversation({ conversation, token, handleConversations 
 
     const queryClient = useQueryClient();
 
+    // Handle empty conversation
+    if (!conversation || !conversation.messages || conversation.messages.length === 0) {
+        return null;
+    }
+
     const mutation = useMutation({
         mutationFn: () => {
             // Delete all messages in the conversation
@@ -36,13 +41,39 @@ export default function Conversation({ conversation, token, handleConversations 
     });
 
     const messagedUsername = conversation.participants.find((user: string) => user !== token.username);
-
-    const { name, username, photoUrl, isPremium } =
-        conversation.messages[conversation.messages.length - 1].recipient.username === messagedUsername
-            ? conversation.messages[conversation.messages.length - 1].recipient
-            : conversation.messages[conversation.messages.length - 1].sender;
-
     const lastMessage = conversation.messages[conversation.messages.length - 1];
+
+    // Add defensive checks for recipient/sender data
+    let name = "";
+    let username = messagedUsername || "";
+    let photoUrl = "";
+    let isPremium = false;
+
+    if (lastMessage) {
+        const recipient = lastMessage.recipient;
+        const sender = lastMessage.sender;
+        
+        // Determine which user info to use based on who is the other participant
+        if (recipient && recipient.username === messagedUsername) {
+            name = recipient.name || "";
+            username = recipient.username || messagedUsername || "";
+            photoUrl = recipient.photoUrl || "";
+            isPremium = recipient.isPremium || false;
+        } else if (sender && sender.username === messagedUsername) {
+            name = sender.name || "";
+            username = sender.username || messagedUsername || "";
+            photoUrl = sender.photoUrl || "";
+            isPremium = sender.isPremium || false;
+        } else {
+            // Fallback to conversation.user if available
+            if (conversation.user) {
+                name = conversation.user.name || "";
+                username = conversation.user.username || messagedUsername || "";
+                photoUrl = conversation.user.photoUrl || "";
+                isPremium = conversation.user.isPremium || false;
+            }
+        }
+    }
 
     const handlePopoverOpen = (e: React.MouseEvent<HTMLElement>) => {
         setAnchorEl(e.currentTarget);
@@ -98,14 +129,16 @@ export default function Conversation({ conversation, token, handleConversations 
                         </span>
                         <span className="text-muted">@{username}</span>
                     </Link>
-                    <Tooltip title={formatDateExtended(lastMessage.createdAt)} placement="top">
-                        <span className="text-muted date">
-                            <span className="middle-dot">·</span>
-                            {formatDate(lastMessage.createdAt)}
-                        </span>
-                    </Tooltip>
+                    {lastMessage && (
+                        <Tooltip title={formatDateExtended(lastMessage.createdAt)} placement="top">
+                            <span className="text-muted date">
+                                <span className="middle-dot">·</span>
+                                {formatDate(lastMessage.createdAt)}
+                            </span>
+                        </Tooltip>
+                    )}
                 </section>
-                <div className="last-message text-muted">{lastMessage.text}</div>
+                <div className="last-message text-muted">{lastMessage?.text || ""}</div>
             </div>
             <>
                 <button className="three-dots icon-hoverable" onClick={handleThreeDotsClick}>

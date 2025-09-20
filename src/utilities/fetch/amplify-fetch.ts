@@ -470,15 +470,45 @@ export async function getMessages(username: string) {
     
     const userId = users[0].username;
     
-    // Get messages where user is sender or recipient
+    // Get messages where user is sender or recipient with full sender/recipient data
     const [sent, received] = await Promise.all([
       client.models.Message.list({
         filter: { senderId: { eq: userId } },
-        selectionSet: ['id', 'text', 'photoUrl', 'createdAt', 'senderId', 'recipientId']
+        selectionSet: [
+          'id', 
+          'text', 
+          'photoUrl', 
+          'createdAt', 
+          'senderId', 
+          'recipientId',
+          'sender.username',
+          'sender.name',
+          'sender.photoUrl',
+          'sender.isPremium',
+          'recipient.username',
+          'recipient.name', 
+          'recipient.photoUrl',
+          'recipient.isPremium'
+        ]
       }),
       client.models.Message.list({
         filter: { recipientId: { eq: userId } },
-        selectionSet: ['id', 'text', 'photoUrl', 'createdAt', 'senderId', 'recipientId']
+        selectionSet: [
+          'id', 
+          'text', 
+          'photoUrl', 
+          'createdAt', 
+          'senderId', 
+          'recipientId',
+          'sender.username',
+          'sender.name',
+          'sender.photoUrl',
+          'sender.isPremium',
+          'recipient.username',
+          'recipient.name', 
+          'recipient.photoUrl',
+          'recipient.isPremium'
+        ]
       })
     ]);
     
@@ -505,10 +535,10 @@ export async function getMessages(username: string) {
       conversations.get(otherUserId).messages.push(message);
     }
     
-    // Sort messages within each conversation
+    // Sort messages within each conversation (oldest first)
     for (const conversation of conversations.values()) {
       conversation.messages.sort((a: any, b: any) => 
-        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
     }
     
