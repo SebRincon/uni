@@ -2,7 +2,7 @@ import { getUrl } from 'aws-amplify/storage';
 
 export function getFullURL(path: string): string {
   // If the path starts with S3 prefixes, it's an S3 path
-  if (path.startsWith('media/') || path.startsWith('public/') || path.startsWith('protected/')) {
+  if (path.startsWith('media/')) {
     // Return a promise-based URL getter for S3
     return ''; // This will be handled by the new async function below
   }
@@ -29,7 +29,7 @@ export function getFullURL(path: string): string {
 // New async function to get S3 URLs
 export async function getStorageUrl(path: string): Promise<string> {
   try {
-    if (!path || (!path.startsWith('media/') && !path.startsWith('public/') && !path.startsWith('protected/'))) {
+    if (!path || !path.startsWith('media/')) {
       return getFullURL(path);
     }
     
