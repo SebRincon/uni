@@ -30,9 +30,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
         if (storedTheme) {
             setTheme(storedTheme);
         } else {
-            setTheme("light");
+            const prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+            setTheme(prefersDark ? "dark" : "light");
         }
-    }, []);
+    }, []); 
 
     useEffect(() => {
         if (theme === "dark") {

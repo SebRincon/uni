@@ -14,11 +14,11 @@ export default function ProfileCard({ username, token }: { username: string; tok
         queryFn: () => getUser(username),
     });
 
-    if (isLoading) return <CircularLoading />;
+    if (isLoading || !data) return <CircularLoading />;
 
     const isFollowingTokenOwner = () => {
-        if (data.user.following.length === 0 || !token) return false;
-        const isFollowing = data.user.following.some((user: UserProps) => user.id === token.id);
+        if (!data || data.following.length === 0 || !token) return false;
+        const isFollowing = data.following.some((user: UserProps) => user.id === token.id);
         return isFollowing;
     };
 
@@ -28,29 +28,29 @@ export default function ProfileCard({ username, token }: { username: string; tok
                 <Avatar
                     sx={{ width: 75, height: 75 }}
                     alt=""
-                    src={data.user.photoUrl ? getFullURL(data.user.photoUrl) : "/assets/egg.jpg"}
+                    src={data.photoUrl ? getFullURL(data.photoUrl) : "/assets/egg.jpg"}
                 />
             </div>
             <div className="profile-info-main">
                 <h1>
-                    {data.user.name !== "" ? data.user.name : data.user.username}
-                    {data.user.isPremium && (
+                    {data.name !== "" ? data.name : data.username}
+                    {data.isPremium && (
                         <span className="blue-tick" data-blue="Verified Blue">
                             <AiFillTwitterCircle />
                         </span>
                     )}
                 </h1>
                 <div className="text-muted">
-                    @{data.user.username} {isFollowingTokenOwner() && <span className="is-following">Follows you</span>}
+                    @{data.username} {isFollowingTokenOwner() && <span className="is-following">Follows you</span>}
                 </div>
             </div>
-            {data.user.description && <div className="profile-info-desc">{data.user.description}</div>}
+            {data.description && <div className="profile-info-desc">{data.description}</div>}
             <div className="profile-info-popularity">
                 <div className="popularity-section">
-                    <span className="count">{data.user.following.length}</span> <span className="text-muted">Following</span>
+                    <span className="count">{data.following.length}</span> <span className="text-muted">Following</span>
                 </div>
                 <div className="popularity-section">
-                    <span className="count">{data.user.followers.length}</span> <span className="text-muted">Followers</span>
+                    <span className="count">{data.followers.length}</span> <span className="text-muted">Followers</span>
                 </div>
             </div>
         </div>
