@@ -1,13 +1,9 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useCallSubscriptions } from '@/hooks/useCallSubscriptions';
 import { IncomingCallModal } from '@/components/videocall/IncomingCallModal';
 import { VideoCall } from '@/components/videocall/VideoCall';
-import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '../../amplify/data/resource';
-
-const client = generateClient<Schema>();
 
 interface CallContextType {
   startCall: (conversationId: string, type: 'video' | 'audio') => void;
@@ -26,7 +22,7 @@ export function useCall() {
 }
 
 export function CallProvider({ children }: { children: React.ReactNode }) {
-  const { incomingCall, activeCallId, acceptCall, declineCall } = useCallSubscriptions();
+  const { incomingCall, acceptCall, declineCall } = useCallSubscriptions();
   const [showVideoCall, setShowVideoCall] = useState(false);
   const [currentCallData, setCurrentCallData] = useState<{
     conversationId: string;
@@ -60,22 +56,6 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Get caller photo URL if we have an incoming call
-  const [callerPhotoUrl, setCallerPhotoUrl] = useState<string | undefined>();
-
-  useEffect(() => {
-    const fetchCallerPhoto = async () => {
-      if (incomingCall?.callerId) {
-        const { data: user } = await client.models.User.get({ 
-          username: incomingCall.callerId 
-        });
-        setCallerPhotoUrl(user?.photoUrl || undefined);
-      }
-    };
-
-    fetchCallerPhoto();
-  }, [incomingCall?.callerId]);
-
   return (
     <CallContext.Provider value={{ startCall, endCall, isInCall: showVideoCall }}>
       {children}
@@ -84,7 +64,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
       {incomingCall && !showVideoCall && (
         <IncomingCallModal
           callerName={incomingCall.callerName}
-          callerPhotoUrl={callerPhotoUrl}
+          callerPhotoUrl={incomingCall.callerPhotoUrl}
           callType={incomingCall.type}
           onAccept={handleAcceptIncomingCall}
           onDecline={handleDeclineIncomingCall}

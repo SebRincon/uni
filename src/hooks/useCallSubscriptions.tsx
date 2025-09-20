@@ -8,6 +8,7 @@ interface IncomingCall {
   conversationId: string;
   callerId: string;
   callerName: string;
+  callerPhotoUrl?: string;
   type: 'video' | 'audio';
 }
 
@@ -74,7 +75,7 @@ export function useCallSubscriptions() {
       // Get caller details - initiatorId is the username since User model uses username as primary key
       let caller: any = null;
       try {
-        // Use a direct approach to avoid TypeScript complexity
+        // Use any type to avoid TypeScript complexity
         const models = (client as any).models;
         const userResponse = await models.User.get({ username: call.initiatorId });
         caller = userResponse?.data;
@@ -87,6 +88,7 @@ export function useCallSubscriptions() {
         conversationId: call.conversationId,
         callerId: call.initiatorId,
         callerName: caller?.name || caller?.username || 'Unknown',
+        callerPhotoUrl: caller?.photoUrl ?? undefined,
         type: call.type as 'video' | 'audio',
       });
 
