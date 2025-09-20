@@ -13,7 +13,7 @@ export default function Follow({ profile }: { profile: UserProps }) {
     const [isHovered, setIsHovered] = useState(false);
     const [snackbar, setSnackbar] = useState<SnackbarProps>({ message: "", severity: "success", open: false });
 
-    const { token, isPending } = useContext(AuthContext);
+    const { token, isPending, refreshToken } = useContext(AuthContext);
     const queryClient = useQueryClient();
 
     const queryKey = ["users", profile.username];
@@ -23,26 +23,21 @@ export default function Follow({ profile }: { profile: UserProps }) {
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
-            const previous = queryClient.getQueryData<UserResponse>(queryKey);
-            setIsFollowed(true);
+            const previous = queryClient.getQueryData<UserProps>(queryKey);
+            setIsFollowed(false);
             if (previous) {
-                queryClient.setQueryData(queryKey, {
+                queryClient.setQueryData<UserProps>(queryKey, {
                     ...previous,
-                    user: {
-                        ...previous.user,
-                        followers: [...previous.user.followers, tokenOwnerId],
-                    },
+                    followers: previous.followers.filter(
+                        (user: UserProps) => user.id !== tokenOwnerId
+                    ),
                 });
             }
             return { previous };
         },
-        onError: (err, variables, context) => {
-            if (context?.previous) {
-                queryClient.setQueryData(queryKey, context.previous);
-            }
-        },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: ["users", profile.username] });
+            if (refreshToken) refreshToken();
         },
     });
 
@@ -51,17 +46,14 @@ export default function Follow({ profile }: { profile: UserProps }) {
         onMutate: async (tokenOwnerId: string) => {
             setIsButtonDisabled(true);
             await queryClient.cancelQueries({ queryKey: queryKey });
-            const previous = queryClient.getQueryData<UserResponse>(queryKey);
+            const previous = queryClient.getQueryData<UserProps>(queryKey);
             setIsFollowed(false);
             if (previous) {
-                queryClient.setQueryData(queryKey, {
+                queryClient.setQueryData<UserProps>(queryKey, {
                     ...previous,
-                    user: {
-                        ...previous.user,
-                        followers: previous.user.followers.filter(
-                            (user: UserProps) => JSON.stringify(user.id) !== tokenOwnerId
-                        ),
-                    },
+                    followers: previous.followers.filter(
+                        (user: UserProps) => user.id !== tokenOwnerId
+                    ),
                 });
             }
             return { previous };
@@ -72,7 +64,8 @@ export default function Follow({ profile }: { profile: UserProps }) {
             }
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["users"] });
+            queryClient.invalidateQueries({ queryKey: ["users", profile.username] });
+            if (refreshToken) refreshToken();
         },
     });
 
@@ -87,12 +80,10 @@ export default function Follow({ profile }: { profile: UserProps }) {
             });
         }
 
-        const tokenOwnerId = JSON.stringify(token.id);
-        const followers = profile.followers;
-        const isFollowedByTokenOwner = followers?.some((user: { id: string }) => JSON.stringify(user.id) === tokenOwnerId);
+        const tokenOwnerId = token.id;
 
-        if (!followMutation.isLoading && !followMutation.isLoading) {
-            if (isFollowedByTokenOwner) {
+        if (!followMutation.isLoading && !unfollowMutation.isLoading) {
+            if (isFollowed) {
                 unfollowMutation.mutate(tokenOwnerId);
             } else {
                 followMutation.mutate(tokenOwnerId);
@@ -110,14 +101,12 @@ export default function Follow({ profile }: { profile: UserProps }) {
 
     useEffect(() => {
         if (!isPending && token) {
-            const tokenOwnerId = JSON.stringify(token.id);
-            const followers = profile.followers;
-            const isFollowedByTokenOwner = followers?.some(
-                (user: { id: string }) => JSON.stringify(user.id) === tokenOwnerId
-            );
-            setIsFollowed(isFollowedByTokenOwner);
+            const isFollowed = token.following?.some(user => user.id === profile.id);
+            setIsFollowed(!!isFollowed);
+        } else if (!isPending) {
+            setIsFollowed(false);
         }
-    }, [isPending]);
+    }, [isPending, token, profile.id]);
 
     useEffect(() => {
         const timer = setTimeout(() => {

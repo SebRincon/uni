@@ -18,7 +18,7 @@ export default function ProfileCard({ username, token }: { username: string; tok
 
     const isFollowingTokenOwner = () => {
         if (!data || data.following.length === 0 || !token) return false;
-        const isFollowing = data.following.some((user: UserProps) => user.id === token.id);
+        const isFollowing = data.following.some((user) => user && user.id === token.id);
         return isFollowing;
     };
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { AiOutlineClose } from "react-icons/ai";
+import { UserProps } from "@/types/UserProps";
 
 import { getRandomThreeUsers } from "@/utilities/fetch";
 import User from "../user/User";
@@ -37,16 +38,16 @@ export default function WhoToFollow() {
                         </button>
                     </h1>
                     <div className="user-wrapper">
-                        <User user={data[0]} />
+                        <User user={data[0] as UserProps} />
                     </div>
                     {data.length > 1 && (
                         <div className="user-wrapper">
-                            <User user={data[1]} />
+                            <User user={data[1] as UserProps} />
                         </div>
                     )}
                     {data.length > 2 && (
                         <div className="user-wrapper">
-                            <User user={data[2]} />
+                            <User user={data[2] as UserProps} />
                         </div>
                     )}
                 </div>

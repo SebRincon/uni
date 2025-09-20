@@ -29,20 +29,43 @@ export async function getUser(username: string) {
     
     const user = users[0];
     
-    // Get followers and following counts
-    const { data: followers } = await client.models.UserFollows.list({
+    // Get follower/following relations
+    const { data: followerLinks } = await client.models.UserFollows.list({
       filter: { followingId: { eq: user.username } }
     });
-    
-    const { data: following } = await client.models.UserFollows.list({
+    const { data: followingLinks } = await client.models.UserFollows.list({
       filter: { followerId: { eq: user.username } }
     });
+
+    // Resolve relations to full user objects
+    const followers = await Promise.all(
+      (followerLinks || []).map(async (link: any) => {
+        const { data: follower } = await client.models.User.get(
+          { username: link.followerId },
+          { selectionSet: userSelectionSet }
+        );
+        return follower ? { ...follower, id: follower.username } : null;
+      })
+    );
+
+    const following = await Promise.all(
+      (followingLinks || []).map(async (link: any) => {
+        const { data: followed } = await client.models.User.get(
+          { username: link.followingId },
+          { selectionSet: userSelectionSet }
+        );
+        return followed ? { ...followed, id: followed.username } : null;
+      })
+    );
     
     return {
       ...user,
       id: user.username, // Add id field for compatibility
-      followers: followers || [],
-      following: following || []
+      followers: followers.filter(Boolean) as UserProps[],
+      following: following.filter(Boolean) as UserProps[],
+      isPremium: user.isPremium || false,
+      createdAt: new Date(user.createdAt),
+      updatedAt: new Date(user.updatedAt),
     };
   } catch (error) {
     console.error('Error fetching user:', error);
@@ -80,7 +103,12 @@ export async function getRandomUsers(limit: number = 5) {
     const shuffled = [...allUsers].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, limit).map(user => ({
       ...user,
-      id: user.username // Add id field for compatibility
+      id: user.username, // Add id field for compatibility
+      followers: [],
+      following: [],
+      isPremium: user.isPremium || false,
+      createdAt: new Date(user.createdAt),
+      updatedAt: new Date(user.updatedAt),
     }));
   } catch (error) {
     console.error('Error fetching random users:', error);
@@ -552,15 +580,14 @@ export async function getMessages(username: string) {
 // Notification-related fetch functions
 export async function getNotifications(userId: string) {
   try {
-    const { data: notifications } = await client.models.Notification.list({
+    const { data: notificationsData } = await client.models.Notification.list({
       filter: { userId: { eq: userId } },
       selectionSet: [
-        'id', 
-        'type', 
-        'content', 
-        'isRead', 
+        'id',
+        'type',
+        'content',
+        'isRead',
         'createdAt',
-        'user.id',
         'user.username',
         'user.name',
         'user.photoUrl',
@@ -572,10 +599,22 @@ export async function getNotifications(userId: string) {
       ],
       sortDirection: 'DESC'
     });
-    
-    return notifications || [];
+
+    if (!notificationsData) {
+        return [];
+    }
+
+    const notifications = notificationsData.map(n => ({
+        ...n,
+        user: n.user ? {
+            ...n.user,
+            id: n.user.username
+        } : null
+    }));
+
+    return notifications;
   } catch (error) {
     console.error('Error fetching notifications:', error);
-    return [];
+    throw error;
   }
 }

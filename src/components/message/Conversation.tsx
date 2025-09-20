@@ -40,7 +40,7 @@ export default function Conversation({ conversation, token, handleConversations 
         onError: (error) => console.log(error),
     });
 
-    const messagedUsername = conversation.participants.find((user: string) => user !== token.username);
+    const messagedUsername = conversation.user.username;
     const lastMessage = conversation.messages[conversation.messages.length - 1];
 
     // Add defensive checks for recipient/sender data
@@ -66,7 +66,7 @@ export default function Conversation({ conversation, token, handleConversations 
             isPremium = sender.isPremium || false;
         } else {
             // Fallback to conversation.user if available
-            if (conversation.user) {
+            if (conversation) {
                 name = conversation.user.name || "";
                 username = conversation.user.username || messagedUsername || "";
                 photoUrl = conversation.user.photoUrl || "";

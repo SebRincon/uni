@@ -10,7 +10,7 @@ export type MessageProps = {
 };
 
 export type ConversationResponse = {
-    participants: string[];
+    user: UserProps;
     messages: MessageProps[];
 };
 

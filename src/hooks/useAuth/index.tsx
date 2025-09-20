@@ -44,8 +44,36 @@ export default function useAuth(): AuthProps {
           if (users && users.length > 0) {
             const dbUser = users[0];
             console.log('✅ Found user in database:', dbUser);
+
+            const userSelectionSet = ['username', 'name', 'description', 'location', 'website', 'photoUrl', 'headerUrl', 'isPremium', 'createdAt', 'updatedAt'] as const;
+
+            // Fetch the list of users the current user is following
+            const followingLinks = await client.models.UserFollows.list({
+                filter: { followerId: { eq: (dbUser as any).username } }
+            });
+
+            const followingUsersData = await Promise.all(
+                (followingLinks.data || []).map(link => 
+                    client.models.User.get({ username: link.followingId }, {
+                        selectionSet: userSelectionSet
+                    })
+                )
+            );
+
+            const followingUsers = followingUsersData
+                .map(u => u.data)
+                .filter(Boolean)
+                .map(u => ({
+                    ...(u!),
+                    id: u!.username,
+                    followers: [],
+                    following: [],
+                    createdAt: new Date(u!.createdAt || Date.now()),
+                    updatedAt: new Date(u!.updatedAt || Date.now()),
+                } as UserProps));
+
             const userProfile: UserProps = {
-              id: (dbUser as any).username, // username is the primary key in Amplify
+              id: (dbUser as any).username,
               username: (dbUser as any).username,
               name: (dbUser as any).name || '',
               description: (dbUser as any).description || '',
@@ -54,9 +82,8 @@ export default function useAuth(): AuthProps {
               isPremium: (dbUser as any).isPremium || false,
               photoUrl: (dbUser as any).photoUrl || '',
               headerUrl: (dbUser as any).headerUrl || '',
-              // These will be fetched separately when needed
-              followers: [],
-              following: [],
+              followers: [], // Followers can be fetched on profile page
+              following: followingUsers,
               createdAt: new Date((dbUser as any).createdAt || Date.now()),
               updatedAt: new Date((dbUser as any).updatedAt || Date.now()),
             };
