@@ -23,7 +23,14 @@ export default function Notification({ notification, token }: { notification: No
         setAnchorEl(null);
     };
 
-    const content = JSON.parse(notification.content);
+    let content: any = null;
+    try {
+        content = notification.content ? JSON.parse(notification.content) : null;
+    } catch (error) {
+        console.error('Failed to parse notification content:', error);
+        // For welcome notifications or malformed content, we don't need parsed content
+        content = null;
+    }
 
     const tweetUrl = `/${notification.user.username}/tweets/${content?.content?.id}`;
     const profileUrl = `/${content?.sender.username}`;
@@ -50,7 +57,7 @@ export default function Notification({ notification, token }: { notification: No
         </Popover>
     );
 
-    const sharedJSX = (
+    const sharedJSX = content?.sender ? (
         <div className="notification-sender">
             <Link
                 href={profileUrl}
@@ -72,7 +79,7 @@ export default function Notification({ notification, token }: { notification: No
             </Link>
             {popoverJSX}
         </div>
-    );
+    ) : null;
 
     if (notification.type === "message") {
         return (

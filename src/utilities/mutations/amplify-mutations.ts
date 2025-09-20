@@ -74,11 +74,20 @@ export async function followUser(followerId: string, followingId: string) {
       followingId
     });
     
+    // Get follower user details for notification
+    const { data: followerUser } = await client.models.User.get({ id: followerId });
+    
     // Create notification
     await createNotification(
       followingId,
       'follow',
-      `@${followerId} started following you`
+      JSON.stringify({
+        sender: {
+          username: followerUser?.username || followerId,
+          name: followerUser?.name || '',
+          photoUrl: followerUser?.photoUrl || ''
+        }
+      })
     );
     
     return { success: true, data };
@@ -141,10 +150,22 @@ export async function createTweet(
     if (repliedToId && data) {
       const { data: originalTweet } = await client.models.Tweet.get({ id: repliedToId });
       if (originalTweet && originalTweet.authorId !== authorId) {
+        // Get author user details for notification
+        const { data: authorUser } = await client.models.User.get({ id: authorId });
+        
         await createNotification(
           originalTweet.authorId,
           'reply',
-          `@${authorId} replied to your tweet`
+          JSON.stringify({
+            sender: {
+              username: authorUser?.username || authorId,
+              name: authorUser?.name || '',
+              photoUrl: authorUser?.photoUrl || ''
+            },
+            content: {
+              id: data.id
+            }
+          })
         );
       }
     }
@@ -210,10 +231,22 @@ export async function likeTweet(userId: string, tweetId: string) {
     // Create notification
     const { data: tweet } = await client.models.Tweet.get({ id: tweetId });
     if (tweet && tweet.authorId !== userId) {
+      // Get liker user details for notification
+      const { data: likerUser } = await client.models.User.get({ id: userId });
+      
       await createNotification(
         tweet.authorId,
         'like',
-        `@${userId} liked your tweet`
+        JSON.stringify({
+          sender: {
+            username: likerUser?.username || userId,
+            name: likerUser?.name || '',
+            photoUrl: likerUser?.photoUrl || ''
+          },
+          content: {
+            id: tweetId
+          }
+        })
       );
     }
     
@@ -289,10 +322,22 @@ export async function retweet(userId: string, tweetId: string) {
     
     // Create notification
     if (originalTweet.authorId !== userId) {
+      // Get retweeter user details for notification
+      const { data: retweeterUser } = await client.models.User.get({ id: userId });
+      
       await createNotification(
         originalTweet.authorId,
         'retweet',
-        `@${userId} retweeted your tweet`
+        JSON.stringify({
+          sender: {
+            username: retweeterUser?.username || userId,
+            name: retweeterUser?.name || '',
+            photoUrl: retweeterUser?.photoUrl || ''
+          },
+          content: {
+            id: tweetId
+          }
+        })
       );
     }
     
@@ -366,11 +411,20 @@ export async function createMessage(
       photoUrl
     });
     
+    // Get sender user details for notification
+    const { data: senderUser } = await client.models.User.get({ id: senderId });
+    
     // Create notification
     await createNotification(
       recipientId,
       'message',
-      `You have a new message from @${senderId}`
+      JSON.stringify({
+        sender: {
+          username: senderUser?.username || senderId,
+          name: senderUser?.name || '',
+          photoUrl: senderUser?.photoUrl || ''
+        }
+      })
     );
     
     return data;

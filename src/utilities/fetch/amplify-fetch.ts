@@ -524,7 +524,22 @@ export async function getNotifications(userId: string) {
   try {
     const { data: notifications } = await client.models.Notification.list({
       filter: { userId: { eq: userId } },
-      selectionSet: ['id', 'type', 'content', 'isRead', 'createdAt'],
+      selectionSet: [
+        'id', 
+        'type', 
+        'content', 
+        'isRead', 
+        'createdAt',
+        'user.id',
+        'user.username',
+        'user.name',
+        'user.photoUrl',
+        'user.headerUrl',
+        'user.description',
+        'user.location',
+        'user.website',
+        'user.isPremium'
+      ],
       sortDirection: 'DESC'
     });
     
