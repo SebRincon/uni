@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-west-2_4GBLfv0uG",
+    "user_pool_id": "us-west-2_xMZYk3mL7",
     "aws_region": "us-west-2",
-    "user_pool_client_id": "pkmguc53aldgseh2b0rqfdgb5",
-    "identity_pool_id": "us-west-2:d4d24843-ff05-4e37-8133-c68c73a8a7f5",
+    "user_pool_client_id": "lf3tq2dff1kak8evemkldl7i6",
+    "identity_pool_id": "us-west-2:0fb71852-eedb-4001-a475-fab0c27229e5",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -27,9 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://lt4kgyx72fe35nosrb6gggq5hm.appsync-api.us-west-2.amazonaws.com/graphql",
+    "url": "https://7y6lrtagubbirf6iqcdxlb2cda.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
-    "api_key": "da2-nbhyqthnvzeo5frztljs3hwcqy",
+    "api_key": "da2-jkdo7ztgqzccpdiilfqscgkdpa",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -1996,11 +1996,11 @@
   },
   "storage": {
     "aws_region": "us-west-2",
-    "bucket_name": "amplify-twitter-sebastian-twitterclonemediabucket8-4wzmntrlglvh",
+    "bucket_name": "amplify-ddfybarxpa7k8-mai-twitterclonemediabucket8-z7c9ylgrtmog",
     "buckets": [
       {
         "name": "twitter-clone-media",
-        "bucket_name": "amplify-twitter-sebastian-twitterclonemediabucket8-4wzmntrlglvh",
+        "bucket_name": "amplify-ddfybarxpa7k8-mai-twitterclonemediabucket8-z7c9ylgrtmog",
         "aws_region": "us-west-2",
         "paths": {
           "media/*": {
@@ -2019,5 +2019,5 @@
       }
     ]
   },
-  "version": "1.4"
+  "version": "1.3"
 }

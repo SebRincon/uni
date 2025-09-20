@@ -13,16 +13,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const apiKey = process.env.LIVEKIT_API_KEY;
-    const apiSecret = process.env.LIVEKIT_API_SECRET;
-    const wsUrl = process.env.LIVEKIT_URL;
-
-    if (!apiKey || !apiSecret || !wsUrl) {
-      return NextResponse.json(
-        { error: 'LiveKit credentials not configured' },
-        { status: 500 }
-      );
-    }
+    const apiKey = 'APIi9NCDD8TA2Mi';
+    const apiSecret = 'P7iDglLd8zMVAVIuMW7BYxaN4eQFqx8xiGQxefET1aKA';
+    const wsUrl = 'wss://astoic-z2c3ve4i.livekit.cloud';
 
     const at = new AccessToken(apiKey, apiSecret, {
       identity: participantName,
