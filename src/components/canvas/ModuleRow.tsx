@@ -23,6 +23,11 @@ export default function ModuleRow({ module, courseId, onItemClick }: ModuleRowPr
     staleTime: Infinity,
   });
 
+  // Filter for items that are either Assignments or Files
+  const filteredItems = items?.filter(
+    (item: CanvasModuleItem) => item.type === 'Assignment' || item.type === 'File'
+  ) || [];
+
   const toggleExpansion = () => {
     setIsExpanded(!isExpanded);
   };
@@ -44,7 +49,8 @@ export default function ModuleRow({ module, courseId, onItemClick }: ModuleRowPr
           {isLoading && <CircularLoading />}
           {items && (
             <ul>
-              {items.map((item: CanvasModuleItem) => (
+              {/* Iterate over the filtered list */}
+              {filteredItems.map((item: CanvasModuleItem) => (
                 <li key={item.id} className="assignment-item">
                   <a href={item.html_url} onClick={(e) => handleItemClick(e, item)}>
                     <span className="item-type">{item.type}</span>
