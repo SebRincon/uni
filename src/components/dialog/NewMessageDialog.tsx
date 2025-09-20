@@ -9,7 +9,7 @@ import Picker from "@emoji-mart/react";
 
 import { NewMessageDialogProps } from "@/types/DialogProps";
 import CircularLoading from "../misc/CircularLoading";
-import { checkUserExists, createMessage } from "@/utilities/fetch";
+import { checkUserExists, createMessage, findOrCreateDirectConversation } from "@/utilities/fetch";
 import { uploadFile } from "@/utilities/storage";
 import Uploader from "../misc/Uploader";
 
@@ -21,8 +21,11 @@ export default function NewMessageDialog({ open, handleNewMessageClose, token, r
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: ({ senderId, recipientId, text, photoFile }: { senderId: string; recipientId: string; text: string; photoFile?: File }) => 
-            createMessage(senderId, recipientId, text, photoFile),
+        mutationFn: async ({ senderId, recipientUsername, text, photoFile }: { senderId: string; recipientUsername: string; text: string; photoFile?: File }) => {
+            // Find or create 1:1 conversation
+            const conv = await findOrCreateDirectConversation(senderId, recipientUsername);
+            return createMessage(conv!.id, senderId, text, photoFile);
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["messages", token.username] });
         },
@@ -69,10 +72,9 @@ export default function NewMessageDialog({ open, handleNewMessageClose, token, r
                 return;
             }
             
-            // For now, use username as ID (should be fixed to get actual user ID)
             mutation.mutate({
                 senderId: token.id,
-                recipientId: values.recipient, // This should be the actual recipient ID
+                recipientUsername: values.recipient,
                 text: values.text,
                 photoFile: photoFile || undefined
             });

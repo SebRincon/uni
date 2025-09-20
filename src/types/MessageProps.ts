@@ -3,33 +3,34 @@ import { UserProps } from "./UserProps";
 export type MessageProps = {
     id: string;
     sender: UserProps;
-    recipient: UserProps;
     text: string;
     createdAt: Date;
     photoUrl: string;
+    conversationId: string;
 };
 
-export type ConversationResponse = {
-    user: UserProps;
+export type Conversation = {
+    id: string;
+    name?: string | null;
+    members: UserProps[];
     messages: MessageProps[];
 };
 
 export type ConversationProps = {
-    conversation: ConversationResponse;
+    conversation: Conversation;
     token: UserProps;
-    handleConversations: (isSelected: boolean, messages?: MessageProps[], messagedUsername?: string) => void;
+    handleConversations: (isSelected: boolean, conversation?: Conversation) => void;
 };
 
 export type MessagesProps = {
-    selectedMessages: MessageProps[];
-    messagedUsername: string;
-    handleConversations: (isSelected: boolean, messages?: MessageProps[], messagedUsername?: string) => void;
+    conversation: Conversation;
+    handleConversations: (isSelected: boolean, conversation?: Conversation) => void;
     token: UserProps;
 };
 
 export type MessageFormProps = {
     token: UserProps;
-    messagedUsername: string;
+    conversationId: string;
     setFreshMessages: any;
     freshMessages: MessageProps[];
 };

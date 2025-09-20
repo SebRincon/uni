@@ -6,10 +6,10 @@ import { AiFillTwitterCircle } from "react-icons/ai";
 
 import { UserProps } from "@/types/UserProps";
 import { AuthContext } from "@/app/(twitter)/layout";
-import Follow from "./Follow";
+import Friend from "./Friend";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
 
-export default function User({ user }: { user: UserProps }) {
+export default function User({ user, showFriendButton = true }: { user: UserProps; showFriendButton?: boolean }) {
     const { token } = useContext(AuthContext);
     const avatarUrl = useStorageUrl(user.photoUrl);
 
@@ -20,7 +20,7 @@ export default function User({ user }: { user: UserProps }) {
     };
 
     return (
-        <>
+        <div className="user-wrapper-internal">
             <Link href={`/${user.username}`}>
                 <Avatar
                     className="avatar"
@@ -43,11 +43,11 @@ export default function User({ user }: { user: UserProps }) {
                             </span>
                             <span className="text-muted">@{user.username}</span>
                         </div>
-                        {token && user.username !== token.username && <Follow profile={user} />}
+                        {token && user.username !== token.username && showFriendButton && <Friend profile={user} />}
                     </div>
                     <span className="user-desc">{user.description}</span>
                 </div>
             </div>
-        </>
+        </div>
     );
 }

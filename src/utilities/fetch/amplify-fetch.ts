@@ -24,52 +24,49 @@ export async function getUser(username: string) {
     });
     
     if (!users || users.length === 0) {
-      // Gracefully handle missing user
       return null;
     }
     
     const user = users[0];
-    
-    // Get follower/following relations
-    const { data: followerLinks } = await client.models.UserFollows.list({
-      filter: { followingId: { eq: user.username } }
-    });
-    const { data: followingLinks } = await client.models.UserFollows.list({
-      filter: { followerId: { eq: user.username } }
-    });
 
-    // Resolve relations to full user objects
-    const followers = await Promise.all(
-      (followerLinks || []).map(async (link: any) => {
-        const { data: follower } = await client.models.User.get(
-          { username: link.followerId },
-          { selectionSet: userSelectionSet }
-        );
-        return follower ? { ...follower, id: follower.username } : null;
-      })
-    );
+    const [friendshipsA, friendshipsB] = await Promise.all([
+      client.models.Friendship.list({ filter: { userAId: { eq: user.username } } }),
+      client.models.Friendship.list({ filter: { userBId: { eq: user.username } } }),
+    ]);
 
-    const following = await Promise.all(
-      (followingLinks || []).map(async (link: any) => {
-        const { data: followed } = await client.models.User.get(
-          { username: link.followingId },
-          { selectionSet: userSelectionSet }
-        );
-        return followed ? { ...followed, id: followed.username } : null;
-      })
-    );
-    
+    const allFriendships = [ ...(friendshipsA.data || []), ...(friendshipsB.data || []) ];
+
+    async function getUserByUsername(u: string) {
+      const { data: udata } = await client.models.User.get({ username: u }, { selectionSet: userSelectionSet });
+      return udata ? { ...udata, id: udata.username } : null;
+    }
+
+    const friends: any[] = [];
+    const pendingIncoming: any[] = [];
+    const pendingOutgoing: any[] = [];
+
+    for (const f of allFriendships) {
+      const otherId = f.userAId === user.username ? f.userBId : f.userAId;
+      const otherUser = await getUserByUsername(otherId);
+      if (!otherUser) continue;
+      if (f.status === 'accepted') friends.push(otherUser);
+      else if (f.status === 'pending') {
+        if (f.requesterId === user.username) pendingOutgoing.push(otherUser);
+        else pendingIncoming.push(otherUser);
+      }
+    }
+
     return {
       ...user,
-      id: user.username, // Add id field for compatibility
-      followers: followers.filter(Boolean) as UserProps[],
-      following: following.filter(Boolean) as UserProps[],
+      id: user.username,
+      friends,
+      pendingIncoming,
+      pendingOutgoing,
       isPremium: user.isPremium || false,
       createdAt: new Date(user.createdAt),
       updatedAt: new Date(user.updatedAt),
     };
   } catch (error) {
-    // Log other unexpected errors, but return null so callers can handle gracefully
     console.error('Error fetching user:', error);
     return null;
   }
@@ -545,86 +542,49 @@ export async function getMessages(username: string) {
       filter: { username: { eq: username } },
       selectionSet: ['username']
     });
-    
-    if (!users || users.length === 0) {
-      return [];
-    }
-    
+    if (!users || users.length === 0) return [];
     const userId = users[0].username;
-    
-    // Get messages where user is sender or recipient with full sender/recipient data
-    const [sent, received] = await Promise.all([
-      client.models.Message.list({
-        filter: { senderId: { eq: userId } },
+
+    // Get conversations where user is a member
+    const { data: memberships } = await client.models.ConversationMember.list({
+      filter: { userId: { eq: userId } }
+    });
+
+    const results: any[] = [];
+
+    for (const m of memberships || []) {
+      const { data: conv } = await client.models.Conversation.get({ id: m.conversationId });
+      if (!conv) continue;
+
+      // Fetch members
+      const { data: memberLinks } = await client.models.ConversationMember.list({
+        filter: { conversationId: { eq: conv.id } }
+      });
+      const members = await Promise.all((memberLinks || []).map(async (ml: any) => {
+        const { data: u } = await client.models.User.get({ username: ml.userId }, { selectionSet: userSelectionSet });
+        return u ? { ...u, id: u.username } : null;
+      }));
+
+      // Fetch messages for conversation
+      const { data: msgs } = await client.models.Message.list({
+        filter: { conversationId: { eq: conv.id } },
         selectionSet: [
-          'id', 
-          'text', 
-          'photoUrl', 
-          'createdAt', 
-          'senderId', 
-          'recipientId',
-          'sender.username',
-          'sender.name',
-          'sender.photoUrl',
-          'sender.isPremium',
-          'recipient.username',
-          'recipient.name', 
-          'recipient.photoUrl',
-          'recipient.isPremium'
-        ]
-      }),
-      client.models.Message.list({
-        filter: { recipientId: { eq: userId } },
-        selectionSet: [
-          'id', 
-          'text', 
-          'photoUrl', 
-          'createdAt', 
-          'senderId', 
-          'recipientId',
-          'sender.username',
-          'sender.name',
-          'sender.photoUrl',
-          'sender.isPremium',
-          'recipient.username',
-          'recipient.name', 
-          'recipient.photoUrl',
-          'recipient.isPremium'
-        ]
-      })
-    ]);
-    
-    const allMessages = [...(sent.data || []), ...(received.data || [])];
-    
-    // Group messages by conversation
-    const conversations = new Map();
-    
-    for (const message of allMessages) {
-      const otherUserId = message.senderId === userId ? message.recipientId : message.senderId;
-      
-      if (!conversations.has(otherUserId)) {
-        const { data: otherUser } = await client.models.User.get(
-          { username: otherUserId },
-          { selectionSet: userSelectionSet }
-        );
-        
-        conversations.set(otherUserId, {
-          user: { ...otherUser, id: otherUser?.username },
-          messages: []
-        });
-      }
-      
-      conversations.get(otherUserId).messages.push(message);
+          'id', 'text', 'photoUrl', 'createdAt', 'senderId', 'conversationId',
+          'sender.username', 'sender.name', 'sender.photoUrl', 'sender.isPremium'
+        ],
+        sortDirection: 'ASC'
+      });
+
+      const mappedMsgs = (msgs || []).map((msg: any) => ({
+        ...msg,
+        sender: msg.sender ? { ...msg.sender, id: msg.sender.username } : { id: msg.senderId } as any,
+        createdAt: new Date(msg.createdAt)
+      }));
+
+      results.push({ id: conv.id, name: conv.name, members: members.filter(Boolean), messages: mappedMsgs });
     }
-    
-    // Sort messages within each conversation (oldest first)
-    for (const conversation of conversations.values()) {
-      conversation.messages.sort((a: any, b: any) => 
-        new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-      );
-    }
-    
-    return Array.from(conversations.values());
+
+    return results;
   } catch (error) {
     console.error('Error fetching messages:', error);
     return [];

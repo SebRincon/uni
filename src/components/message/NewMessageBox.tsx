@@ -13,7 +13,7 @@ import { createMessage } from "@/utilities/fetch";
 import { uploadFile } from "@/utilities/storage";
 import { MessageFormProps } from "@/types/MessageProps";
 
-export default function NewMessageBox({ messagedUsername, token, setFreshMessages, freshMessages }: MessageFormProps) {
+export default function NewMessageBox({ conversationId, token, setFreshMessages, freshMessages }: MessageFormProps) {
     const [showPicker, setShowPicker] = useState(false);
     const [showDropzone, setShowDropzone] = useState(false);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -21,8 +21,8 @@ export default function NewMessageBox({ messagedUsername, token, setFreshMessage
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: ({ senderId, recipientId, text, photoFile }: { senderId: string; recipientId: string; text: string; photoFile?: File }) => 
-            createMessage(senderId, recipientId, text, photoFile),
+mutationFn: ({ conversationId, senderId, text, photoFile }: { conversationId: string; senderId: string; text: string; photoFile?: File }) => 
+            createMessage(conversationId, senderId, text, photoFile),
         onMutate: () => {
             const newMessage = {
                 photoUrl: formik.values.photoUrl,
@@ -30,9 +30,6 @@ export default function NewMessageBox({ messagedUsername, token, setFreshMessage
                 createdAt: Date.now(),
                 sender: {
                     username: formik.values.sender,
-                },
-                recipient: {
-                    username: formik.values.recipient,
                 },
                 id: Math.floor(Math.random() * 1000000).toString(),
             };
@@ -59,7 +56,6 @@ export default function NewMessageBox({ messagedUsername, token, setFreshMessage
     const formik = useFormik({
         initialValues: {
             sender: token.username,
-            recipient: messagedUsername ? messagedUsername : token.username, // if messagedUsername is null, then the user is messaging themselves
             text: "",
             photoUrl: "",
         },
@@ -71,11 +67,9 @@ export default function NewMessageBox({ messagedUsername, token, setFreshMessage
                 values.photoUrl = path;
                 setPhotoFile(null);
             }
-            // Get the actual user IDs - for now using usernames as placeholders
-            // In a real app, we'd need to fetch the actual user IDs
             mutation.mutate({
-                senderId: token.id || token.username, // Use ID if available, fallback to username
-                recipientId: messagedUsername || token.username,
+                conversationId,
+                senderId: token.id || token.username,
                 text: values.text,
                 photoFile: photoFile || undefined
             });

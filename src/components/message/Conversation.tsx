@@ -20,24 +20,11 @@ export default function Conversation({ conversation, token, handleConversations 
 
     const queryClient = useQueryClient();
 
-    // Extract photoUrl before any early returns for hooks
+    // Determine avatar photo from first other member (for groups, just pick first other member)
     let photoUrl = "";
-    if (conversation && conversation.messages && conversation.messages.length > 0) {
-        const lastMessage = conversation.messages[conversation.messages.length - 1];
-        const messagedUsername = conversation.user.username;
-        
-        if (lastMessage) {
-            const recipient = lastMessage.recipient;
-            const sender = lastMessage.sender;
-            
-            if (recipient && recipient.username === messagedUsername) {
-                photoUrl = recipient.photoUrl || "";
-            } else if (sender && sender.username === messagedUsername) {
-                photoUrl = sender.photoUrl || "";
-            } else if (conversation.user) {
-                photoUrl = conversation.user.photoUrl || "";
-            }
-        }
+    const otherMembers = (conversation.members || []).filter((m: any) => m.username !== token.username);
+    if (otherMembers.length > 0) {
+        photoUrl = otherMembers[0].photoUrl || "";
     }
     
     // Call hook before any returns
@@ -62,39 +49,26 @@ export default function Conversation({ conversation, token, handleConversations 
     );
 
     // Handle empty conversation after hooks are declared
-    if (!conversation || !conversation.messages || conversation.messages.length === 0) {
+    if (!conversation || !conversation.messages) {
         return null;
     }
 
-    const messagedUsername = conversation.user.username;
+    const isGroup = (conversation.members || []).length > 2;
+    const others = (conversation.members || []).filter((m: any) => m.username !== token.username);
     const lastMessage = conversation.messages[conversation.messages.length - 1];
 
-    // Add defensive checks for recipient/sender data
     let name = "";
-    let username = messagedUsername || "";
-    let isPremium = false;
+    let username = others[0]?.username || "";
+    let isPremium = others[0]?.isPremium || false;
 
-    if (lastMessage) {
-        const recipient = lastMessage.recipient;
-        const sender = lastMessage.sender;
-        
-        // Determine which user info to use based on who is the other participant
-        if (recipient && recipient.username === messagedUsername) {
-            name = recipient.name || "";
-            username = recipient.username || messagedUsername || "";
-            isPremium = recipient.isPremium || false;
-        } else if (sender && sender.username === messagedUsername) {
-            name = sender.name || "";
-            username = sender.username || messagedUsername || "";
-            isPremium = sender.isPremium || false;
-        } else {
-            // Fallback to conversation.user if available
-            if (conversation) {
-                name = conversation.user.name || "";
-                username = conversation.user.username || messagedUsername || "";
-                isPremium = conversation.user.isPremium || false;
-            }
-        }
+    if (isGroup) {
+        name = conversation.name || others.map((m: any) => m.username).join(", ");
+        username = name;
+        isPremium = false;
+    } else if (others[0]) {
+        name = others[0].name || others[0].username;
+        username = others[0].username;
+        isPremium = others[0].isPremium || false;
     }
     
     const handlePopoverOpen = (e: React.MouseEvent<HTMLElement>) => {
@@ -104,7 +78,7 @@ export default function Conversation({ conversation, token, handleConversations 
         setAnchorEl(null);
     };
     const handleConversationClick = () => {
-        handleConversations(true, conversation.messages, messagedUsername);
+        handleConversations(true, conversation as any);
     };
     const handleConfirmationClick = (e: React.MouseEvent) => {
         e.stopPropagation();
@@ -189,7 +163,7 @@ export default function Conversation({ conversation, token, handleConversations 
                 onClose={handlePopoverClose}
                 disableRestoreFocus
             >
-                <ProfileCard username={username} token={token} />
+                {!isGroup && <ProfileCard username={username} token={token} />}
             </Popover>
             {isConfirmationOpen && (
                 <div className="html-modal-wrapper">

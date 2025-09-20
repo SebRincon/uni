@@ -63,75 +63,7 @@ export async function updateUser(userId: string, updates: Partial<User>) {
   }
 }
 
-export async function followUser(followerId: string, followingId: string) {
-  try {
-    // Check if already following
-    const { data: existing } = await client.models.UserFollows.list({
-      filter: {
-        and: [
-          { followerId: { eq: followerId } },
-          { followingId: { eq: followingId } }
-        ]
-      }
-    });
-    
-    if (existing && existing.length > 0) {
-      return { success: false, message: 'Already following' };
-    }
-    
-    const { data } = await client.models.UserFollows.create({
-      followerId,
-      followingId
-    });
-    
-    // Get follower user details for notification
-    const { data: followerUser } = await client.models.User.get({ id: followerId });
-    
-    // Create notification
-    await createNotification(
-      followingId,
-      'follow',
-      JSON.stringify({
-        sender: {
-          username: followerUser?.username || followerId,
-          name: followerUser?.name || '',
-          photoUrl: followerUser?.photoUrl || ''
-        }
-      })
-    );
-    
-    return { success: true, data };
-  } catch (error) {
-    console.error('Error following user:', error);
-    throw error;
-  }
-}
 
-export async function unfollowUser(followerId: string, followingId: string) {
-  try {
-    const { data: existing } = await client.models.UserFollows.list({
-      filter: {
-        and: [
-          { followerId: { eq: followerId } },
-          { followingId: { eq: followingId } }
-        ]
-      }
-    });
-    
-    if (!existing || existing.length === 0) {
-      return { success: false, message: 'Not following' };
-    }
-    
-    const { data } = await client.models.UserFollows.delete({
-      id: existing[0].id
-    });
-    
-    return { success: true, data };
-  } catch (error) {
-    console.error('Error unfollowing user:', error);
-    throw error;
-  }
-}
 
 // Tweet mutations
 export async function createTweet(
@@ -161,7 +93,7 @@ export async function createTweet(
       const { data: originalTweet } = await client.models.Tweet.get({ id: repliedToId });
       if (originalTweet && originalTweet.authorId !== authorId) {
         // Get author user details for notification
-        const { data: authorUser } = await client.models.User.get({ id: authorId });
+        const { data: authorUser } = await client.models.User.get({ username: authorId });
         
         await createNotification(
           originalTweet.authorId,
@@ -242,7 +174,7 @@ export async function likeTweet(userId: string, tweetId: string) {
     const { data: tweet } = await client.models.Tweet.get({ id: tweetId });
     if (tweet && tweet.authorId !== userId) {
       // Get liker user details for notification
-      const { data: likerUser } = await client.models.User.get({ id: userId });
+      const { data: likerUser } = await client.models.User.get({ username: userId });
       
       await createNotification(
         tweet.authorId,
@@ -333,7 +265,7 @@ export async function retweet(userId: string, tweetId: string) {
     // Create notification
     if (originalTweet.authorId !== userId) {
       // Get retweeter user details for notification
-      const { data: retweeterUser } = await client.models.User.get({ id: userId });
+      const { data: retweeterUser } = await client.models.User.get({ username: userId });
       
       await createNotification(
         originalTweet.authorId,
@@ -400,43 +332,159 @@ export async function unretweet(userId: string, tweetId: string) {
   }
 }
 
+// Friendship helpers
+function sortPair(a: string, b: string): [string, string] {
+  return a < b ? [a, b] : [b, a];
+}
+
+async function getFriendshipByPair(a: string, b: string) {
+  const { data } = await client.models.Friendship.list({
+    filter: { and: [ { userAId: { eq: a } }, { userBId: { eq: b } } ] }
+  });
+  return data || [];
+}
+
+export async function sendFriendRequest(requesterId: string, targetId: string) {
+  try {
+    const [a, b] = sortPair(requesterId, targetId);
+    const existing = await getFriendshipByPair(a, b);
+    if (existing.length > 0) return { success: false, message: 'Already related' };
+    const { data } = await client.models.Friendship.create({
+      userAId: a,
+      userBId: b,
+      requesterId,
+      status: 'pending'
+    });
+    // Notify target
+    await createNotification(
+      targetId,
+      'friend_request',
+      JSON.stringify({ sender: { username: requesterId } })
+    );
+    return { success: true, data };
+  } catch (e) {
+    console.error('Error sending friend request:', e);
+    throw e;
+  }
+}
+
+export async function cancelFriendRequest(requesterId: string, targetId: string) {
+  try {
+    const [a, b] = sortPair(requesterId, targetId);
+    const existing = await getFriendshipByPair(a, b);
+    const pending = (existing || []).find(f => f.status === 'pending' && f.requesterId === requesterId);
+    if (!pending) return { success: false };
+    await client.models.Friendship.delete({ id: pending.id });
+    return { success: true };
+  } catch (e) {
+    console.error('Error canceling friend request:', e);
+    throw e;
+  }
+}
+
+export async function acceptFriendRequest(userId: string, otherId: string) {
+  try {
+    const [a, b] = sortPair(userId, otherId);
+    const existing = await getFriendshipByPair(a, b);
+    const pending = (existing || []).find(f => f.status === 'pending' && f.requesterId !== userId);
+    if (!pending) return { success: false };
+    const { data } = await client.models.Friendship.update({ id: pending.id, status: 'accepted' });
+    // Notify requester
+    await createNotification(
+      otherId,
+      'friend_accept',
+      JSON.stringify({ sender: { username: userId } })
+    );
+    return { success: true, data };
+  } catch (e) {
+    console.error('Error accepting friend request:', e);
+    throw e;
+  }
+}
+
+export async function declineFriendRequest(userId: string, otherId: string) {
+  try {
+    const [a, b] = sortPair(userId, otherId);
+    const existing = await getFriendshipByPair(a, b);
+    const pending = (existing || []).find(f => f.status === 'pending' && f.requesterId !== userId);
+    if (!pending) return { success: false };
+    await client.models.Friendship.delete({ id: pending.id });
+    return { success: true };
+  } catch (e) {
+    console.error('Error declining friend request:', e);
+    throw e;
+  }
+}
+
+export async function removeFriend(userId: string, otherId: string) {
+  try {
+    const [a, b] = sortPair(userId, otherId);
+    const existing = await getFriendshipByPair(a, b);
+    const accepted = (existing || []).find(f => f.status === 'accepted');
+    if (!accepted) return { success: false };
+    await client.models.Friendship.delete({ id: accepted.id });
+    return { success: true };
+  } catch (e) {
+    console.error('Error removing friend:', e);
+    throw e;
+  }
+}
+
+// Conversations
+export async function createConversation(creatorId: string, memberIds: string[], name?: string) {
+  try {
+    const unique = Array.from(new Set([creatorId, ...memberIds]));
+    if (unique.length > 5) throw new Error('Max 5 participants per group');
+    const { data: conv } = await client.models.Conversation.create({ name: name || null, createdBy: creatorId });
+    // Add members
+    for (const uid of unique) {
+      await client.models.ConversationMember.create({ conversationId: conv!.id, userId: uid });
+    }
+    return conv;
+  } catch (e) {
+    console.error('Error creating conversation:', e);
+    throw e;
+  }
+}
+
+export async function findOrCreateDirectConversation(userA: string, userB: string) {
+  try {
+    // Get conversations where userA is a member
+    const { data: memberships } = await client.models.ConversationMember.list({ filter: { userId: { eq: userA } } });
+    for (const m of memberships || []) {
+      const { data: members } = await client.models.ConversationMember.list({ filter: { conversationId: { eq: m.conversationId } } });
+      const ids = (members || []).map(mm => mm.userId);
+      if (ids.length === 2 && ids.includes(userB)) {
+        const { data: conv } = await client.models.Conversation.get({ id: m.conversationId });
+        return conv;
+      }
+    }
+    // Create if not found
+    return await createConversation(userA, [userB]);
+  } catch (e) {
+    console.error('Error finding/creating direct conversation:', e);
+    throw e;
+  }
+}
+
 // Message mutations
 export async function createMessage(
+  conversationId: string,
   senderId: string,
-  recipientId: string,
   text: string,
   photoFile?: File
 ) {
   try {
     let photoUrl: string | undefined;
-    
     if (photoFile) {
       photoUrl = await uploadMedia(photoFile) || undefined;
     }
-    
     const { data } = await client.models.Message.create({
+      conversationId,
       senderId,
-      recipientId,
       text,
       photoUrl
     });
-    
-    // Get sender user details for notification
-    const { data: senderUser } = await client.models.User.get({ id: senderId });
-    
-    // Create notification
-    await createNotification(
-      recipientId,
-      'message',
-      JSON.stringify({
-        sender: {
-          username: senderUser?.username || senderId,
-          name: senderUser?.name || '',
-          photoUrl: senderUser?.photoUrl || ''
-        }
-      })
-    );
-    
     return data;
   } catch (error) {
     console.error('Error creating message:', error);

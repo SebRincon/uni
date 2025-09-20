@@ -183,6 +183,42 @@ export default function Notification({ notification, token }: { notification: No
                 </div>
             </div>
         );
+    } else if (notification.type === "friend_request") {
+        return (
+            <div className="notification">
+                <div className="icon-div follow">
+                    <RiChatFollowUpLine />
+                </div>
+                <div>
+                    {sharedJSX}{" "}
+                    <span className={!notification.isRead ? "bold" : ""}>
+                        Sent you a friend request.
+                    </span>{" "}
+                    <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href="/friends/requests">
+                        Review
+                    </Link>
+                </div>
+            </div>
+        );
+    } else if (notification.type === "friend_accept") {
+        return (
+            <div className="notification">
+                <div className="icon-div follow">
+                    <RiChatFollowUpLine />
+                </div>
+                <div>
+                    {sharedJSX}{" "}
+                    <span className={!notification.isRead ? "bold" : ""}>
+                        Accepted your friend request.
+                    </span>{" "}
+                    {senderUsername ? (
+                        <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={profileUrl}>
+                            View profile
+                        </Link>
+                    ) : null}
+                </div>
+            </div>
+        );
     } else {
         return (
             <div className="notification">

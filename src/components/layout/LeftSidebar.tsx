@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useContext, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, Menu, MenuItem } from "@mui/material";
-import { FaHome, FaBell, FaEnvelope, FaUser, FaCog, FaHashtag, FaEllipsisH, FaTwitter } from "react-icons/fa";
+import { FaHome, FaBell, FaEnvelope, FaUser, FaCog, FaHashtag, FaEllipsisH, FaTwitter, FaUserPlus } from "react-icons/fa";
 import { AiFillTwitterCircle } from "react-icons/ai";
 
 import NewTweetDialog from "../dialog/NewTweetDialog";
@@ -102,6 +102,13 @@ export default function LeftSidebar() {
                                         <Link href="/messages">
                                             <div className={`nav-link ${pathname.startsWith("/messages") ? "active" : ""}`}>
                                                 <FaEnvelope /> <span className="nav-title">Messages</span>
+                                            </div>
+                                        </Link>
+                                    </li>
+                                    <li>
+                                        <Link href="/friends/requests">
+                                            <div className={`nav-link ${pathname.startsWith("/friends/requests") ? "active" : ""}`}>
+                                                <FaUserPlus /> <span className="nav-title">Requests</span>
                                             </div>
                                         </Link>
                                     </li>

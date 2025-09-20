@@ -8,7 +8,7 @@ Your Twitter clone has been successfully migrated from Supabase/Postgres to AWS 
 ### 1. **Data Model Migration**
 - Translated entire Prisma schema to Amplify Gen 2 data model
 - Added proper many-to-many relationships with explicit join tables:
-  - UserFollows (for following/followers)
+  - Friendship (friends & requests; replaces following/followers)
   - UserLikes (for tweet likes)
   - UserRetweets (for retweets)
 - Added missing relationships (retweetOf, retweetedVersions)
@@ -23,7 +23,7 @@ Your Twitter clone has been successfully migrated from Supabase/Postgres to AWS 
 ### 3. **Data Access Layer**
 - Created comprehensive fetch utilities using Amplify GraphQL
 - Implemented all CRUD operations for:
-  - Users (profile updates, follow/unfollow)
+  - Users (profile updates, friendship actions: request/cancel/accept/decline/remove)
   - Tweets (create, delete, like/unlike, retweet)
   - Messages (create, delete)
   - Notifications (create, mark as read)
@@ -79,7 +79,7 @@ For existing users:
 - [ ] Creating tweets with text and images
 - [ ] Liking/unliking tweets
 - [ ] Retweeting/unretweeting
-- [ ] Following/unfollowing users
+- [ ] Friend request lifecycle (send/cancel/accept/decline/remove)
 - [ ] Sending messages
 - [ ] Receiving notifications
 - [ ] Search functionality
@@ -98,7 +98,7 @@ For existing users:
 - Optimistic updates implemented for better UX
 
 ### Data Model Differences
-- User IDs are now Cognito sub values
+- User primary key is username (handle). Cognito sub is not used as the PK.
 - Timestamps are automatically managed
 - Relationships use explicit join tables
 

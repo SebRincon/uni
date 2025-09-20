@@ -10,8 +10,9 @@ export type UserProps = {
     updatedAt: Date;
     photoUrl: string | null;
     headerUrl: string | null;
-    followers: UserProps[];
-    following: UserProps[];
+    friends: UserProps[];
+    pendingIncoming: UserProps[];
+    pendingOutgoing: UserProps[];
 };
 
 export type UserResponse = {

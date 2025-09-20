@@ -6,19 +6,20 @@ import { BsEnvelopePlus } from "react-icons/bs";
 
 import NothingToShow from "@/components/misc/NothingToShow";
 import NewMessageDialog from "@/components/dialog/NewMessageDialog";
+import NewGroupDialog from "@/components/dialog/NewGroupDialog";
 import { AuthContext } from "../layout";
 import CircularLoading from "@/components/misc/CircularLoading";
 import { getUserMessages } from "@/utilities/fetch";
 import Conversation from "@/components/message/Conversation";
-import { ConversationResponse, MessageProps } from "@/types/MessageProps";
+import { Conversation as ConversationType, MessageProps } from "@/types/MessageProps";
 import Messages from "@/components/message/Messages";
 
 export default function MessagesPage() {
     const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
-    const [isConversationSelected, setIsConversationSelected] = useState({
+    const [isNewGroupOpen, setIsNewGroupOpen] = useState(false);
+    const [isConversationSelected, setIsConversationSelected] = useState<{ selected: boolean; conversation: ConversationType | null }>({
         selected: false,
-        messages: [] as MessageProps[],
-        messagedUsername: "",
+        conversation: null,
     });
 
     const { token, isPending } = useContext(AuthContext);
@@ -33,8 +34,12 @@ export default function MessagesPage() {
         setIsNewMessageOpen(false);
     };
 
-    const handleConversations = (isSelected: boolean, messages: MessageProps[] = [], messagedUsername: string = "") => {
-        setIsConversationSelected({ selected: isSelected, messages, messagedUsername });
+    const handleNewGroupClose = () => {
+        setIsNewGroupOpen(false);
+    };
+
+    const handleConversations = (isSelected: boolean, conversation?: ConversationType) => {
+        setIsConversationSelected({ selected: isSelected, conversation: conversation || null });
     };
 
     if (isPending || !token || isLoading) return <CircularLoading />;
@@ -43,10 +48,9 @@ export default function MessagesPage() {
 
     return (
         <main className="messages-page">
-            {isConversationSelected.selected ? (
+            {isConversationSelected.selected && isConversationSelected.conversation ? (
                 <Messages
-                    selectedMessages={isConversationSelected.messages}
-                    messagedUsername={isConversationSelected.messagedUsername}
+                    conversation={isConversationSelected.conversation}
                     handleConversations={handleConversations}
                     token={token}
                 />
@@ -60,18 +64,20 @@ export default function MessagesPage() {
                         >
                             <BsEnvelopePlus />
                         </button>
+                        <button
+                            onClick={() => setIsNewGroupOpen(true)}
+                            className="btn btn-white icon-hoverable new-message"
+                        >
+                            + Group
+                        </button>
                     </h1>
                     {isFetched && !(conversations.length > 0) && <NothingToShow />}
                     <div>
                         {conversations.map((conversation: any) => {
                             return (
                                 <Conversation
-                                    key={conversation.user?.id || Math.random()}
-                                    conversation={{
-                                        participants: [token.username, conversation.user?.username || ''],
-                                        messages: conversation.messages,
-                                        user: conversation.user
-                                    } as any}
+                                    key={conversation.id}
+                                    conversation={conversation}
                                     token={token}
                                     handleConversations={handleConversations}
                                 />
@@ -81,6 +87,7 @@ export default function MessagesPage() {
                 </>
             )}
             <NewMessageDialog handleNewMessageClose={handleNewMessageClose} open={isNewMessageOpen} token={token} />
+            <NewGroupDialog handleNewMessageClose={handleNewGroupClose} open={isNewGroupOpen} token={token} />
         </main>
     );
 }

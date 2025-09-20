@@ -18,9 +18,9 @@ Created with **Next.js 13+**, **Supabase** and **PostgreSQL**. Deployed on [**Ve
 
 -   **Profiles**: Users can create their own profiles, add a profile picture, and customize their bio to express their personality and interests.
 -   **Tweets and Replies**: Just like Twitter, users can compose and share tweets of up to a certain character limit, allowing them to share their thoughts, ideas, or any other content with their followers.
--   **Following/Followers**: Users can follow other users to see their tweets on their timeline and gain followers who are interested in their content.
+-   **Friends & Requests**: Users can send friend requests, accept/decline them, and see friends’ tweets in their home feed.
 -   **Likes/Retweets**: Users can engage with tweets by liking them to show appreciation or retweeting them to share them with their own followers. Also undo retweets and unlike support.
--   **Notifications**: Users receive notifications when someone likes or retweets their tweets, when they gain new followers, or when they are mentioned in a post by another user.
+-   **Notifications**: Users receive notifications when someone likes or retweets their tweets, sends or accepts friend requests, or mentions them in a post.
 -   **Search**: Users can search for specific tweets or accounts to find relevant content or connect with specific users.
 -   **Direct Messaging**: Users can send private messages to other users, allowing for one-on-one conversations and interactions.
 -   **Twitter Blue**: Users can get premium status by entering a secret code, getting an icon with their name.
@@ -32,7 +32,7 @@ Created with **Next.js 13+**, **Supabase** and **PostgreSQL**. Deployed on [**Ve
 -   **Date and Time Formatting**: Formatting timestamps and display them in a user-friendly manner, such as relative time (e.g., "5 minutes ago").
 -   **Deleting**: Users can delete their own tweets, replies and retweets. Also unlike tweets.
 -   Dark and Light mode.
--   Optimistic updates on likes, retweets, followings and so on.
+-   Optimistic updates on likes, retweets, and friend actions.
 -   Full-Stack Next.js (13+) App directory advantages.
 -   Responsive design.
 

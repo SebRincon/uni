@@ -30,8 +30,11 @@ export default function useAuth(): AuthProps {
         try {
           // Try to find the user in our database
           console.log('🔍 Looking for user in database...');
-          const client = getClient();
-          const listResult = await client.models.User.list({
+          // Use public (apiKey) client for reads and authenticated (userPool) client for writes
+          const publicClient = getClient('apiKey');
+          const authedClient = getClient('userPool');
+
+          const listResult = await publicClient.models.User.list({
             filter: {
               username: {
                 eq: username
@@ -47,30 +50,44 @@ export default function useAuth(): AuthProps {
 
             const userSelectionSet = ['username', 'name', 'description', 'location', 'website', 'photoUrl', 'headerUrl', 'isPremium', 'createdAt', 'updatedAt'] as const;
 
-            // Fetch the list of users the current user is following
-            const followingLinks = await client.models.UserFollows.list({
-                filter: { followerId: { eq: (dbUser as any).username } }
+            // Build friends and pending via Friendship model
+            const { data: friendshipsA } = await publicClient.models.Friendship.list({
+                filter: { userAId: { eq: (dbUser as any).username } }
             });
+            const { data: friendshipsB } = await publicClient.models.Friendship.list({
+                filter: { userBId: { eq: (dbUser as any).username } }
+            });
+            const allFriendships = [ ...(friendshipsA || []), ...(friendshipsB || []) ];
 
-            const followingUsersData = await Promise.all(
-                (followingLinks.data || []).map(link => 
-                    client.models.User.get({ username: link.followingId }, {
-                        selectionSet: userSelectionSet
-                    })
-                )
-            );
+            async function getUserByUsername(u: string) {
+                const res = await publicClient.models.User.get({ username: u }, { selectionSet: userSelectionSet });
+                const user = res.data as any;
+                return user ? {
+                    ...user,
+                    id: user.username,
+                    friends: [],
+                    pendingIncoming: [],
+                    pendingOutgoing: [],
+                    createdAt: new Date(user.createdAt || Date.now()),
+                    updatedAt: new Date(user.updatedAt || Date.now()),
+                } as UserProps : null;
+            }
 
-            const followingUsers = followingUsersData
-                .map(u => u.data)
-                .filter(Boolean)
-                .map(u => ({
-                    ...(u!),
-                    id: u!.username,
-                    followers: [],
-                    following: [],
-                    createdAt: new Date(u!.createdAt || Date.now()),
-                    updatedAt: new Date(u!.updatedAt || Date.now()),
-                } as UserProps));
+            const friends: UserProps[] = [];
+            const pendingIncoming: UserProps[] = [];
+            const pendingOutgoing: UserProps[] = [];
+
+            for (const f of allFriendships) {
+                const otherId = f.userAId === (dbUser as any).username ? f.userBId : f.userAId;
+                const otherUser = await getUserByUsername(otherId);
+                if (!otherUser) continue;
+                if (f.status === 'accepted') {
+                    friends.push(otherUser);
+                } else if (f.status === 'pending') {
+                    if (f.requesterId === (dbUser as any).username) pendingOutgoing.push(otherUser);
+                    else pendingIncoming.push(otherUser);
+                }
+            }
 
             const userProfile: UserProps = {
               id: (dbUser as any).username,
@@ -82,8 +99,9 @@ export default function useAuth(): AuthProps {
               isPremium: (dbUser as any).isPremium || false,
               photoUrl: (dbUser as any).photoUrl || '',
               headerUrl: (dbUser as any).headerUrl || '',
-              followers: [], // Followers can be fetched on profile page
-              following: followingUsers,
+              friends,
+              pendingIncoming,
+              pendingOutgoing,
               createdAt: new Date((dbUser as any).createdAt || Date.now()),
               updatedAt: new Date((dbUser as any).updatedAt || Date.now()),
             };
@@ -100,7 +118,7 @@ export default function useAuth(): AuthProps {
             });
             
             try {
-              const createResult = await client.models.User.create({
+              const createResult = await authedClient.models.User.create({
                 username: username,
                 name: attributes.name || username,
                 isPremium: false,
@@ -120,8 +138,9 @@ export default function useAuth(): AuthProps {
                   isPremium: (newUser as any).isPremium || false,
                   photoUrl: (newUser as any).photoUrl || '',
                   headerUrl: (newUser as any).headerUrl || '',
-                  followers: [],
-                  following: [],
+                  friends: [],
+                  pendingIncoming: [],
+                  pendingOutgoing: [],
                   createdAt: new Date((newUser as any).createdAt || Date.now()),
                   updatedAt: new Date((newUser as any).updatedAt || Date.now()),
                 };

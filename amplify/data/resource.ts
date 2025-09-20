@@ -13,13 +13,14 @@ const schema = a
       isPremium: a.boolean().default(false),
       // Relationships
       createdTweets: a.hasMany("Tweet", "authorId"),
-      following: a.hasMany("UserFollows", "followerId"),
-      followers: a.hasMany("UserFollows", "followingId"),
-      sentMessages: a.hasMany("Message", "senderId"),
-      receivedMessages: a.hasMany("Message", "recipientId"),
       notifications: a.hasMany("Notification", "userId"),
       likes: a.hasMany("UserLikes", "userId"),
       retweets: a.hasMany("UserRetweets", "userId"),
+      // Conversations and messages
+      messages: a.hasMany("Message", "senderId"),
+      conversationMemberships: a.hasMany("ConversationMember", "userId"),
+      friendshipsA: a.hasMany("Friendship", "userAId"),
+      friendshipsB: a.hasMany("Friendship", "userBId"),
     }).identifier(["username"]),
 
     Tweet: a.model({
@@ -41,14 +42,33 @@ const schema = a
       retweetedVersions: a.hasMany("Tweet", "retweetOfId"),
     }),
   
+    // Conversations for 1:1 and group chats
+    Conversation: a.model({
+      name: a.string(),
+      createdBy: a.id(),
+      // Relationships
+      messages: a.hasMany("Message", "conversationId"),
+      members: a.hasMany("ConversationMember", "conversationId"),
+    }),
+
+    ConversationMember: a.model({
+      conversationId: a.id().required(),
+      conversation: a.belongsTo("Conversation", "conversationId"),
+      userId: a.id().required(),
+      user: a.belongsTo("User", "userId"),
+    }).secondaryIndexes((index) => [
+      index("conversationId"),
+      index("userId"),
+    ]),
+
     Message: a.model({
       text: a.string().required(),
       photoUrl: a.string(),
       // Relationships
-      senderId: a.id(),
+      senderId: a.id().required(),
       sender: a.belongsTo("User", "senderId"),
-      recipientId: a.id(),
-      recipient: a.belongsTo("User", "recipientId"),
+      conversationId: a.id().required(),
+      conversation: a.belongsTo("Conversation", "conversationId"),
     }),
 
     Notification: a.model({
@@ -60,15 +80,19 @@ const schema = a
       user: a.belongsTo("User", "userId"),
     }),
 
-    // Join table for User following User (many-to-many)
-    UserFollows: a.model({
-      followerId: a.id().required(),
-      follower: a.belongsTo("User", "followerId"),
-      followingId: a.id().required(),
-      following: a.belongsTo("User", "followingId"),
+    // Friendships with request/accept lifecycle
+    Friendship: a.model({
+      userAId: a.id().required(), // lexicographically smaller username
+      userA: a.belongsTo("User", "userAId"),
+      userBId: a.id().required(), // lexicographically larger username
+      userB: a.belongsTo("User", "userBId"),
+      requesterId: a.id().required(), // who initiated request
+      status: a.string().required().default("pending"), // pending | accepted | declined
     }).secondaryIndexes((index) => [
-      index("followerId"),
-      index("followingId"),
+      index("userAId"),
+      index("userBId"),
+      index("status"),
+      index("requesterId"),
     ]),
 
     // Join table for User likes Tweet (many-to-many)

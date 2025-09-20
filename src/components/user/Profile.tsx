@@ -14,7 +14,7 @@ import { formatDateForProfile } from "@/utilities/date";
 import { AuthContext } from "@/app/(twitter)/layout";
 import { UserProps } from "@/types/UserProps";
 import TweetArrayLength from "../tweet/TweetArrayLength";
-import Follow from "./Follow";
+import Friend from "./Friend";
 import User from "./User";
 import { useStorageUrl, useHeaderUrl } from "@/hooks/useStorageUrl";
 import PreviewDialog from "../dialog/PreviewDialog";
@@ -37,14 +37,14 @@ export default function Profile({ profile }: { profile: UserProps }) {
     const handleDialogOpen = (type: string) => {
         if (!token) {
             return setSnackbar({
-                message: "You need to login first to see the followers.",
+                message: "You need to login first to see friends.",
                 severity: "info",
                 open: true,
             });
         }
 
-        if (type === "following" && profile.following.length === 0) return;
-        if (type === "followers" && profile.followers.length === 0) return;
+        if (type === "friends" && (profile.friends?.length || 0) === 0) return;
+        if (type === "pending" && (((profile.pendingIncoming?.length || 0) + (profile.pendingOutgoing?.length || 0)) === 0)) return;
 
         setDialogType(type);
         setIsDialogOpen(true);
@@ -83,10 +83,10 @@ export default function Profile({ profile }: { profile: UserProps }) {
         setIsNewMessageOpen(true);
     };
 
-    const isFollowingTokenOwner = () => {
-        if (profile.following.length === 0 || !token) return false;
-        const isFollowing = profile.following.some((user) => user.id === token.id);
-        return isFollowing;
+    const isFriendWithTokenOwner = () => {
+        if (!token) return false;
+        const isFriend = profile.friends?.some((user) => user.id === token.id);
+        return !!isFriend;
     };
 
     return (
@@ -131,7 +131,7 @@ export default function Profile({ profile }: { profile: UserProps }) {
                         </h1>
                         <div className="text-muted">
                             @{profile.username}{" "}
-                            {isFollowingTokenOwner() && <span className="is-following">Follows you</span>}
+{isFriendWithTokenOwner() && <span className="is-following">Friend</span>}
                         </div>
                     </div>
                     {profile.description && <div className="profile-info-desc">{profile.description}</div>}
@@ -154,16 +154,16 @@ export default function Profile({ profile }: { profile: UserProps }) {
                         </div>
                     </div>
                     <div className="profile-info-popularity">
-                        <div onClick={() => handleDialogOpen("following")} className="popularity-section">
-                            <span className="count">{profile.following.length}</span>{" "}
-                            <span className="text-muted">Following</span>
+                        <div onClick={() => handleDialogOpen("friends")} className="popularity-section">
+                            <span className="count">{profile.friends?.length || 0}</span>{" "}
+                            <span className="text-muted">Friends</span>
                         </div>
-                        <div onClick={() => handleDialogOpen("followers")} className="popularity-section">
-                            <span className="count">{profile.followers.length}</span>{" "}
-                            <span className="text-muted">Followers</span>
+                        <div onClick={() => handleDialogOpen("pending")} className="popularity-section">
+                            <span className="count">{(profile.pendingIncoming?.length || 0) + (profile.pendingOutgoing?.length || 0)}</span>{" "}
+                            <span className="text-muted">Pending</span>
                         </div>
                     </div>
-                    {token?.username === profile.username ? (
+{token?.username === profile.username ? (
                         <Link href={`/${profile.username}/edit`} className="btn btn-white edit-profile-section">
                             Edit profile
                         </Link>
@@ -172,7 +172,7 @@ export default function Profile({ profile }: { profile: UserProps }) {
                             <button className="btn btn-white icon-hoverable new-message" onClick={handleNewMessageClick}>
                                 <FaRegEnvelope />
                             </button>
-                            <Follow profile={profile} />
+                            <Friend profile={profile} />
                         </div>
                     )}
                 </div>
@@ -206,18 +206,18 @@ export default function Profile({ profile }: { profile: UserProps }) {
             {isDialogOpen && (
                 <Dialog className="dialog" open={isDialogOpen} onClose={handleDialogClose} fullWidth maxWidth="xs">
                     <DialogTitle className="title">
-                        {dialogType === "following" ? "Following" : dialogType === "followers" ? "Followers" : ""}
+                        {dialogType === "friends" ? "Friends" : dialogType === "pending" ? "Pending" : ""}
                     </DialogTitle>
                     <DialogContent sx={{ paddingX: 0 }}>
                         <div className="user-list">
-                            {dialogType === "following"
-                                ? profile.following.map((user: UserProps) => (
-                                      <div className="user-wrapper" key={"following" + user.id}>
+                            {dialogType === "friends"
+                                ? (profile.friends || []).map((user: UserProps) => (
+                                      <div className="user-wrapper" key={"friend" + user.id}>
                                           <User user={user} />
                                       </div>
                                   ))
-                                : profile.followers.map((user: UserProps) => (
-                                      <div className="user-wrapper" key={"followers" + user.id}>
+                                : ([...(profile.pendingIncoming || []), ...(profile.pendingOutgoing || [])]).map((user: UserProps) => (
+                                      <div className="user-wrapper" key={"pending" + user.id}>
                                           <User user={user} />
                                       </div>
                                   ))}

@@ -35,10 +35,10 @@ export default function ProfileCard({ username, token }: { username: string; tok
         );
     }
 
-    const isFollowingTokenOwner = () => {
-        if (!data || data.following.length === 0 || !token) return false;
-        const isFollowing = data.following.some((user) => user && user.id === token.id);
-        return isFollowing;
+    const isFriendWithTokenOwner = () => {
+        if (!data || !token) return false;
+        const isFriend = (data.friends || []).some((user: any) => user && user.id === token.id);
+        return !!isFriend;
     };
 
     return (
@@ -60,16 +60,16 @@ export default function ProfileCard({ username, token }: { username: string; tok
                     )}
                 </h1>
                 <div className="text-muted">
-                    @{data.username} {isFollowingTokenOwner() && <span className="is-following">Follows you</span>}
+@{data.username} {isFriendWithTokenOwner() && <span className="is-following">Friend</span>}
                 </div>
             </div>
             {data.description && <div className="profile-info-desc">{data.description}</div>}
             <div className="profile-info-popularity">
                 <div className="popularity-section">
-                    <span className="count">{data.following.length}</span> <span className="text-muted">Following</span>
+<span className="count">{(data.friends || []).length}</span> <span className="text-muted">Friends</span>
                 </div>
                 <div className="popularity-section">
-                    <span className="count">{data.followers.length}</span> <span className="text-muted">Followers</span>
+<span className="count">{((data.pendingIncoming || []).length + (data.pendingOutgoing || []).length)}</span> <span className="text-muted">Pending</span>
                 </div>
             </div>
         </div>

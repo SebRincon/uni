@@ -32,7 +32,7 @@ export default function WhoToFollow() {
             {isOpen && data && data.length > 0 && (
                 <div className="who-to-follow">
                     <h1>
-                        Who to follow
+                        Suggested friends
                         <button className="btn-close icon-hoverable right-sidebar-close" onClick={handleClose}>
                             <AiOutlineClose />
                         </button>
