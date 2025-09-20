@@ -1,13 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import { FaArrowLeft } from "react-icons/fa";
+import { BiPhone, BiVideo } from "react-icons/bi";
+import { IconButton } from "@mui/material";
 
 import Message from "./Message";
 import NewMessageBox from "./NewMessageBox";
 import { MessageProps, MessagesProps } from "@/types/MessageProps";
+import { useCall } from "@/providers/CallProvider";
 
 export default function Messages({ conversation, handleConversations, token }: MessagesProps) {
     const [freshMessages, setFreshMessages] = useState([] as MessageProps[]);
     const isGroupChat = conversation.members.length > 2;
+    const { startCall } = useCall();
 
     const messagesWrapperRef = useRef<HTMLDivElement>(null);
 
@@ -31,6 +35,24 @@ export default function Messages({ conversation, handleConversations, token }: M
                 </button>
                 <div className="top">
                     <span className="top-title">{conversation.name || conversation.members.filter(m => m.username !== token.username).map(m => m.username).join(", ")}</span>
+                </div>
+                <div className="call-buttons">
+                    <IconButton
+                        onClick={() => startCall(conversation.id, 'audio')}
+                        size="small"
+                        className="call-button"
+                        title="Start voice call"
+                    >
+                        <BiPhone />
+                    </IconButton>
+                    <IconButton
+                        onClick={() => startCall(conversation.id, 'video')}
+                        size="small"
+                        className="call-button"
+                        title="Start video call"
+                    >
+                        <BiVideo />
+                    </IconButton>
                 </div>
             </div>
             <div className="messages-wrapper" ref={messagesWrapperRef}>

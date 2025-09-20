@@ -1,0 +1,129 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal {
+  background-color: var(--bg-secondary);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.callerInfo {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.avatar {
+  margin: 0 auto 1rem;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(29, 155, 240, 0.7);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(29, 155, 240, 0);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(29, 155, 240, 0);
+  }
+}
+
+.callerInfo h2 {
+  font-size: 1.5rem;
+  margin: 0 0 0.5rem;
+  color: var(--fg-primary);
+}
+
+.callerInfo p {
+  color: var(--fg-secondary);
+  font-size: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+}
+
+.actionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border: none;
+  border-radius: 12px;
+  background-color: var(--bg-tertiary);
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 100px;
+}
+
+.actionButton:hover {
+  transform: scale(1.05);
+}
+
+.actionButton:active {
+  transform: scale(0.95);
+}
+
+.actionButton span {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.decline {
+  background-color: var(--danger);
+}
+
+.decline:hover {
+  background-color: #dc2626;
+}
+
+.accept {
+  background-color: #10b981;
+}
+
+.accept:hover {
+  background-color: #059669;
+}

@@ -1,0 +1,62 @@
+.container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #111;
+  color: #fff;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* LiveKit theme override */
+.container[data-lk-theme="default"] {
+  --lk-bg: #111;
+  --lk-bg2: #1a1a1a;
+  --lk-bg3: #242424;
+  --lk-fg: #fff;
+  --lk-fg2: rgba(255, 255, 255, 0.8);
+  --lk-fg3: rgba(255, 255, 255, 0.6);
+  --lk-border-color: rgba(255, 255, 255, 0.15);
+  --lk-theme-color: #1d9bf0;
+  --lk-danger: #f44336;
+  --lk-danger3: #f44336;
+  --lk-border-radius: 0.5rem;
+}
+
+.preJoinWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.connecting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.connecting h2 {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+
+.meetingRoom {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Apply styles to LiveKit room container when inside our container */
+.container :global(.lk-room-container) {
+  width: 100%;
+  height: 100%;
+}

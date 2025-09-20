@@ -21,6 +21,10 @@ const schema = a
       conversationMemberships: a.hasMany("ConversationMember", "userId"),
       friendshipsA: a.hasMany("Friendship", "userAId"),
       friendshipsB: a.hasMany("Friendship", "userBId"),
+      // Video call relationships
+      initiatedCalls: a.hasMany("VideoCall", "initiatorId"),
+      callParticipations: a.hasMany("CallParticipant", "userId"),
+      callNotifications: a.hasMany("CallNotification", "userId"),
     }).identifier(["username"]),
 
     Tweet: a.model({
@@ -49,6 +53,7 @@ const schema = a
       // Relationships
       messages: a.hasMany("Message", "conversationId"),
       members: a.hasMany("ConversationMember", "conversationId"),
+      videoCalls: a.hasMany("VideoCall", "conversationId"),
     }),
 
     ConversationMember: a.model({
@@ -115,6 +120,54 @@ const schema = a
     }).secondaryIndexes((index) => [
       index("userId"),
       index("tweetId"),
+    ]),
+
+    // Video Call Models
+    VideoCall: a.model({
+      conversationId: a.id().required(),
+      conversation: a.belongsTo("Conversation", "conversationId"),
+      initiatorId: a.id().required(),
+      initiator: a.belongsTo("User", "initiatorId"),
+      status: a.string().required().default("initiating"), // initiating | ringing | active | ended | failed
+      type: a.string().required().default("video"), // video | audio
+      meetingId: a.string(), // LiveKit Room Name
+      startTime: a.datetime(),
+      endTime: a.datetime(),
+      // Relationships
+      participants: a.hasMany("CallParticipant", "callId"),
+      notifications: a.hasMany("CallNotification", "callId"),
+    }).secondaryIndexes((index) => [
+      index("conversationId"),
+      index("initiatorId"),
+      index("status"),
+    ]),
+
+    CallParticipant: a.model({
+      callId: a.id().required(),
+      call: a.belongsTo("VideoCall", "callId"),
+      userId: a.id().required(),
+      user: a.belongsTo("User", "userId"),
+      status: a.string().required().default("invited"), // invited | ringing | connected | disconnected | declined
+      joinTime: a.datetime(),
+      leaveTime: a.datetime(),
+      attendeeId: a.string(), // LiveKit Participant ID
+    }).secondaryIndexes((index) => [
+      index("callId"),
+      index("userId"),
+      index("status"),
+    ]),
+
+    // Call notifications for real-time updates
+    CallNotification: a.model({
+      userId: a.id().required(),
+      user: a.belongsTo("User", "userId"),
+      callId: a.id().required(),
+      call: a.belongsTo("VideoCall", "callId"),
+      type: a.string().required(), // incoming_call | missed_call | call_ended
+      isRead: a.boolean().default(false),
+    }).secondaryIndexes((index) => [
+      index("userId"),
+      index("callId"),
     ]),
   })
   .authorization((allow) => [

@@ -10,7 +10,7 @@ import NewGroupDialog from "@/components/dialog/NewGroupDialog";
 import { AuthContext } from "../layout";
 import CircularLoading from "@/components/misc/CircularLoading";
 import { getUserMessages } from "@/utilities/fetch";
-import Conversation from "@/components/message/Conversation";
+import ConversationWithCall from "@/components/message/ConversationWithCall";
 import { Conversation as ConversationType, MessageProps } from "@/types/MessageProps";
 import Messages from "@/components/message/Messages";
 
@@ -75,7 +75,7 @@ export default function MessagesPage() {
                     <div>
                         {conversations.map((conversation: any) => {
                             return (
-                                <Conversation
+                                <ConversationWithCall
                                     key={conversation.id}
                                     conversation={conversation}
                                     token={token}
