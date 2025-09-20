@@ -20,25 +20,28 @@ export default function Conversation({ conversation, token, handleConversations 
 
     const queryClient = useQueryClient();
 
-    // Handle empty conversation
+    // Define hooks unconditionally before any early returns
+    const mutation = useMutation(
+        async () => {
+            // Delete all messages in the conversation
+            const msgs = conversation?.messages ?? [];
+            if (msgs.length === 0) return;
+            await Promise.all(msgs.map((message: any) => deleteConversation(message.id)));
+        },
+        {
+            onSuccess: () => {
+                setIsConfirmationOpen(false);
+                setIsDeleting(false);
+                queryClient.invalidateQueries({ queryKey: ["messages", token.username] });
+            },
+            onError: (error) => console.log(error),
+        }
+    );
+
+    // Handle empty conversation after hooks are declared
     if (!conversation || !conversation.messages || conversation.messages.length === 0) {
         return null;
     }
-
-    const mutation = useMutation({
-        mutationFn: () => {
-            // Delete all messages in the conversation
-            return Promise.all(
-                conversation.messages.map((message: any) => deleteConversation(message.id))
-            );
-        },
-        onSuccess: () => {
-            setIsConfirmationOpen(false);
-            setIsDeleting(false);
-            queryClient.invalidateQueries(["messages", token.username]);
-        },
-        onError: (error) => console.log(error),
-    });
 
     const messagedUsername = conversation.user.username;
     const lastMessage = conversation.messages[conversation.messages.length - 1];
