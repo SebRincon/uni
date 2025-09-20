@@ -74,7 +74,9 @@ export function useCallSubscriptions() {
       // Get caller details - initiatorId is the username since User model uses username as primary key
       let caller: any = null;
       try {
-        const userResponse = await client.models.User.get({ username: call.initiatorId });
+        // Use a direct approach to avoid TypeScript complexity
+        const models = (client as any).models;
+        const userResponse = await models.User.get({ username: call.initiatorId });
         caller = userResponse?.data;
       } catch (error) {
         console.error('Error fetching caller:', error);
