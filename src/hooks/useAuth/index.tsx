@@ -59,7 +59,7 @@ export default function useAuth(): AuthProps {
             });
             const allFriendships = [ ...(friendshipsA || []), ...(friendshipsB || []) ];
 
-            async function getUserByUsername(u: string) {
+            const getUserByUsername = async (u: string) => {
                 const res = await publicClient.models.User.get({ username: u }, { selectionSet: userSelectionSet });
                 const user = res.data as any;
                 return user ? {
@@ -71,7 +71,7 @@ export default function useAuth(): AuthProps {
                     createdAt: new Date(user.createdAt || Date.now()),
                     updatedAt: new Date(user.updatedAt || Date.now()),
                 } as UserProps : null;
-            }
+            };
 
             const friends: UserProps[] = [];
             const pendingIncoming: UserProps[] = [];

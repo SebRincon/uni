@@ -58,8 +58,6 @@ import {
   likeTweet, 
   unlikeTweet,
   createTweet,
-  followUser,
-  unfollowUser,
   deleteMessage
 } from '../mutations/amplify-mutations';
 

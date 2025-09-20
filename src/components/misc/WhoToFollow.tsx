@@ -38,16 +38,16 @@ export default function WhoToFollow() {
                         </button>
                     </h1>
                     <div className="user-wrapper">
-                        <User user={data[0] as UserProps} />
+                        <User user={{...data[0], friends: [], pendingIncoming: [], pendingOutgoing: []} as UserProps} />
                     </div>
                     {data.length > 1 && (
                         <div className="user-wrapper">
-                            <User user={data[1] as UserProps} />
+                            <User user={{...data[1], friends: [], pendingIncoming: [], pendingOutgoing: []} as UserProps} />
                         </div>
                     )}
                     {data.length > 2 && (
                         <div className="user-wrapper">
-                            <User user={data[2] as UserProps} />
+                            <User user={{...data[2], friends: [], pendingIncoming: [], pendingOutgoing: []} as UserProps} />
                         </div>
                     )}
                 </div>
