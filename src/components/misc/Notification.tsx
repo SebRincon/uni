@@ -8,10 +8,10 @@ import { RiChatFollowUpLine } from "react-icons/ri";
 import { Avatar, Popover } from "@mui/material";
 
 import { NotificationProps } from "@/types/NotificationProps";
-import { getFullURL } from "@/utilities/misc/getFullURL";
 import RetweetIcon from "./RetweetIcon";
 import ProfileCard from "../user/ProfileCard";
 import { UserProps } from "@/types/UserProps";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 
 export default function Notification({ notification, token }: { notification: NotificationProps; token: UserProps }) {
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
@@ -68,9 +68,13 @@ export default function Notification({ notification, token }: { notification: No
             onClose={handlePopoverClose}
             disableRestoreFocus
         >
-            {senderUsername ? <ProfileCard username={senderUsername} token={token} /> : null}
+            {Boolean(anchorEl) && senderUsername ? (
+                <ProfileCard username={senderUsername} token={token} />
+            ) : null}
         </Popover>
     );
+
+    const senderAvatarUrl = useStorageUrl(content?.sender?.photoUrl);
 
     const sharedJSX = senderUsername ? (
         <div className="notification-sender">
@@ -83,7 +87,8 @@ export default function Notification({ notification, token }: { notification: No
                 <Avatar
                     sx={{ width: 33, height: 33 }}
                     alt=""
-                    src={content?.sender?.photoUrl ? getFullURL(content?.sender?.photoUrl) : "/assets/egg.jpg"}
+                    src={senderAvatarUrl}
+                    imgProps={{ onError: (e: any) => { (e.currentTarget as HTMLImageElement).src = '/assets/egg.jpg'; } }}
                 />
                 <div className="profile-info-main">
                     <h1>

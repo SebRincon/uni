@@ -27,17 +27,19 @@ export default function SearchPage() {
             <BackToArrow title="Search results" url="/explore" />
             {isFetched && data && (!data.tweets || data.tweets.length === 0) && <NothingToShow />}
             {isLoading ? <CircularLoading /> : data && (() => {
-                const mappedTweets = (data.tweets || []).map((tweet: any) => ({
-                    ...tweet,
-                    likedBy: [],
-                    retweets: [],
-                    replies: [],
-                    retweetedBy: [],
-                    retweetedById: '',
-                    retweetOf: null,
-                    repliedTo: null,
-                    createdAt: new Date(tweet.createdAt)
-                }));
+                const mappedTweets = (data.tweets || [])
+                    .map((tweet: any) => ({
+                        ...tweet,
+                        likedBy: [],
+                        retweets: [],
+                        replies: [],
+                        retweetedBy: [],
+                        retweetedById: '',
+                        retweetOf: tweet.retweetOf || null,
+                        repliedTo: tweet.repliedTo || null,
+                        createdAt: new Date(tweet.createdAt)
+                    }))
+                    .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
                 return <Tweets tweets={mappedTweets} />;
             })()}
         </main>

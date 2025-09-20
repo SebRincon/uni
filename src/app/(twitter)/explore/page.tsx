@@ -9,6 +9,7 @@ import NewTweet from "@/components/tweet/NewTweet";
 import Tweets from "@/components/tweet/Tweets";
 import { AuthContext } from "../layout";
 import CircularLoading from "@/components/misc/CircularLoading";
+import { dedupeAndSortByCreatedAtDesc } from "@/utilities/tweet/sort";
 
 export default function ExplorePage() {
     const { token, isPending } = useContext(AuthContext);
@@ -24,19 +25,22 @@ export default function ExplorePage() {
     const allTweets = useMemo(
         () => {
             const tweets = data?.pages.flat() || [];
-            // Map the data to the expected format
-            return tweets.map((tweet: any) => ({
-                ...tweet,
-                likedBy: [],
-                retweets: [],
-                replies: [],
-                retweetedBy: [],
-                retweetedById: '',
-                // Preserve retweetOf if backend provided it
-                retweetOf: tweet.retweetOf || null,
-                repliedTo: tweet.repliedTo || null,
-                createdAt: new Date(tweet.createdAt)
-            }));
+            // Map then dedupe and sort by createdAt descending (newest first)
+            return dedupeAndSortByCreatedAtDesc(
+                tweets
+                    .map((tweet: any) => ({
+                        ...tweet,
+                        likedBy: [],
+                        retweets: [],
+                        replies: [],
+                        retweetedBy: [],
+                        retweetedById: '',
+                        // Preserve retweetOf if backend provided it
+                        retweetOf: tweet.retweetOf || null,
+                        repliedTo: tweet.repliedTo || null,
+                        createdAt: new Date(tweet.createdAt)
+                    }))
+            );
         },
         [data]
     );

@@ -15,14 +15,16 @@ export default function Replies({ tweetId, tweetAuthor }: TweetOptionsProps) {
 
     if (isLoading) return <CircularLoading />;
 
-    const replies = (data?.replies || []).map((reply: any) => ({
-        ...reply,
-        likedBy: reply.likedBy || [],
-        retweetedBy: reply.retweetedBy || [],
-        retweets: reply.retweets || [],
-        replies: reply.replies || [],
-        createdAt: new Date(reply.createdAt),
-    }));
+    const replies = (data?.replies || [])
+        .map((reply: any) => ({
+            ...reply,
+            likedBy: reply.likedBy || [],
+            retweetedBy: reply.retweetedBy || [],
+            retweets: reply.retweets || [],
+            replies: reply.replies || [],
+            createdAt: new Date(reply.createdAt),
+        }))
+        .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return (
         <div>

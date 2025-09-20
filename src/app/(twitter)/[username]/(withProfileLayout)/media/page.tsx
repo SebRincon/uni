@@ -18,18 +18,20 @@ export default function MediaPage({ params: { username } }: { params: { username
 
     if (data && data.length === 0) return NothingToShow();
 
-    // Map the data to the expected format
-    const mappedTweets = data?.map((tweet: any) => ({
-        ...tweet,
-        likedBy: [],
-        retweets: [],
-        replies: [],
-        retweetedBy: [],
-        retweetedById: '',
-        retweetOf: null,
-        repliedTo: null,
-        createdAt: new Date(tweet.createdAt)
-    })) || [];
+    // Map and sort by createdAt descending (newest first)
+    const mappedTweets = (data || [])
+        .map((tweet: any) => ({
+            ...tweet,
+            likedBy: [],
+            retweets: [],
+            replies: [],
+            retweetedBy: [],
+            retweetedById: '',
+            retweetOf: null,
+            repliedTo: null,
+            createdAt: new Date(tweet.createdAt)
+        }))
+        .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
     
     return <>{isLoading ? <CircularLoading /> : data && <Tweets tweets={mappedTweets} />}</>;
 }

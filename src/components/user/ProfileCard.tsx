@@ -9,14 +9,31 @@ import { UserProps } from "@/types/UserProps";
 import { VerifiedToken } from "@/types/TokenProps";
 
 export default function ProfileCard({ username, token }: { username: string; token: VerifiedToken }) {
-    const { isLoading, data } = useQuery({
+    const { isLoading, data, isError } = useQuery({
         queryKey: ["users", username],
         queryFn: () => getUser(username),
+        retry: false,
     });
     
     const avatarUrl = useStorageUrl(data?.photoUrl);
 
-    if (isLoading || !data) return <CircularLoading />;
+    if (isLoading) return <CircularLoading />;
+
+    // Graceful fallback if user is missing or fetch errored
+    if (isError || !data) {
+        return (
+            <div className="profile-card">
+                <div className="avatar-wrapper">
+                    <Avatar sx={{ width: 75, height: 75 }} alt="" src={avatarUrl} />
+                </div>
+                <div className="profile-info-main">
+                    <h1>{username}</h1>
+                    <div className="text-muted">@{username}</div>
+                </div>
+                <div className="profile-info-desc text-muted">User not found</div>
+            </div>
+        );
+    }
 
     const isFollowingTokenOwner = () => {
         if (!data || data.following.length === 0 || !token) return false;

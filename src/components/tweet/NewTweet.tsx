@@ -11,9 +11,8 @@ import CircularLoading from "../misc/CircularLoading";
 import { createTweet } from "@/utilities/fetch";
 import { NewTweetProps } from "@/types/TweetProps";
 import Uploader from "../misc/Uploader";
-import { getFullURL } from "@/utilities/misc/getFullURL";
-import { uploadFile } from "@/utilities/storage";
 import ProgressCircle from "../misc/ProgressCircle";
+import { useStorageUrl } from "@/hooks/useStorageUrl";
 
 export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const [showPicker, setShowPicker] = useState(false);
@@ -69,6 +68,9 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
         formik.handleChange(e);
     };
 
+    // Always call hooks in the same order before any conditional returns
+    const avatarUrl = useStorageUrl(token.photoUrl);
+
     if (formik.isSubmitting) {
         return <CircularLoading />;
     }
@@ -79,7 +81,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                 className="avatar div-link"
                 sx={{ width: 50, height: 50 }}
                 alt=""
-                src={token.photoUrl ? getFullURL(token.photoUrl) : "/assets/egg.jpg"}
+                src={avatarUrl}
             />
             <form onSubmit={formik.handleSubmit}>
                 <div className="input">

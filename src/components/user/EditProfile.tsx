@@ -10,7 +10,7 @@ import Image from "next/image";
 import { UserProps } from "@/types/UserProps";
 import CircularLoading from "../misc/CircularLoading";
 import { editUser } from "@/utilities/fetch";
-import { getFullURL } from "@/utilities/misc/getFullURL";
+import { useHeaderUrl, useStorageUrl } from "@/hooks/useStorageUrl";
 import CustomSnackbar from "../misc/CustomSnackbar";
 import { SnackbarProps } from "@/types/SnackbarProps";
 import { checkBlueFromServer } from "@/utilities/misc/checkBlue";
@@ -29,6 +29,10 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
     const photoUploadInputRef = useRef<HTMLInputElement>(null);
 
     const queryClient = useQueryClient();
+
+    // Resolve URLs for existing profile images (handles S3 vs local and provides defaults)
+    const resolvedHeaderUrl = useHeaderUrl(profile.headerUrl ?? undefined);
+    const resolvedPhotoUrl = useStorageUrl(profile.photoUrl ?? undefined, "/assets/egg.jpg");
 
     const handleHeaderChange = (event: any) => {
         const file = event.target.files[0];
@@ -150,13 +154,7 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                 </div>
                 <Image
                     alt=""
-                    src={
-                        headerPreview
-                            ? headerPreview
-                            : profile.headerUrl
-                            ? getFullURL(profile.headerUrl)
-                            : "/assets/header.jpg"
-                    }
+                    src={headerPreview ? headerPreview : resolvedHeaderUrl}
                     fill
                 />
                 <div>
@@ -175,9 +173,7 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                         className="avatar"
                         sx={{ width: 125, height: 125 }}
                         alt=""
-                        src={
-                            photoPreview ? photoPreview : profile.photoUrl ? getFullURL(profile.photoUrl) : "/assets/egg.jpg"
-                        }
+                        src={photoPreview ? photoPreview : resolvedPhotoUrl}
                     />
                     <div>
                         <button className="icon-hoverable add-photo" onClick={handlePhotoClick}>

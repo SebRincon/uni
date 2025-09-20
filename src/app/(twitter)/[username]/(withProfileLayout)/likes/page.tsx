@@ -19,8 +19,8 @@ export default function LikesPage({ params: { username } }: { params: { username
 
     if (!data || data.length === 0) return NothingToShow();
 
-    // Filter out any null values and map to expected format
-    const mappedTweets = data
+    // Filter out any null values, map to expected format, and sort by createdAt descending (newest first)
+    const mappedTweets = (data || [])
         .filter((tweet): tweet is NonNullable<typeof tweet> => tweet !== null)
         .map((tweet: any) => ({
             ...tweet,
@@ -32,7 +32,8 @@ export default function LikesPage({ params: { username } }: { params: { username
             retweetOf: null,
             repliedTo: null,
             createdAt: new Date(tweet.createdAt)
-        }));
+        }))
+        .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return <Tweets tweets={mappedTweets} />;
 }

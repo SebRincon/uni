@@ -24,7 +24,8 @@ export async function getUser(username: string) {
     });
     
     if (!users || users.length === 0) {
-      throw new Error('User not found');
+      // Gracefully handle missing user
+      return null;
     }
     
     const user = users[0];
@@ -68,8 +69,9 @@ export async function getUser(username: string) {
       updatedAt: new Date(user.updatedAt),
     };
   } catch (error) {
+    // Log other unexpected errors, but return null so callers can handle gracefully
     console.error('Error fetching user:', error);
-    throw error;
+    return null;
   }
 }
 

@@ -3,25 +3,16 @@ import { getUrl } from 'aws-amplify/storage';
 export function getFullURL(path: string): string {
   // If the path starts with S3 prefixes, it's an S3 path
   if (path.startsWith('media/')) {
-    // Return a promise-based URL getter for S3
-    return ''; // This will be handled by the new async function below
+    // Handled by the async getStorageUrl function below
+    return '';
   }
-  
-  // For local assets (like /assets/egg.jpg)
+
+  // Local assets: return a root-relative URL so the browser uses the current origin/port
   if (path.startsWith('/assets/') || path.startsWith('assets/')) {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
-    
-    // In production, use the actual domain
-    if (process.env.NODE_ENV === 'production') {
-      const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://main.d3o849eq3fpd4i.amplifyapp.com';
-      return `${baseUrl}/${cleanPath}`;
-    }
-    
-    // In development, use localhost
-    const port = process.env.PORT || 3001;
-    return `http://localhost:${port}/${cleanPath}`;
+    return `/${cleanPath}`;
   }
-  
+
   // Default case - return the path as-is
   return path;
 }

@@ -26,20 +26,22 @@ export default function HomePage() {
             {token && <NewTweet token={token} />}
             {data && data.length === 0 && <NothingToShow />}
             {
-                // Map the data to the expected format
+                // Map and sort tweets by createdAt descending (newest first)
                 (() => {
-                    const mappedTweets = (data || []).map((tweet: any) => ({
-                        ...tweet,
-                        likedBy: [],
-                        retweets: [],
-                        replies: [],
-                        retweetedBy: [],
-                        retweetedById: '',
-                        // Preserve retweetOf if backend provided it
-                        retweetOf: tweet.retweetOf || null,
-                        repliedTo: tweet.repliedTo || null,
-                        createdAt: new Date(tweet.createdAt)
-                    }));
+                    const mappedTweets = (data || [])
+                        .map((tweet: any) => ({
+                            ...tweet,
+                            likedBy: [],
+                            retweets: [],
+                            replies: [],
+                            retweetedBy: [],
+                            retweetedById: '',
+                            // Preserve retweetOf if backend provided it
+                            retweetOf: tweet.retweetOf || null,
+                            repliedTo: tweet.repliedTo || null,
+                            createdAt: new Date(tweet.createdAt)
+                        }))
+                        .sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
                     return <Tweets tweets={mappedTweets} />;
                 })()
             }
