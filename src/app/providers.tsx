@@ -3,8 +3,10 @@
 import { createContext, useEffect, useMemo, useState } from "react";
 import { ThemeProvider, createTheme } from "@mui/material";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Toaster } from "react-hot-toast";
 
 import GlobalLoading from "@/components/misc/GlobalLoading";
+import { CallProvider } from "@/providers/CallProvider";
 
 const queryClient = new QueryClient({
     defaultOptions: {
@@ -58,7 +60,21 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>
             <ThemeProvider theme={muiTheme}>
-                <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+                <QueryClientProvider client={queryClient}>
+                    <CallProvider>
+                        {children}
+                        <Toaster 
+                            position="top-right"
+                            toastOptions={{
+                                duration: 4000,
+                                style: {
+                                    background: theme === 'dark' ? '#333' : '#fff',
+                                    color: theme === 'dark' ? '#fff' : '#333',
+                                },
+                            }}
+                        />
+                    </CallProvider>
+                </QueryClientProvider>
             </ThemeProvider>
         </ThemeContext.Provider>
     );

@@ -1,0 +1,120 @@
+.settingsModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.settingsContent {
+  background-color: var(--lk-bg2);
+  border-radius: var(--lk-border-radius);
+  width: 90vw;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--lk-border-color);
+}
+
+.header h2 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: var(--lk-fg);
+  cursor: pointer;
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--lk-border-radius);
+  transition: background-color 0.2s;
+}
+
+.closeButton:hover {
+  background-color: var(--lk-bg);
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--lk-border-color);
+}
+
+.tab {
+  flex: 1;
+  padding: 1rem;
+  background: none;
+  border: none;
+  color: var(--lk-fg2);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 1rem;
+  position: relative;
+}
+
+.tab:hover {
+  background-color: var(--lk-bg);
+}
+
+.activeTab {
+  color: var(--lk-fg);
+}
+
+.activeTab::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--lk-theme-color);
+}
+
+.tabContent {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.mediaSettings h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: var(--lk-fg2);
+}
+
+.deviceSection {
+  margin-bottom: 2rem;
+}
+
+.deviceSection > * {
+  margin-bottom: 0.5rem;
+}
+
+.recordingSettings {
+  text-align: center;
+}
+
+.recordingStatus {
+  margin-bottom: 1.5rem;
+  color: var(--lk-fg2);
+}

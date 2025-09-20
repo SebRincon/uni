@@ -1584,6 +1584,7 @@ button.icon-hoverable {
         display: flex;
         flex-direction: column;
         gap: 0.25rem;
+        flex: 1;
 
         .top-title {
             font-weight: bold;
@@ -1593,6 +1594,21 @@ button.icon-hoverable {
 
     .btn {
         border: none;
+    }
+
+    .call-buttons {
+        display: flex;
+        gap: 0.5rem;
+
+        .call-button {
+            color: var(--text-muted);
+            transition: all 0.2s;
+            
+            &:hover {
+                color: var(--twitter-color);
+                background-color: var(--twitter-color-background);
+            }
+        }
     }
 }
 
@@ -2067,6 +2083,7 @@ button.icon-hoverable {
             flex-direction: column;
             height: 45px;
             gap: 0.25rem;
+            flex: 1;
 
             .last-message {
                 white-space: nowrap;
@@ -2103,6 +2120,22 @@ button.icon-hoverable {
                     opacity: 0.75;
                     cursor: pointer;
                     white-space: nowrap;
+                }
+            }
+        }
+
+        .call-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 0.5rem;
+
+            .call-button {
+                color: var(--text-muted);
+                transition: all 0.2s;
+                
+                &:hover {
+                    color: var(--twitter-color);
+                    background-color: var(--twitter-color-background);
                 }
             }
         }
