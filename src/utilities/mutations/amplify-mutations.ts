@@ -12,12 +12,11 @@ type Notification = any; // Models['Notification']['type'];
 // Helper function to upload media files
 async function uploadMedia(file: File): Promise<string | null> {
   try {
-    // Get the current user's identity ID
-    const currentUser = await getCurrentUser();
-    const identityId = currentUser.userId;
+    // Get the current user to ensure they're authenticated
+    await getCurrentUser();
     
-    // Use the correct path format: media/{identity-id}/*
-    const fileName = `media/${identityId}/${Date.now()}-${file.name}`;
+    // Use the {entity_id} placeholder which Amplify will automatically replace with the identity ID
+    const fileName = `media/{entity_id}/${Date.now()}-${file.name}`;
     const result = await uploadData({
       path: fileName,
       data: file,
