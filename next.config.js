@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const path = require('path');
 
 const nextConfig = {
     experimental: {
@@ -16,6 +17,13 @@ const nextConfig = {
                 pathname: '/**',
             },
         ],
+    },
+    webpack: (config) => {
+        // Ensure '@' alias resolves to the src directory in all environments (including Amplify)
+        config.resolve = config.resolve || {};
+        config.resolve.alias = config.resolve.alias || {};
+        config.resolve.alias['@'] = path.resolve(__dirname, 'src');
+        return config;
     },
 };
 
