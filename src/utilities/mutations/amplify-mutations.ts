@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { client } from '@/lib/amplify-client';
 import { uploadData } from 'aws-amplify/storage';
+import { getCurrentUser } from 'aws-amplify/auth';
 import type { Schema } from '@/lib/amplify-client';
 
 type User = any; // Models['User']['type'];
@@ -11,7 +12,12 @@ type Notification = any; // Models['Notification']['type'];
 // Helper function to upload media files
 async function uploadMedia(file: File): Promise<string | null> {
   try {
-    const fileName = `media/${Date.now()}-${file.name}`;
+    // Get the current user's identity ID
+    const currentUser = await getCurrentUser();
+    const identityId = currentUser.userId;
+    
+    // Use the correct path format: media/{identity-id}/*
+    const fileName = `media/${identityId}/${Date.now()}-${file.name}`;
     const result = await uploadData({
       path: fileName,
       data: file,
