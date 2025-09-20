@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-west-2_KWGP5jrz0",
+    "user_pool_id": "us-west-2_atAWOdqhH",
     "aws_region": "us-west-2",
-    "user_pool_client_id": "6lfkiobrep1a4v82o929lqqc9o",
-    "identity_pool_id": "us-west-2:389f74ca-d896-4851-a759-110694e20419",
+    "user_pool_client_id": "46biogbbjbp2l6ep4ht0gppnm7",
+    "identity_pool_id": "us-west-2:02afa118-2c79-4895-8598-452750e7e5e4",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -27,9 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://jhvgdlchwvdpthlp7ob5jappea.appsync-api.us-west-2.amazonaws.com/graphql",
+    "url": "https://jpxqzk7w5fef7f57nhxyopgbae.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
-    "api_key": "da2-oq2qph5ltjahreablul547xlbi",
+    "api_key": "da2-n65xsaoixvfojih7t3ia4bzura",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -113,70 +113,6 @@
                 ]
               }
             },
-            "following": {
-              "name": "following",
-              "isArray": true,
-              "type": {
-                "model": "UserFollows"
-              },
-              "isRequired": false,
-              "attributes": [],
-              "isArrayNullable": true,
-              "association": {
-                "connectionType": "HAS_MANY",
-                "associatedWith": [
-                  "followerId"
-                ]
-              }
-            },
-            "followers": {
-              "name": "followers",
-              "isArray": true,
-              "type": {
-                "model": "UserFollows"
-              },
-              "isRequired": false,
-              "attributes": [],
-              "isArrayNullable": true,
-              "association": {
-                "connectionType": "HAS_MANY",
-                "associatedWith": [
-                  "followingId"
-                ]
-              }
-            },
-            "sentMessages": {
-              "name": "sentMessages",
-              "isArray": true,
-              "type": {
-                "model": "Message"
-              },
-              "isRequired": false,
-              "attributes": [],
-              "isArrayNullable": true,
-              "association": {
-                "connectionType": "HAS_MANY",
-                "associatedWith": [
-                  "senderId"
-                ]
-              }
-            },
-            "receivedMessages": {
-              "name": "receivedMessages",
-              "isArray": true,
-              "type": {
-                "model": "Message"
-              },
-              "isRequired": false,
-              "attributes": [],
-              "isArrayNullable": true,
-              "association": {
-                "connectionType": "HAS_MANY",
-                "associatedWith": [
-                  "recipientId"
-                ]
-              }
-            },
             "notifications": {
               "name": "notifications",
               "isArray": true,
@@ -222,6 +158,70 @@
                 "connectionType": "HAS_MANY",
                 "associatedWith": [
                   "userId"
+                ]
+              }
+            },
+            "messages": {
+              "name": "messages",
+              "isArray": true,
+              "type": {
+                "model": "Message"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "senderId"
+                ]
+              }
+            },
+            "conversationMemberships": {
+              "name": "conversationMemberships",
+              "isArray": true,
+              "type": {
+                "model": "ConversationMember"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userId"
+                ]
+              }
+            },
+            "friendshipsA": {
+              "name": "friendshipsA",
+              "isArray": true,
+              "type": {
+                "model": "Friendship"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userAId"
+                ]
+              }
+            },
+            "friendshipsB": {
+              "name": "friendshipsB",
+              "isArray": true,
+              "type": {
+                "model": "Friendship"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "userBId"
                 ]
               }
             },
@@ -527,6 +527,244 @@
             "sortKeyFieldNames": []
           }
         },
+        "Conversation": {
+          "name": "Conversation",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "name": {
+              "name": "name",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "createdBy": {
+              "name": "createdBy",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": false,
+              "attributes": []
+            },
+            "messages": {
+              "name": "messages",
+              "isArray": true,
+              "type": {
+                "model": "Message"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "conversationId"
+                ]
+              }
+            },
+            "members": {
+              "name": "members",
+              "isArray": true,
+              "type": {
+                "model": "ConversationMember"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true,
+              "association": {
+                "connectionType": "HAS_MANY",
+                "associatedWith": [
+                  "conversationId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "Conversations",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read"
+                    ]
+                  },
+                  {
+                    "allow": "private",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
+        "ConversationMember": {
+          "name": "ConversationMember",
+          "fields": {
+            "id": {
+              "name": "id",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "conversationId": {
+              "name": "conversationId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "conversation": {
+              "name": "conversation",
+              "isArray": false,
+              "type": {
+                "model": "Conversation"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "conversationId"
+                ]
+              }
+            },
+            "userId": {
+              "name": "userId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "user": {
+              "name": "user",
+              "isArray": false,
+              "type": {
+                "model": "User"
+              },
+              "isRequired": false,
+              "attributes": [],
+              "association": {
+                "connectionType": "BELONGS_TO",
+                "targetNames": [
+                  "userId"
+                ]
+              }
+            },
+            "createdAt": {
+              "name": "createdAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            },
+            "updatedAt": {
+              "name": "updatedAt",
+              "isArray": false,
+              "type": "AWSDateTime",
+              "isRequired": false,
+              "attributes": [],
+              "isReadOnly": true
+            }
+          },
+          "syncable": true,
+          "pluralName": "ConversationMembers",
+          "attributes": [
+            {
+              "type": "model",
+              "properties": {}
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "conversationMembersByConversationId",
+                "queryField": "listConversationMemberByConversationId",
+                "fields": [
+                  "conversationId"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "conversationMembersByUserId",
+                "queryField": "listConversationMemberByUserId",
+                "fields": [
+                  "userId"
+                ]
+              }
+            },
+            {
+              "type": "auth",
+              "properties": {
+                "rules": [
+                  {
+                    "allow": "public",
+                    "provider": "apiKey",
+                    "operations": [
+                      "read"
+                    ]
+                  },
+                  {
+                    "allow": "private",
+                    "operations": [
+                      "create",
+                      "update",
+                      "delete",
+                      "read"
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "primaryKeyInfo": {
+            "isCustomPrimaryKey": false,
+            "primaryKeyFieldName": "id",
+            "sortKeyFieldNames": []
+          }
+        },
         "Message": {
           "name": "Message",
           "fields": {
@@ -555,7 +793,7 @@
               "name": "senderId",
               "isArray": false,
               "type": "ID",
-              "isRequired": false,
+              "isRequired": true,
               "attributes": []
             },
             "sender": {
@@ -573,25 +811,25 @@
                 ]
               }
             },
-            "recipientId": {
-              "name": "recipientId",
+            "conversationId": {
+              "name": "conversationId",
               "isArray": false,
               "type": "ID",
-              "isRequired": false,
+              "isRequired": true,
               "attributes": []
             },
-            "recipient": {
-              "name": "recipient",
+            "conversation": {
+              "name": "conversation",
               "isArray": false,
               "type": {
-                "model": "User"
+                "model": "Conversation"
               },
               "isRequired": false,
               "attributes": [],
               "association": {
                 "connectionType": "BELONGS_TO",
                 "targetNames": [
-                  "recipientId"
+                  "conversationId"
                 ]
               }
             },
@@ -756,8 +994,8 @@
             "sortKeyFieldNames": []
           }
         },
-        "UserFollows": {
-          "name": "UserFollows",
+        "Friendship": {
+          "name": "Friendship",
           "fields": {
             "id": {
               "name": "id",
@@ -766,15 +1004,15 @@
               "isRequired": true,
               "attributes": []
             },
-            "followerId": {
-              "name": "followerId",
+            "userAId": {
+              "name": "userAId",
               "isArray": false,
               "type": "ID",
               "isRequired": true,
               "attributes": []
             },
-            "follower": {
-              "name": "follower",
+            "userA": {
+              "name": "userA",
               "isArray": false,
               "type": {
                 "model": "User"
@@ -784,19 +1022,19 @@
               "association": {
                 "connectionType": "BELONGS_TO",
                 "targetNames": [
-                  "followerId"
+                  "userAId"
                 ]
               }
             },
-            "followingId": {
-              "name": "followingId",
+            "userBId": {
+              "name": "userBId",
               "isArray": false,
               "type": "ID",
               "isRequired": true,
               "attributes": []
             },
-            "following": {
-              "name": "following",
+            "userB": {
+              "name": "userB",
               "isArray": false,
               "type": {
                 "model": "User"
@@ -806,9 +1044,23 @@
               "association": {
                 "connectionType": "BELONGS_TO",
                 "targetNames": [
-                  "followingId"
+                  "userBId"
                 ]
               }
+            },
+            "requesterId": {
+              "name": "requesterId",
+              "isArray": false,
+              "type": "ID",
+              "isRequired": true,
+              "attributes": []
+            },
+            "status": {
+              "name": "status",
+              "isArray": false,
+              "type": "String",
+              "isRequired": true,
+              "attributes": []
             },
             "createdAt": {
               "name": "createdAt",
@@ -828,7 +1080,7 @@
             }
           },
           "syncable": true,
-          "pluralName": "UserFollows",
+          "pluralName": "Friendships",
           "attributes": [
             {
               "type": "model",
@@ -837,20 +1089,40 @@
             {
               "type": "key",
               "properties": {
-                "name": "userFollowsByFollowerId",
-                "queryField": "listUserFollowsByFollowerId",
+                "name": "friendshipsByUserAId",
+                "queryField": "listFriendshipByUserAId",
                 "fields": [
-                  "followerId"
+                  "userAId"
                 ]
               }
             },
             {
               "type": "key",
               "properties": {
-                "name": "userFollowsByFollowingId",
-                "queryField": "listUserFollowsByFollowingId",
+                "name": "friendshipsByUserBId",
+                "queryField": "listFriendshipByUserBId",
                 "fields": [
-                  "followingId"
+                  "userBId"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "friendshipsByRequesterId",
+                "queryField": "listFriendshipByRequesterId",
+                "fields": [
+                  "requesterId"
+                ]
+              }
+            },
+            {
+              "type": "key",
+              "properties": {
+                "name": "friendshipsByStatus",
+                "queryField": "listFriendshipByStatus",
+                "fields": [
+                  "status"
                 ]
               }
             },
@@ -1147,21 +1419,19 @@
   },
   "storage": {
     "aws_region": "us-west-2",
-    "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-xkvqcbluvlzm",
+    "bucket_name": "amplify-d3o849eq3fpd4i-ma-twitterclonemediabucket8-jx8tlzkfwzr3",
     "buckets": [
       {
         "name": "twitter-clone-media",
-        "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-xkvqcbluvlzm",
+        "bucket_name": "amplify-d3o849eq3fpd4i-ma-twitterclonemediabucket8-jx8tlzkfwzr3",
         "aws_region": "us-west-2",
         "paths": {
           "media/*": {
             "guest": [
               "get",
               "list"
-            ]
-          },
-          "media/${cognito-identity.amazonaws.com:sub}/*": {
-            "entityidentity": [
+            ],
+            "authenticated": [
               "get",
               "list",
               "write",
