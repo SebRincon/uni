@@ -67,12 +67,18 @@ export function useCallSubscriptions() {
   const handleIncomingCall = async (notification: any) => {
     try {
       // Get call details
-      const { data: call } = await client.models.VideoCall.get({ id: notification.callId });
+      const callResponse = await client.models.VideoCall.get({ id: notification.callId });
+      const call = callResponse?.data;
       if (!call) return;
 
       // Get caller details - initiatorId is the username since User model uses username as primary key
-      const callerResponse = await client.models.User.get({ username: call.initiatorId });
-      const caller = callerResponse?.data;
+      let caller: any = null;
+      try {
+        const userResponse = await client.models.User.get({ username: call.initiatorId });
+        caller = userResponse?.data;
+      } catch (error) {
+        console.error('Error fetching caller:', error);
+      }
       
       setIncomingCall({
         callId: call.id,
@@ -106,10 +112,14 @@ export function useCallSubscriptions() {
     }
 
     // Mark notification as read
-    await client.models.CallNotification.update({
-      id: notification.id,
-      isRead: true,
-    });
+    try {
+      await client.models.CallNotification.update({
+        id: notification.id,
+        isRead: true,
+      });
+    } catch (error) {
+      console.error('Error updating notification:', error);
+    }
   };
 
   const acceptCall = (callId: string) => {
