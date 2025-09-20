@@ -1,7 +1,7 @@
 // @ts-nocheck
 import { client } from '@/lib/amplify-client';
 import { uploadData } from 'aws-amplify/storage';
-import { getCurrentUser } from 'aws-amplify/auth';
+import { fetchAuthSession, getCurrentUser } from 'aws-amplify/auth';
 import type { Schema } from '@/lib/amplify-client';
 
 type User = any; // Models['User']['type'];
@@ -12,11 +12,16 @@ type Notification = any; // Models['Notification']['type'];
 // Helper function to upload media files
 async function uploadMedia(file: File): Promise<string | null> {
   try {
-    // Get the current user to ensure they're authenticated
-    await getCurrentUser();
+    // Get the current auth session to obtain the identity ID
+    const { identityId } = await fetchAuthSession();
     
-    // Use the {entity_id} placeholder which Amplify will automatically replace with the identity ID
-    const fileName = `media/{entity_id}/${Date.now()}-${file.name}`;
+    if (!identityId) {
+      console.error('No identity ID found');
+      return null;
+    }
+    
+    // Use the correct path format with the Cognito identity ID
+    const fileName = `media/${identityId}/${Date.now()}-${file.name}`;
     const result = await uploadData({
       path: fileName,
       data: file,
