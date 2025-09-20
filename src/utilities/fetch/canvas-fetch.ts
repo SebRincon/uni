@@ -72,3 +72,7 @@ export const getCanvasAssignment = async (
 export const getCanvasFile = async (fileId: string): Promise<CanvasFile> => {
   return canvasApiFetch(`/files/${fileId}`);
 };
+
+export const getCanvasFilePublicUrl = async (fileId: string): Promise<{ public_url: string }> => {
+  return canvasApiFetch(`/files/${fileId}/public_url`);
+};
