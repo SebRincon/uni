@@ -8,7 +8,7 @@ import SingleTweet from "@/components/tweet/SingleTweet";
 import CircularLoading from "@/components/misc/CircularLoading";
 import { AuthContext } from "@/app/(twitter)/layout";
 import NotFound from "@/app/not-found";
-import BackToArrow from "@/components/misc/BackToArrow";
+import BackButton from "@/components/misc/BackButton";
 
 export default function SingleTweetPage({
     params: { username, tweetId },
@@ -25,21 +25,11 @@ export default function SingleTweetPage({
 
     if (!isLoading && !data) return NotFound();
 
-    let backToProps = {
-        title: username,
-        url: `/${username}`,
-    };
-
-    if (isFetched && data && (data as any).isReply) {
-        backToProps = {
-            title: "Tweet",
-            url: `/${(data as any).repliedTo?.author?.username}/tweets/${(data as any).repliedTo?.id}`,
-        };
-    }
+    const backTitle = isFetched && data && (data as any).isReply ? "Tweet" : username;
 
     return (
         <div>
-            {isFetched && <BackToArrow title={backToProps.title} url={backToProps.url} />}
+            {isFetched && <BackButton title={backTitle} />}
             {isLoading || isPending ? <CircularLoading /> : data && <SingleTweet tweet={data as any} token={token} />}
         </div>
     );

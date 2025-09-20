@@ -13,7 +13,7 @@
         "mui",
         "tanstack"
     ],
-    "author": "Fatih Arapoğlu",
+    "author": "",
     "license": "MIT",
     "scripts": {
         "dev": "next dev",
