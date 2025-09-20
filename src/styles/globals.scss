@@ -282,7 +282,7 @@ main {
         left: 1rem;
         top: 0.75rem;
         z-index: 9999;
-        color: var(--twitter-white);
+        color: var(--const-white);
         background-color: var(--twitter-light-black);
         transition: all 0.2s ease-in-out;
 
@@ -2226,4 +2226,119 @@ button.icon-hoverable {
     .tweet .tweet-main .tweet-image img {
         max-height: 200px;
     }
+}
+
+/* Add this to the end of the file */
+
+.course-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.course-card {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease-in-out;
+
+  &:hover {
+    background-color: var(--hover);
+  }
+
+  h2 {
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+  }
+
+  p {
+    color: var(--twitter-muted);
+  }
+}
+
+.module-row {
+  border-bottom: 1px solid var(--border-color);
+
+  .module-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+
+    &:hover {
+        background-color: var(--hover);
+    }
+
+    h3 {
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .item-count {
+        margin-left: auto;
+        color: var(--twitter-muted);
+    }
+  }
+}
+
+.assignments-container {
+  padding-left: 3rem;
+  padding-bottom: 1rem;
+
+  ul {
+    list-style: none;
+  }
+}
+
+.assignment-item {
+    padding: 0.75rem 1rem;
+    border-left: 2px solid var(--border-color);
+
+    a {
+        text-decoration: none;
+        color: var(--twitter-black);
+        &:hover {
+            text-decoration: underline;
+            color: var(--twitter-blue);
+        }
+    }
+
+    .item-type {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: bold;
+        color: var(--twitter-muted);
+        margin-right: 0.75rem;
+        width: 80px;
+    }
+}
+
+.centered-message {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  gap: 1rem;
+  color: var(--twitter-muted);
+}
+
+.canvas-link {
+    color: var(--twitter-blue);
+    text-decoration: none;
+    
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.assignment-item a {
+    cursor: pointer;
 }
