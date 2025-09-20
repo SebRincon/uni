@@ -1,10 +1,7 @@
 import { useEffect, useState } from 'react';
-import { generateClient } from 'aws-amplify/data';
-import { type Schema } from '../../amplify/data/resource';
+import { authClient as client } from '@/lib/amplify-client';
 import { fetchAuthSession } from 'aws-amplify/auth';
 import toast from 'react-hot-toast';
-
-const client = generateClient<Schema>();
 
 interface IncomingCall {
   callId: string;
@@ -73,8 +70,9 @@ export function useCallSubscriptions() {
       const { data: call } = await client.models.VideoCall.get({ id: notification.callId });
       if (!call) return;
 
-      // Get caller details
-      const { data: caller } = await client.models.User.get({ username: call.initiatorId });
+      // Get caller details - initiatorId is the username since User model uses username as primary key
+      const callerResponse = await client.models.User.get({ username: call.initiatorId });
+      const caller = callerResponse?.data;
       
       setIncomingCall({
         callId: call.id,
