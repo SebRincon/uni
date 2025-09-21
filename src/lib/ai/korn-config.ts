@@ -57,21 +57,14 @@ export const initializeKornAI = (): KornMentionService => {
   }
 
   try {
-    // Validate environment first
-    const envCheck = validateKornAIEnvironment();
-    if (!envCheck.isValid) {
-      throw new Error(
-        `❌ Missing required environment variables for Korn AI: ${envCheck.missing.join(', ')}\n` +
-        `Please check your environment configuration and ensure these are set:\n` +
-        `- KORN_AI_ENABLED=true\n` +
-        `- CLOUDFLARE_ACCOUNT_ID=your-account-id\n` +
-        `- CLOUDFLARE_API_TOKEN=your-api-token`
-      );
+    // Check if Korn AI is enabled first
+    const kornEnabled = getEnvironmentVariable('KORN_AI_ENABLED');
+    if (kornEnabled !== 'true') {
+      throw new Error(`❌ Korn AI is disabled. KORN_AI_ENABLED=${kornEnabled}, expected 'true'.`);
     }
     
-    if (!DEFAULT_AI_CONFIG.enabled) {
-      throw new Error('❌ Korn AI is disabled. Set KORN_AI_ENABLED=true to enable it.');
-    }
+    // The getCloudflareConfig() function will handle validation with requireEnvironmentVariable
+    // which will throw errors if variables are missing, so we don't need separate validation
     
     const cloudflareConfig = getCloudflareConfig();
     const aiService = new CloudflareAIService(cloudflareConfig, DEFAULT_AI_CONFIG);

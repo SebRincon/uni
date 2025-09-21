@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getKornAI } from '@/lib/ai/korn-config';
 import { KornMentionContext } from '@/types/ai/cloudflare-types';
+import { loadEnvironmentVariables, getEnvironmentVariable } from '@/lib/env-loader';
 
 export async function POST(request: NextRequest) {
   try {
@@ -98,12 +99,13 @@ export async function GET(request: NextRequest) {
     // Step-by-step debugging
     console.log('🔍 GET /api/ai/korn-mention - Starting diagnostic');
     
-    // Check environment variables first
+    // Check environment variables first using env loader
+    const loadedVars = loadEnvironmentVariables();
     const envCheck = {
-      KORN_AI_ENABLED: process.env.KORN_AI_ENABLED || 'MISSING',
-      CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ? 'SET' : 'MISSING',
-      CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN ? 'SET' : 'MISSING',
-      NODE_ENV: process.env.NODE_ENV
+      KORN_AI_ENABLED: getEnvironmentVariable('KORN_AI_ENABLED') || 'MISSING',
+      CLOUDFLARE_ACCOUNT_ID: getEnvironmentVariable('CLOUDFLARE_ACCOUNT_ID') ? 'SET' : 'MISSING',
+      CLOUDFLARE_API_TOKEN: getEnvironmentVariable('CLOUDFLARE_API_TOKEN') ? 'SET' : 'MISSING',
+      NODE_ENV: getEnvironmentVariable('NODE_ENV') || process.env.NODE_ENV
     };
     console.log('🔧 Environment variables:', envCheck);
 
@@ -130,10 +132,10 @@ export async function GET(request: NextRequest) {
         initialized: false,
         details: error instanceof Error ? error.message : String(error),
         environment: {
-          KORN_AI_ENABLED: process.env.KORN_AI_ENABLED || 'MISSING',
-          CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ? 'SET' : 'MISSING',
-          CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN ? 'SET' : 'MISSING',
-          NODE_ENV: process.env.NODE_ENV
+          KORN_AI_ENABLED: getEnvironmentVariable('KORN_AI_ENABLED') || 'MISSING',
+          CLOUDFLARE_ACCOUNT_ID: getEnvironmentVariable('CLOUDFLARE_ACCOUNT_ID') ? 'SET' : 'MISSING',
+          CLOUDFLARE_API_TOKEN: getEnvironmentVariable('CLOUDFLARE_API_TOKEN') ? 'SET' : 'MISSING',
+          NODE_ENV: getEnvironmentVariable('NODE_ENV') || process.env.NODE_ENV
         }
       },
       { status: 500 }
