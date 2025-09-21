@@ -53,7 +53,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                     
                     // Create Korn's reply tweet
                     await createTweet(
-                        'korn-ai', // You might need to create a Korn AI user account
+                        'KornAI', // Korn AI user account
                         result.response.responseContent,
                         undefined, // no photo
                         tweetData.id // reply to the original tweet

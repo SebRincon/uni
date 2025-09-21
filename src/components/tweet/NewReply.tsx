@@ -57,7 +57,7 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
                     
                     // Create Korn's reply to the reply
                     await createTweet(
-                        'korn-ai',
+                        'KornAI',
                         result.response.responseContent,
                         undefined,
                         replyData.id // reply to the user's reply
