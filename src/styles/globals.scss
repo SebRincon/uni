@@ -2534,3 +2534,46 @@ button.icon-hoverable {
 .assignment-item a {
     cursor: pointer;
 }
+
+.feed-tabs {
+  display: flex;
+  border-bottom: 1px solid var(--border-color);
+  position: sticky;
+  top: 68px;
+  background-color: var(--background-primary);
+  z-index: 49;
+
+  .tab-button {
+    flex: 1;
+    padding: 1rem;
+    background: none;
+    border: none;
+    color: var(--twitter-muted);
+    font-weight: 500;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    position: relative;
+
+    &:hover {
+      background-color: var(--hover);
+    }
+
+    &.active {
+      color: var(--twitter-black);
+      font-weight: 600;
+      
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 4px;
+        background-color: var(--twitter-blue);
+        border-radius: 9999px;
+      }
+    }
+  }
+}

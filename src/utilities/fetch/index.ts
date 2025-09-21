@@ -9,6 +9,8 @@ export {
   getUserMedia,
   getUserReplies,
   getAllTweets,
+  getTweetsByUniversity,
+  getTweetsByMajor,
   getRelatedTweets,
   search,
   getMessages,

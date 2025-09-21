@@ -456,6 +456,117 @@ export async function getAllTweets(limit: number = 50) {
   }
 }
 
+export async function getTweetsByUniversity(university: string, limit: number = 50) {
+  try {
+    // First get all users from the university
+    const { data: users } = await client.models.User.list({
+      filter: { university: { eq: university } },
+      selectionSet: ['username']
+    });
+
+    if (!users || users.length === 0) {
+      return [];
+    }
+
+    const userIds = users.map(u => u.username);
+    
+    // Get all tweets first
+    const { data: tweets } = await client.models.Tweet.list({
+      filter: { isReply: { ne: true } },
+      selectionSet: tweetSelectionSet,
+      sortDirection: 'DESC',
+      limit
+    });
+
+    if (!tweets) {
+      return [];
+    }
+
+    // Filter tweets by authors from the university
+    const universityTweets = tweets.filter((tweet: any) => 
+      userIds.includes(tweet.authorId)
+    );
+    
+    // Hydrate tweets with authors and interactions
+    const tweetsWithAuthors = await Promise.all(
+      universityTweets.map(async (tweet: any) => {
+        const { data: author } = await client.models.User.get(
+          { username: tweet.authorId },
+          { selectionSet: userSelectionSet }
+        );
+        
+        // Get interaction counts
+        const [likes, retweets] = await Promise.all([
+          client.models.UserLikes.list({ filter: { tweetId: { eq: tweet.id } } }),
+          client.models.UserRetweets.list({ filter: { tweetId: { eq: tweet.id } } })
+        ]);
+        
+        return {
+          ...tweet,
+          author,
+          likeCount: likes.data?.length || 0,
+          retweetCount: retweets.data?.length || 0
+        };
+      })
+    );
+    
+    return tweetsWithAuthors;
+  } catch (error) {
+    console.error('Error fetching tweets by university:', error);
+    return [];
+  }
+}
+
+export async function getTweetsByMajor(major: string, limit: number = 50) {
+  try {
+    // Get all tweets first since Amplify doesn't support array contains filter
+    const { data: tweets } = await client.models.Tweet.list({
+      filter: { isReply: { ne: true } },
+      selectionSet: tweetSelectionSet,
+      sortDirection: 'DESC',
+      limit
+    });
+
+    if (!tweets) {
+      return [];
+    }
+    
+    // Hydrate tweets with authors and filter by major
+    const tweetsWithAuthors = await Promise.all(
+      tweets.map(async (tweet: any) => {
+        const { data: author } = await client.models.User.get(
+          { username: tweet.authorId },
+          { selectionSet: userSelectionSet }
+        );
+        
+        // Check if author has the specified major
+        if (author && Array.isArray(author.majors) && author.majors.includes(major)) {
+          // Get interaction counts
+          const [likes, retweets] = await Promise.all([
+            client.models.UserLikes.list({ filter: { tweetId: { eq: tweet.id } } }),
+            client.models.UserRetweets.list({ filter: { tweetId: { eq: tweet.id } } })
+          ]);
+          
+          return {
+            ...tweet,
+            author,
+            likeCount: likes.data?.length || 0,
+            retweetCount: retweets.data?.length || 0
+          };
+        }
+        
+        return null;
+      })
+    );
+    
+    // Filter out null values
+    return tweetsWithAuthors.filter(Boolean);
+  } catch (error) {
+    console.error('Error fetching tweets by major:', error);
+    return [];
+  }
+}
+
 export async function getRelatedTweets(tweetId: string) {
   try {
     // Get the original tweet
