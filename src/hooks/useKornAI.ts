@@ -138,7 +138,7 @@ export const useKornAIStatus = () => {
 // Utility hook for detecting @Korn mentions in content
 export const useKornMentionDetection = () => {
   const detectMention = useCallback((content: string): boolean => {
-    const kornPattern = /@Korn\b/gi;
+    const kornPattern = /@[Kk]orn(?=\s|$|[^a-zA-Z0-9])/g;
     return kornPattern.test(content);
   }, []);
 

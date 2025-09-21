@@ -14,6 +14,7 @@ import Uploader from "../misc/Uploader";
 import ProgressCircle from "../misc/ProgressCircle";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
 import { useKornMentionDetection } from "@/hooks/useKornAI";
+import { ensureKornUserExists } from "@/utilities/ai/ensure-korn-user";
 
 import { universityOptions, majorOptions } from "@/constants/academics";
 
@@ -60,6 +61,14 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                     console.log('🤖 Korn AI responded:', result.response.responseContent);
                     
                     try {
+                        // Ensure KornAI user exists before creating tweet
+                        console.log('🔍 Ensuring KornAI user exists...');
+                        const userExists = await ensureKornUserExists();
+                        
+                        if (!userExists) {
+                            throw new Error('Failed to create or verify KornAI user account');
+                        }
+                        
                         // Create Korn's reply tweet
                         await createTweet(
                             'KornAI', // Korn AI user account
