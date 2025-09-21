@@ -148,9 +148,6 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
         <div className="edit-profile">
             <div className="profile-header">
                 <div className="get-blue">
-                    <button onClick={() => setIsBlueOpen(true)}>
-                        Twitter Blue? <FaTwitter />
-                    </button>
                 </div>
                 <Image
                     alt=""

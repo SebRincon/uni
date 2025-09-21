@@ -1274,6 +1274,17 @@ main {
                 font-weight: 600;
                 font-size: 0.93rem;
 
+                &.btn-white {
+                    background-color: #ad26c1;
+                    color: white;
+                    border: 1px solid #ad26c1;
+                    
+                    &:hover {
+                        background-color: #9420a8;
+                        color: white;
+                    }
+                }
+
                 .new-message {
                     border: 1px solid var(--twitter-light-gray);
                 }
