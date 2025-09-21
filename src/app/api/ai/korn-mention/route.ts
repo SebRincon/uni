@@ -18,7 +18,20 @@ export async function POST(request: NextRequest) {
     }
 
     // Initialize Korn AI service
-    const kornAI = getKornAI();
+    let kornAI;
+    try {
+      kornAI = getKornAI();
+    } catch (initError) {
+      console.error('Failed to initialize Korn AI:', initError);
+      return NextResponse.json(
+        { 
+          error: 'Korn AI system not available',
+          details: initError instanceof Error ? initError.message : String(initError),
+          hint: 'Check environment variables: KORN_AI_ENABLED, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN'
+        },
+        { status: 503 }
+      );
+    }
 
     // Extract mention context
     const mentionContext = kornAI.extractMentionContext(

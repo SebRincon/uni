@@ -4,6 +4,24 @@ import { CloudflareAIConfig, AIServiceConfig } from '@/types/ai/cloudflare-types
 import { CloudflareAIService } from './cloudflare-ai-service';
 import { KornMentionService } from './korn-mention-service';
 
+// Environment validation helper
+const validateEnvironment = (): { isValid: boolean; missing: string[] } => {
+  const required = {
+    KORN_AI_ENABLED: process.env.KORN_AI_ENABLED,
+    CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
+    CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN
+  };
+  
+  const missing = Object.entries(required)
+    .filter(([key, value]) => !value)
+    .map(([key]) => key);
+    
+  return {
+    isValid: missing.length === 0,
+    missing
+  };
+};
+
 // Default configuration for Korn AI
 export const DEFAULT_AI_CONFIG: AIServiceConfig = {
   enabled: process.env.KORN_AI_ENABLED === 'true',
@@ -58,11 +76,32 @@ export const initializeKornAI = (): KornMentionService => {
   }
 
   try {
+    // Validate environment first
+    const envCheck = validateEnvironment();
+    if (!envCheck.isValid) {
+      throw new Error(
+        `❌ Missing required environment variables for Korn AI: ${envCheck.missing.join(', ')}\n` +
+        `Please check your .env.local file and ensure these are set:\n` +
+        `- KORN_AI_ENABLED=true\n` +
+        `- CLOUDFLARE_ACCOUNT_ID=your-account-id\n` +
+        `- CLOUDFLARE_API_TOKEN=your-api-token`
+      );
+    }
+    
+    if (!DEFAULT_AI_CONFIG.enabled) {
+      throw new Error('❌ Korn AI is disabled. Set KORN_AI_ENABLED=true to enable it.');
+    }
+    
     const cloudflareConfig = getCloudflareConfig();
     const aiService = new CloudflareAIService(cloudflareConfig, DEFAULT_AI_CONFIG);
     kornAIInstance = new KornMentionService(aiService);
     
     console.log('✅ Korn AI system initialized successfully');
+    console.log('🔧 Environment:', {
+      enabled: DEFAULT_AI_CONFIG.enabled,
+      model: cloudflareConfig.model,
+      accountId: cloudflareConfig.accountId.substring(0, 8) + '...'
+    });
     return kornAIInstance;
   } catch (error) {
     console.error('❌ Failed to initialize Korn AI system:', error);

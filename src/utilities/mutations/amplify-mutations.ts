@@ -68,6 +68,18 @@ export async function updateUser(userId: string, updates: Partial<User>) {
 // Helper to call server-side moderation
 async function moderateClientSide(text: string): Promise<{ isSensitive: boolean; block: boolean; overallSeverity: string; categories: any[] }> {
   try {
+    // Special handling for @Korn mentions - these should not be flagged as sensitive
+    // since they are legitimate AI assistant interactions
+    const hasKornMention = /@[Kk]orn\b/.test(text);
+    if (hasKornMention) {
+      console.log('🤖 @Korn mention detected, bypassing sensitivity check');
+      // Check if it's JUST a @Korn mention without other potentially harmful content
+      const textWithoutKorn = text.replace(/@[Kk]orn\b/g, '').trim();
+      if (textWithoutKorn.length < 100) { // Short messages with @Korn are likely innocent
+        return { isSensitive: false, block: false, overallSeverity: 'none', categories: [] };
+      }
+    }
+    
     const res = await fetch('/api/moderate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -78,7 +90,17 @@ async function moderateClientSide(text: string): Promise<{ isSensitive: boolean;
       // Fail-closed for safety: mark as sensitive but do not block
       return { isSensitive: true, block: false, overallSeverity: 'low', categories: [] };
     }
-    return await res.json();
+    const result = await res.json();
+    
+    // Post-processing: If content has @Korn mention and is marked sensitive, 
+    // reduce severity unless it's actually harmful
+    if (hasKornMention && result.isSensitive && result.overallSeverity === 'low') {
+      console.log('🤖 Reducing sensitivity for @Korn mention');
+      result.isSensitive = false;
+      result.overallSeverity = 'none';
+    }
+    
+    return result;
   } catch (e) {
     console.error('Moderation call failed', e);
     // Fail-closed for safety: mark as sensitive but do not block

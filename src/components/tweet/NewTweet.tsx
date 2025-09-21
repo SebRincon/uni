@@ -48,7 +48,15 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
 
                 const result = await response.json();
                 
-                if (result.success && result.response.responseContent) {
+                if (!response.ok) {
+                    console.error('🤖 Korn AI API error:', response.status, result);
+                    if (response.status === 503) {
+                        console.error('🔧 Korn AI service not available. Check environment variables.');
+                    }
+                    return;
+                }
+                
+                if (result.success && result.response?.responseContent) {
                     console.log('🤖 Korn AI responded:', result.response.responseContent);
                     
                     try {
