@@ -95,20 +95,46 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // Step-by-step debugging
+    console.log('🔍 GET /api/ai/korn-mention - Starting diagnostic');
+    
+    // Check environment variables first
+    const envCheck = {
+      KORN_AI_ENABLED: process.env.KORN_AI_ENABLED || 'MISSING',
+      CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ? 'SET' : 'MISSING',
+      CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN ? 'SET' : 'MISSING',
+      NODE_ENV: process.env.NODE_ENV
+    };
+    console.log('🔧 Environment variables:', envCheck);
+
+    // Try to initialize Korn AI
+    console.log('🚀 Attempting to initialize Korn AI...');
     const kornAI = getKornAI();
+    console.log('✅ Korn AI initialized successfully');
+    
     const status = {
       initialized: true,
+      environment: envCheck,
       queueStatus: kornAI.getQueueStatus(),
       timestamp: new Date().toISOString()
     };
 
     return NextResponse.json(status);
   } catch (error) {
+    console.error('❌ Korn AI initialization failed:', error);
+    console.error('Stack trace:', error instanceof Error ? error.stack : 'No stack trace');
+    
     return NextResponse.json(
       { 
         error: 'Failed to get Korn AI status',
         initialized: false,
-        details: error instanceof Error ? error.message : String(error)
+        details: error instanceof Error ? error.message : String(error),
+        environment: {
+          KORN_AI_ENABLED: process.env.KORN_AI_ENABLED || 'MISSING',
+          CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID ? 'SET' : 'MISSING',
+          CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN ? 'SET' : 'MISSING',
+          NODE_ENV: process.env.NODE_ENV
+        }
       },
       { status: 500 }
     );
