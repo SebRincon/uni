@@ -41,7 +41,7 @@ export default function Retweet({ tweetId, tweetAuthor }: TweetOptionsProps) {
     const handleRetweet = () => {
         if (!token) {
             return setSnackbar({
-                message: "You need to login to retweet.",
+                message: "You need to login to repost.",
                 severity: "info",
                 open: true,
             });

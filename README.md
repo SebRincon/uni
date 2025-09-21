@@ -1,93 +1,52 @@
-# Twitter Clone (Full-stack Next.js 13+)
+# Uni (Full‑stack Next.js 13+)
 
-Introducing a comprehensive clone of [Twitter](https://twitter.com), with a familiar interface and a range of essential features.
+Uni is a campus‑centric social platform for sharing updates, collaborating on academics, and connecting with peers. It features posts, replies, reposts, messaging, notifications, rich media, and powerful search with university/major filters.
 
-Created with **Next.js 13+**, **Supabase** and **PostgreSQL**. Deployed on [**Vercel**](https://vercel.com/).
-
-## ⮕ [Live preview](https://twitter-next13.vercel.app/)
-
-### ➡ FYI: Supabase updated their DB settings recently (January 2024), so environment variables from examples may look different when you try it out.
-
----
-
-`Secret key for Twitter Blue: thanksforcaring`
-
----
+Built with **Next.js 13+ (App Router)**, **TypeScript**, **AWS Amplify (Data/Storage)**, **Material UI**, and **TanStack Query**. Deployable on **Vercel** or your preferred platform.
 
 ## Features
 
--   **Profiles**: Users can create their own profiles, add a profile picture, and customize their bio to express their personality and interests.
--   **Tweets and Replies**: Just like Twitter, users can compose and share tweets of up to a certain character limit, allowing them to share their thoughts, ideas, or any other content with their followers.
--   **Friends & Requests**: Users can send friend requests, accept/decline them, and see friends’ tweets in their home feed.
--   **Likes/Retweets**: Users can engage with tweets by liking them to show appreciation or retweeting them to share them with their own followers. Also undo retweets and unlike support.
--   **Notifications**: Users receive notifications when someone likes or retweets their tweets, sends or accepts friend requests, or mentions them in a post.
--   **Search**: Users can search for specific tweets or accounts to find relevant content or connect with specific users.
--   **Direct Messaging**: Users can send private messages to other users, allowing for one-on-one conversations and interactions.
--   **Twitter Blue**: Users can get premium status by entering a secret code, getting an icon with their name.
--   **Emoji Support**: Users can easily add emojis to their tweets and replies, enhancing expression and engagement.
--   **User Authentication and Security**: Custom user authentication with hooks, bcrypt, JWT. Access control, ensuring secure login and protected user data.
--   **Real-time Data Fetching**: Implement real-time updates with react-query, allowing users to see new tweets, likes, and retweets without manually refreshing the page.
--   **Image Support**: Users can upload images with their tweets, replies, profile and header pictures and direct messages, enhancing visual content sharing.
--   **Infinite Scroll**: Infinite scrolling, providing a seamless browsing experience for users as they explore their timeline.
--   **Date and Time Formatting**: Formatting timestamps and display them in a user-friendly manner, such as relative time (e.g., "5 minutes ago").
--   **Deleting**: Users can delete their own tweets, replies and retweets. Also unlike tweets.
--   Dark and Light mode.
--   Optimistic updates on likes, retweets, and friend actions.
--   Full-Stack Next.js (13+) App directory advantages.
+-   Profiles: Create a profile, upload an avatar/cover, and customize your bio.
+-   Posts and Replies: Share posts (with attachments) and discuss via threaded replies.
+-   Friends & Requests: Send/accept/decline friend requests; see friends’ posts on Home.
+-   Likes & Reposts: Engage with likes and reposts (with undo support).
+-   Notifications: For likes, reposts, replies, mentions, and friend events.
+-   Search & Explore: Full‑text search plus filters by university and major(s).
+-   Direct Messaging: One‑to‑one conversations.
+-   Premium badge: Optional verified/premium badge next to names.
+-   Emoji support: Emoji picker for posts and replies.
+-   Authentication and access control: User sessions and protected actions.
+-   Fast data fetching: React Query for caching, optimistic updates, and reactive UI.
+-   Media & attachments: Image uploads and attachment chips (including PDFs).
+-   Infinite scroll: Seamless content loading.
+-   Date/time formatting: Friendly timestamps and extended date views.
+-   Deleting: Remove your posts, replies, and undo reposts/likes.
+-   Dark and Light modes.
 -   Responsive design.
 
-## Helper Dependencies
+## Tech stack & libraries
 
--   [Prisma](https://www.prisma.io/) for database access and manipulation.
--   [Supabase JS Client](https://supabase.io/) for interacting with the storage.
--   [Material UI](https://mui.com/) production ready components UI library.
--   [TypeScript](https://www.typescriptlang.org/) for types.
--   [React Query](https://react-query.tanstack.com/) hooks and utilities for data fetching and state management.
--   [Emoji Mart](https://missiveapp.com/open/emoji-mart) for Emoji picker and rendering components in React.
--   [Bcrypt](https://www.npmjs.com/package/bcrypt) password hashing and encryption functionality.
--   [Date-fns](https://date-fns.org/) utility functions for date manipulation and formatting.
--   [Framer Motion](https://www.framer.com/motion/) animation components and utilities.
--   [Formik](https://formik.org/) form management utilities.
--   [Yup](https://www.npmjs.com/package/yup) for form validation schemas.
--   [React Dropzone](https://react-dropzone.js.org/) drag-and-drop file upload component for React.
--   [react-icons](https://react-icons.github.io/react-icons/) collection of customizable icons.
--   [react-infinite-scroll-component](https://www.npmjs.com/package/react-infinite-scroll-component) for infinite scrolling.
--   [Jose](https://www.npmjs.com/package/jose) for handling JWTs.
--   [Eslint](https://eslint.org/) for linting.
--   [Prettier](https://prettier.io/) for formatting.
--   [Sass](https://sass-lang.com/) for SCSS
+-   Next.js 13+ (App Router), TypeScript
+-   AWS Amplify Gen 2 (Data), Storage utilities
+-   Material UI (MUI)
+-   TanStack React Query
+-   Framer Motion (animations)
+-   Emoji Mart
+-   date‑fns
+-   react‑icons
+-   react‑dropzone
+-   ESLint + Prettier
+-   Sass (SCSS)
 
 ## Roadmap
 
-### ⮕ You can access the complete progression of development from [changelog.md file](/CHANGELOG.md).
-
--   [x] Only verified blue tick user should show in the who to follow section.
--   [ ] Add block/unblock feature.
--   [ ] Add hidden/locked profile.
--   [ ] Find out how to infinite load for every page / extract usememo to the different component? because can't conditionaly render.
--   [ ] Find a better way of optimistic messages other than faking it, refactor whole messaging system.
--   [ ] Add Turkish language support.
--   [ ] Multiple test accounts when onclick test login, test account goes to random.
--   [ ] Email / sms verification just for the fun.
-
-## Acknowledgements
-
--   [Google Fonts](https://fonts.google.com/) (Poppins and Roboto fonts provider)
-
-## How It Looks
-
-![ss](./public/screenshots/ss2.png)
-![ss](./public/screenshots/ss5.png)
-![ss](./public/screenshots/ss1.png)
-![ss](./public/screenshots/ss6.png)
-![ss](./public/screenshots/ss3.png)
-![ss](./public/screenshots/ss4.png)
-
-## Contact
-
-⮕ [LinkedIn](https://www.linkedin.com/in/fatiharapoglu/)
-
-⮕ [Portfolio](https://fatiharapoglu.dev)
+-   [x] Show verified/premium users in suggestions
+-   [ ] Block/unblock users
+-   [ ] Hidden/locked profiles
+-   [ ] Refine infinite loading across pages
+-   [ ] Improve optimistic messaging UX
+-   [ ] Additional language support
+-   [ ] Optional email/SMS verification
 
 ## License
 

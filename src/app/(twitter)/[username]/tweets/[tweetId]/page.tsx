@@ -25,7 +25,7 @@ export default function SingleTweetPage({
 
     if (!isLoading && !data) return NotFound();
 
-    const backTitle = isFetched && data && (data as any).isReply ? "Tweet" : username;
+    const backTitle = isFetched && data && (data as any).isReply ? "Post" : username;
 
     return (
         <div>

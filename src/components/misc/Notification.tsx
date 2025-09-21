@@ -139,10 +139,10 @@ export default function Notification({ notification, token }: { notification: No
                     {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Liked your</span>{" "}
                     {tweetId ? (
                         <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
-                            tweet.
+                            post.
                         </Link>
                     ) : (
-                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>tweet.</span>
+                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>post.</span>
                     )}
                 </div>
             </div>
@@ -157,10 +157,10 @@ export default function Notification({ notification, token }: { notification: No
                     {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Replied to your</span>{" "}
                     {tweetId ? (
                         <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
-                            tweet.
+                            post.
                         </Link>
                     ) : (
-                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>tweet.</span>
+                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>post.</span>
                     )}
                 </div>
             </div>
@@ -172,13 +172,13 @@ export default function Notification({ notification, token }: { notification: No
                     <RetweetIcon />
                 </div>
                 <div>
-                    {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Retweeted your</span>{" "}
+                    {sharedJSX} <span className={!notification.isRead ? "bold" : ""}>Reposted your</span>{" "}
                     {tweetId ? (
                         <Link className={`notification-link ${!notification.isRead ? "bold" : ""}`} href={tweetUrl}>
-                            tweet.
+                            post.
                         </Link>
                     ) : (
-                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>tweet.</span>
+                        <span className={`notification-link ${!notification.isRead ? "bold" : ""}`}>post.</span>
                     )}
                 </div>
             </div>

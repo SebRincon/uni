@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TextField, Avatar, FormControlLabel, Switch, MenuItem, Autocomplete, Chip, Button, Box, Stack, Typography } from "@mui/material";
+import Image from "next/image";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -185,7 +186,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
 
     return (
         <Box sx={{ p: 2 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>Create a new Tweet</Typography>
+            <Typography variant="h6" sx={{ mb: 2 }}>Create a new Post</Typography>
             <Stack direction="row" spacing={2}>
                 <Avatar
                     className="avatar div-link"
@@ -288,7 +289,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                                 {attachFiles.map((f, idx) => (
                                     <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-color)', borderRadius: 8, padding: '4px 8px' }}>
                                         {f.type.startsWith('image/') ? (
-                                            <img src={URL.createObjectURL(f)} alt={f.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                                            <Image src={URL.createObjectURL(f)} alt={f.name} width={48} height={48} style={{ objectFit: 'cover', borderRadius: 6 }} unoptimized />
                                         ) : (
                                             <span style={{ fontSize: 12 }}>PDF: {f.name}</span>
                                         )}

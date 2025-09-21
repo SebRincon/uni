@@ -148,7 +148,7 @@ export default function Friend({ profile }: { profile: UserProps }) {
             buttonContent = (
                 <button 
                     onClick={handlePrimaryClick} 
-                    className="btn btn-white"
+                    className="btn btn-white friend-action-btn"
                     disabled={isButtonDisabled}
                 >
                     Friends
@@ -159,7 +159,7 @@ export default function Friend({ profile }: { profile: UserProps }) {
             buttonContent = (
                 <button 
                     onClick={handleCancel} 
-                    className={isHovered ? "btn btn-danger-outline" : "btn btn-white"}
+                    className={`${isHovered ? "btn btn-danger-outline" : "btn btn-white"} friend-action-btn`}
                     disabled={isButtonDisabled}
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
@@ -182,7 +182,7 @@ export default function Friend({ profile }: { profile: UserProps }) {
             break;
         default:
             buttonContent = (
-                <button onClick={handlePrimaryClick} className="btn btn-dark" disabled={isButtonDisabled}>
+                <button onClick={handlePrimaryClick} className="btn btn-dark friend-action-btn" disabled={isButtonDisabled}>
                     Add Friend
                 </button>
             );

@@ -7,6 +7,7 @@ import { FaRegImage, FaRegSmile } from "react-icons/fa";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
 import Link from "next/link";
+import Image from "next/image";
 
 import CircularLoading from "../misc/CircularLoading";
 import { createTweet } from "@/utilities/fetch";
@@ -164,7 +165,7 @@ const mutation = useMutation({
                     {attachFiles.map((f, idx) => (
                         <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-color)', borderRadius: 8, padding: '4px 8px' }}>
                             {f.type.startsWith('image/') ? (
-                                <img src={URL.createObjectURL(f)} alt={f.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }} />
+                                <Image src={URL.createObjectURL(f)} alt={f.name} width={40} height={40} style={{ objectFit: 'cover', borderRadius: 6 }} unoptimized />
                             ) : (
                                 <span style={{ fontSize: 12 }}>PDF: {f.name}</span>
                             )}

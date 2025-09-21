@@ -10,7 +10,7 @@ export default function Share({ tweetUrl }: { tweetUrl: string }) {
     const handleCopy = () => {
         try {
             navigator.clipboard.writeText(tweetUrl);
-            setSnackbar({ message: "Tweet link is copied to the clipboard.", severity: "success", open: true });
+            setSnackbar({ message: "Post link is copied to the clipboard.", severity: "success", open: true });
         } catch (error) {
             return console.log(error);
         }

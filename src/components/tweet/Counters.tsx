@@ -19,7 +19,7 @@ export default function Counters({ tweet }: { tweet: TweetProps }) {
     const handleDialogOpen = (type: string) => {
         if (!token) {
             return setSnackbar({
-                message: "You need to log in to view likes or retweets.",
+                message: "You need to log in to view likes or reposts.",
                 severity: "info",
                 open: true,
             });
@@ -49,7 +49,7 @@ export default function Counters({ tweet }: { tweet: TweetProps }) {
                         {tweet.retweetedBy.length > 0 && (
                             <button className="counter-btn" onClick={() => handleDialogOpen("retweets")}>
                                 <span className="count">
-                                    {tweet.retweetedBy.length} <span className="text-muted">Retweets</span>
+                                    {tweet.retweetedBy.length} <span className="text-muted">Reposts</span>
                                 </span>
                             </button>
                         )}
@@ -66,7 +66,7 @@ export default function Counters({ tweet }: { tweet: TweetProps }) {
             {isDialogOpen && (
                 <Dialog className="dialog" open={isDialogOpen} onClose={handleDialogClose} fullWidth maxWidth="xs">
                     <DialogTitle className="title">
-                        {dialogType === "likes" ? "Liked by" : dialogType === "retweets" ? "Retweeted by" : ""}
+                        {dialogType === "likes" ? "Liked by" : dialogType === "retweets" ? "Reposted by" : ""}
                     </DialogTitle>
                     <DialogContent sx={{ paddingX: 0 }}>
                         <div className="user-list">

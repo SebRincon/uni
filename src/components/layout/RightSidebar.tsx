@@ -4,7 +4,6 @@ import { useContext } from "react";
 import Link from "next/link";
 
 import { AuthContext } from "@/app/(twitter)/auth-context";
-import Search from "../misc/Search";
 import WhoToFollow from "../misc/WhoToFollow";
 import CompleteProfileReminder from "../misc/CompleteProfileReminder";
 import Legal from "../misc/Legal";
@@ -15,7 +14,6 @@ export default function RightSidebar() {
     return (
         <aside className="right-sidebar">
             <div className="fixed">
-                <Search />
                 <div className="trending-section">
                     <h2>Trending</h2>
                     {/* Add trending topics here */}

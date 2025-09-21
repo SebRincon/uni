@@ -92,7 +92,7 @@ export default function Like({ tweetId, tweetAuthor }: TweetOptionsProps) {
     const handleLike = () => {
         if (!token) {
             return setSnackbar({
-                message: "You need to login to like a tweet.",
+                message: "You need to login to like a post.",
                 severity: "info",
                 open: true,
             });

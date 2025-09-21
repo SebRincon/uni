@@ -49,7 +49,7 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
             setIsConfirmationOpen(false);
             setIsDeleting(false);
             setSnackbar({
-                message: "Tweet deleted successfully. Redirecting to the profile page...",
+                message: "Post deleted successfully. Redirecting to the profile page...",
                 severity: "success",
                 open: true,
             });
@@ -84,7 +84,7 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
     const handleDelete = async () => {
         if (!token) {
             return setSnackbar({
-                message: "You must be logged in to delete tweets...",
+                message: "You must be logged in to delete posts...",
                 severity: "info",
                 open: true,
             });
@@ -184,7 +184,7 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
                                     <Image
                                       onClick={handleImageClick}
                                       src={getFullURL(tweet.photoUrl)}
-                                      alt="tweet image"
+                                      alt="post image"
                                       placeholder="blur"
                                       blurDataURL={shimmer(500, 500)}
                                       height={500}
@@ -199,7 +199,7 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
                                     <Image
                                         onClick={handleImageClick}
                                         src={getFullURL(tweet.photoUrl)}
-                                        alt="tweet image"
+                                        alt="post image"
                                         placeholder="blur"
                                         blurDataURL={shimmer(500, 500)}
                                         height={500}
@@ -250,10 +250,10 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
             {isConfirmationOpen && (
                 <div className="html-modal-wrapper">
                     <dialog open className="confirm">
-                        <h1>Delete Tweet?</h1>
+                        <h1>Delete Post?</h1>
                         <p>
                             This can’t be undone and it will be removed from your profile, the timeline of any accounts that
-                            follow you, and from Twitter search results.
+                            follow you, and from search results.
                         </p>
                         {isDeleting ? (
                             <CircularLoading />

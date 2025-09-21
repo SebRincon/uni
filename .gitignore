@@ -12,6 +12,9 @@
 /.next/
 /out/
 
+.env.local
+.env.korn-ai.example
+
 # production
 /build
 

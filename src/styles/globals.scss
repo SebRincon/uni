@@ -1,7 +1,8 @@
 
 /* Modern page layout additions */
 .page {
-  max-width: 1200px; /* widen content area */
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 12px; /* reduce outer whitespace while keeping breathing room */
 }
@@ -31,14 +32,17 @@
   box-sizing: border-box;
   max-width: 100%;
   margin: 6px 0; /* small top/bottom margin; full width inside .page */
-  padding: 6px 12px; /* tighter vertical padding */
+  padding: 10px 16px; /* a bit more horizontal padding for visual width */
   border: 1px solid var(--border-color);
   border-radius: 10px;
   background: var(--background-primary); /* blend with theme background */
   overflow: hidden; /* guard against fractional overflow */
 
+  /* Make the box visually span most of its parent */
+  align-self: stretch;
+
   /* Normalize MUI field spacing inside filters */
-  :global(.MuiFormControl-root) { margin: 0 !important; }
+  :global(.MuiFormControl-root) { margin: 0 !important; width: 100%; }
   :global(.MuiFormHelperText-root) { display: none; }
   :global(.MuiAutocomplete-root) { width: 100%; }
   :global(.MuiInputLabel-root) { display: none; }
@@ -47,8 +51,8 @@
   .filters-row {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    align-items: stretch;
+    gap: 10px;
     & + .filters-row { margin-top: 16px; }
 
     .label {
@@ -60,6 +64,25 @@
 
     .field {
       width: 100%;
+      flex: 1;
+    }
+  }
+
+  /* On wider screens, lay out label and field side-by-side so the field takes most width */
+  @media (min-width: 768px) {
+    .filters-row {
+      flex-direction: row;
+      align-items: center;
+
+      .label {
+        min-width: 140px;
+        padding-left: 0;
+      }
+
+      .field {
+        flex: 1;
+        width: auto;
+      }
     }
   }
 }
@@ -990,6 +1013,14 @@
             transition: none !important;
         }
     }
+
+    // Ensure consistent button sizing in suggested friends
+    .friend-actions .friend-action-btn {
+        min-width: 120px;
+        display: inline-flex;
+        justify-content: center;
+        text-align: center;
+    }
 }
 
 :root {
@@ -1878,8 +1909,8 @@ main {
             }
         }
 
-        .tweet-bottom {
-            max-width: 400px;
+.tweet-bottom {
+            max-width: 100%;
             display: flex;
             justify-content: space-between;
             align-items: center; // This will vertically align the items
@@ -2429,7 +2460,7 @@ main {
 
 .layout {
     display: grid;
-    grid-template-columns: 1fr minmax(360px, 600px) 1fr;
+    grid-template-columns: 1fr minmax(480px, 900px) 1fr;
     height: 100vh;
     position: relative;
 }
@@ -3397,7 +3428,7 @@ button.icon-hoverable {
 
 @media (width <= 1300px) {
     .layout {
-        grid-template-columns: auto minmax(360px, 600px) 1fr;
+        grid-template-columns: auto minmax(420px, 700px) 1fr;
     }
 
     .left-sidebar {
