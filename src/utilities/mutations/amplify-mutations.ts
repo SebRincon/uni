@@ -65,6 +65,27 @@ export async function updateUser(userId: string, updates: Partial<User>) {
 
 
 
+// Helper to call server-side moderation
+async function moderateClientSide(text: string): Promise<{ isSensitive: boolean; block: boolean; overallSeverity: string; categories: any[] }> {
+  try {
+    const res = await fetch('/api/moderate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    });
+    if (!res.ok) {
+      console.error('Moderation API error', await res.text());
+      // Fail-closed for safety: mark as sensitive but do not block
+      return { isSensitive: true, block: false, overallSeverity: 'low', categories: [] };
+    }
+    return await res.json();
+  } catch (e) {
+    console.error('Moderation call failed', e);
+    // Fail-closed for safety: mark as sensitive but do not block
+    return { isSensitive: true, block: false, overallSeverity: 'low', categories: [] };
+  }
+}
+
 // Tweet mutations
 export async function createTweet(
   authorId: string,
@@ -79,13 +100,20 @@ export async function createTweet(
       photoUrl = await uploadMedia(photoFile) || undefined;
     }
     
+    // Pre-publish moderation
+    const mod = await moderateClientSide(text);
+    if (mod.block) {
+      throw new Error('Message blocked by content policy');
+    }
+
     const { data } = await client.models.Tweet.create({
       authorId,
       text,
       photoUrl,
       isReply: !!repliedToId,
       repliedToId,
-      isRetweet: false
+      isRetweet: false,
+      isSensitive: mod.isSensitive
     });
     
     // Create notification for reply
@@ -259,7 +287,8 @@ export async function retweet(userId: string, tweetId: string) {
       photoUrl: originalTweet.photoUrl,
       isRetweet: true,
       retweetOfId: tweetId,
-      isReply: false
+      isReply: false,
+      isSensitive: Boolean((originalTweet as any).isSensitive)
     });
     
     // Create notification

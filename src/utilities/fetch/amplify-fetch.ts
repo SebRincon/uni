@@ -12,7 +12,7 @@ type Notification = any; // Models['Notification']['type'];
 const userSelectionSet = ['username', 'name', 'description', 'location', 
   'website', 'photoUrl', 'headerUrl', 'isPremium', 'createdAt', 'updatedAt'] as const;
 
-const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 
+const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 'isSensitive', 
   'createdAt', 'updatedAt', 'authorId', 'retweetOfId', 'repliedToId'] as const;
 
 // User-related fetch functions

@@ -18,6 +18,7 @@ import { useStorageUrl } from "@/hooks/useStorageUrl";
 import { AuthContext } from "@/app/(twitter)/layout";
 import RetweetIcon from "../misc/RetweetIcon";
 import ProfileCard from "../user/ProfileCard";
+import SensitiveGate from "../misc/SensitiveGate";
 
 export default function Tweet({ tweet }: { tweet: TweetProps }) {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
@@ -33,6 +34,10 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
     if (tweet.isRetweet && tweet.retweetOf) {
         displayedTweet = tweet.retweetOf;
     }
+
+    const isSensitiveDisplay = tweet.isRetweet && tweet.retweetOf
+        ? (tweet.retweetOf as any)?.isSensitive ?? (tweet as any)?.isSensitive
+        : (displayedTweet as any)?.isSensitive;
     
     const avatarUrl = useStorageUrl(displayedTweet.author.photoUrl);
     const tweetImageUrl = useStorageUrl(displayedTweet.photoUrl);
@@ -133,26 +138,53 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
                             </span>
                         </Link>
                     )}{" "}
-                    {displayedTweet.text}
+                    {isSensitiveDisplay ? (
+                        <SensitiveGate
+                          text={<span>{displayedTweet.text}</span>}
+                          image={null}
+                        />
+                    ) : (
+                        <>{displayedTweet.text}</>
+                    )}
                 </div>
                 {displayedTweet.photoUrl && tweetImageUrl && (
                     <div onClick={handlePropagation}>
-                        <div className="tweet-image">
-                            <Image
-                                onClick={handleImageClick}
-                                src={tweetImageUrl}
-                                alt="tweet image"
-                                placeholder="blur"
-                                blurDataURL={shimmer(500, 500)}
-                                height={500}
-                                width={500}
+                        {isSensitiveDisplay ? (
+                          <SensitiveGate
+                            image={(
+                              <div className="tweet-image">
+                                <Image
+                                  onClick={handleImageClick}
+                                  src={tweetImageUrl}
+                                  alt="tweet image"
+                                  placeholder="blur"
+                                  blurDataURL={shimmer(500, 500)}
+                                  height={500}
+                                  width={500}
+                                />
+                              </div>
+                            )}
+                          />
+                        ) : (
+                          <>
+                            <div className="tweet-image">
+                                <Image
+                                    onClick={handleImageClick}
+                                    src={tweetImageUrl}
+                                    alt="tweet image"
+                                    placeholder="blur"
+                                    blurDataURL={shimmer(500, 500)}
+                                    height={500}
+                                    width={500}
+                                />
+                            </div>
+                            <PreviewDialog
+                                open={isPreviewOpen}
+                                handlePreviewClose={handlePreviewClose}
+                                url={tweetImageUrl}
                             />
-                        </div>
-                        <PreviewDialog
-                            open={isPreviewOpen}
-                            handlePreviewClose={handlePreviewClose}
-                            url={tweetImageUrl}
-                        />
+                          </>
+                        )}
                     </div>
                 )}
                 <div onClick={handlePropagation} className="tweet-bottom">

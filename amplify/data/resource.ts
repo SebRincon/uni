@@ -32,6 +32,7 @@ const schema = a
       photoUrl: a.string(),
       isRetweet: a.boolean().default(false),
       isReply: a.boolean().default(false),
+      isSensitive: a.boolean().default(false),
       // Relationships
       authorId: a.id().required(),
       author: a.belongsTo("User", "authorId"),
