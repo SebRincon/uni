@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogTitle, InputAdornment, TextField, MenuItem
 import * as yup from "yup";
 import Image from "next/image";
 import { signUp, signIn, confirmSignUp } from 'aws-amplify/auth';
-import { updateUser, getUserExists } from "@/utilities/fetch";
+import { updateUser } from "@/utilities/fetch";
 
 import { SignUpDialogProps } from "@/types/DialogProps";
 import CircularLoading from "../misc/CircularLoading";
@@ -18,18 +18,6 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
     const [tempCredentials, setTempCredentials] = useState({ username: "", password: "" });
 
     const router = useRouter();
-
-// Helper: wait until the User record exists in the database (created by useAuth after sign-in)
-async function waitForUserRecord(username: string, maxRetries = 20, delayMs = 500) {
-    for (let i = 0; i < maxRetries; i++) {
-        try {
-            const { exists } = await getUserExists(username);
-            if (exists) return true;
-        } catch {}
-        await new Promise(res => setTimeout(res, delayMs));
-    }
-    return false;
-}
 
 const validationSchema = yup.object({
         username: yup
@@ -139,18 +127,15 @@ if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
                     setSnackbar({ message: "Please check your email for the confirmation code", severity: "info", open: true });
                 } else if (isSignUpComplete) {
                     // If no confirmation needed, sign in directly
-await signIn({ username: values.email, password: values.password });
+                    await signIn({ username: values.email, password: values.password });
                     // Try to persist university/majors to our User model
                     try {
-                        const ready = await waitForUserRecord(values.username);
-                        if (!ready) {
-                            console.warn('User record not found after waiting; skipping immediate profile save.');
-                        } else {
-                            await updateUser(values.username, {
-                                university: values.university || '',
-                                majors: values.majors || [],
-                            } as any);
-                        }
+                        // small delay to allow DB user creation via auth hook
+                        await new Promise(res => setTimeout(res, 500));
+                        await updateUser(values.username, {
+                            university: values.university || '',
+                            majors: values.majors || [],
+                        } as any);
                     } catch (e) {
                         console.warn('Could not immediately save university/majors after sign up:', e);
                     }
@@ -185,15 +170,12 @@ await signIn({
                 
                 // Try to persist university/majors to our User model
                 try {
-                    const ready = await waitForUserRecord(formik.values.username);
-                    if (!ready) {
-                        console.warn('User record not found after waiting (confirmation flow); skipping immediate profile save.');
-                    } else {
-                        await updateUser(formik.values.username, {
-                            university: formik.values.university || '',
-                            majors: formik.values.majors || [],
-                        } as any);
-                    }
+                    // small delay to allow DB user creation via auth hook
+                    await new Promise(res => setTimeout(res, 500));
+                    await updateUser(formik.values.username, {
+                        university: formik.values.university || '',
+                        majors: formik.values.majors || [],
+                    } as any);
                 } catch (e) {
                     console.warn('Could not immediately save university/majors after confirmation:', e);
                 }
