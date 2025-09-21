@@ -1,4 +1,4 @@
-// API route for processing @Korn mentions
+// API route for processing @Korn mentions (v2.1 - environment fixes)
 import { NextRequest, NextResponse } from 'next/server';
 import { getKornAI } from '@/lib/ai/korn-config';
 import { KornMentionContext } from '@/types/ai/cloudflare-types';
