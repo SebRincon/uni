@@ -6,6 +6,7 @@ import * as yup from "yup";
 import Image from "next/image";
 import { signUp, signIn, confirmSignUp } from 'aws-amplify/auth';
 import { updateUser } from "@/utilities/fetch";
+import { universityOptions, majorOptions } from "@/constants/academics";
 
 import { SignUpDialogProps } from "@/types/DialogProps";
 import CircularLoading from "../misc/CircularLoading";
@@ -47,54 +48,6 @@ const validationSchema = yup.object({
             .required("Confirmation code is required."),
     });
 
-const universityOptions = [
-        "Rice University",
-        "University of Houston",
-        "University of Houston–Downtown",
-        "University of Houston–Clear Lake",
-        "Texas Southern University",
-        "University of St. Thomas",
-        "Houston Christian University",
-        "Prairie View A&M University",
-        "Sam Houston State University",
-        "Texas A&M University at Galveston",
-        "UTHealth Houston",
-        "Baylor College of Medicine",
-        "Houston Community College",
-        "Lone Star College",
-        "San Jacinto College",
-        "Lee College",
-        "Galveston College",
-        "Texas Woman's University (Houston Center)",
-        "DeVry University (Houston)",
-        "Remington College (Houston)",
-    ];
-
-    const majorOptions = [
-        "Computer Science",
-        "Software Engineering",
-        "Data Science",
-        "Information Systems",
-        "Business Administration",
-        "Finance",
-        "Accounting",
-        "Marketing",
-        "Economics",
-        "Biology",
-        "Chemistry",
-        "Physics",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Electrical Engineering",
-        "Civil Engineering",
-        "Nursing",
-        "Psychology",
-        "Political Science",
-        "Communications",
-        "English",
-        "Sociology",
-        "History",
-    ];
 
     const formik = useFormik({
         initialValues: {

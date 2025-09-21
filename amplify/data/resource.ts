@@ -36,6 +36,11 @@ const schema = a
       isRetweet: a.boolean().default(false),
       isReply: a.boolean().default(false),
       isSensitive: a.boolean().default(false),
+      // New tagging and academic context fields
+      tags: a.string().array(),
+      isAcademic: a.boolean().default(true),
+      university: a.string(),
+      course: a.string(),
       // Relationships
       authorId: a.id().required(),
       author: a.belongsTo("User", "authorId"),

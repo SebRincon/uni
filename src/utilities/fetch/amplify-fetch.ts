@@ -13,7 +13,7 @@ type Notification = any; // Models['Notification']['type'];
 const userSelectionSet = ['username', 'name', 'description', 'location', 
   'website', 'photoUrl', 'headerUrl', 'isPremium', 'university', 'majors', 'createdAt', 'updatedAt'] as const;
 
-const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 'isSensitive', 
+const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 'isSensitive', 'tags', 'isAcademic', 'university', 'course',
   'createdAt', 'updatedAt', 'authorId', 'retweetOfId', 'repliedToId'] as const;
 
 // User-related fetch functions
@@ -653,6 +653,64 @@ export async function search(query: string) {
     };
   } catch (error) {
     console.error('Error searching:', error);
+    return { users: [], tweets: [] };
+  }
+}
+
+// Advanced tweet search with filters
+export async function searchAdvanced(filters: { q?: string; tags?: string[]; university?: string; course?: string | string[]; academicOnly?: boolean }) {
+  try {
+    const andConditions: any[] = [ { isReply: { ne: true } } ];
+
+    if (filters.q && filters.q.trim() !== '') {
+      andConditions.push({ text: { contains: filters.q } });
+    }
+    if (filters.university && filters.university.trim() !== '') {
+      andConditions.push({ university: { contains: filters.university } });
+    }
+    if (typeof filters.course === 'string') {
+      if (filters.course.trim() !== '') {
+        andConditions.push({ course: { contains: filters.course } });
+      }
+    } else if (Array.isArray(filters.course)) {
+      const courses = filters.course.map((c) => (c || '').trim()).filter(Boolean);
+      if (courses.length > 0) {
+        andConditions.push({ or: courses.map((c) => ({ course: { contains: c } })) });
+      }
+    }
+    if (typeof filters.academicOnly === 'boolean') {
+      andConditions.push({ isAcademic: { eq: filters.academicOnly } });
+    }
+    if (filters.tags && filters.tags.length > 0) {
+      const tagConds = filters.tags
+        .map(t => (t || '').trim())
+        .filter(Boolean)
+        .map(t => ({ tags: { contains: t } }));
+      if (tagConds.length > 0) {
+        andConditions.push({ or: tagConds });
+      }
+    }
+
+    const { data: tweets } = await client.models.Tweet.list({
+      filter: { and: andConditions },
+      selectionSet: tweetSelectionSet,
+      limit: 50,
+      sortDirection: 'DESC'
+    });
+
+    const tweetsWithAuthors = await Promise.all(
+      (tweets || []).map(async (tweet) => {
+        const { data: author } = await client.models.User.get(
+          { username: tweet.authorId },
+          { selectionSet: userSelectionSet }
+        );
+        return { ...tweet, author: { ...author, id: author?.username } };
+      })
+    );
+
+    return { users: [], tweets: tweetsWithAuthors };
+  } catch (error) {
+    console.error('Error in advanced search:', error);
     return { users: [], tweets: [] };
   }
 }

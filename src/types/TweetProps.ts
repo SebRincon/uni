@@ -18,6 +18,11 @@ export type TweetProps = {
     repliedTo: TweetProps;
     repliedToId: string;
     isSensitive?: boolean;
+    // New tagging and academic context fields
+    tags?: string[];
+    isAcademic?: boolean;
+    university?: string;
+    course?: string;
 };
 
 export type TweetsArray = {

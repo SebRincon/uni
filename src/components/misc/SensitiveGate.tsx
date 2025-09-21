@@ -19,14 +19,23 @@ export default function SensitiveGate({
     );
   }
   return (
-    <div style={{ border: "1px solid #333", padding: 12, borderRadius: 12, background: "#111", color: "#ddd" }}>
+    <div
+      style={{ border: "1px solid #333", padding: 12, borderRadius: 12, background: "#111", color: "#ddd" }}
+      onClick={(e) => e.stopPropagation()}
+    >
       <strong>Sensitive content</strong>
       {categories && categories.length > 0 && (
         <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
           Categories: {categories.join(", ")}
         </div>
       )}
-      <button onClick={() => setRevealed(true)} style={{ marginTop: 8 }}>
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setRevealed(true);
+        }}
+        style={{ marginTop: 8 }}
+      >
         View anyway
       </button>
     </div>

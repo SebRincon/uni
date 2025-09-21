@@ -840,6 +840,42 @@ main {
             }
         }
 
+        .tweet-badges {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.4rem;
+
+            .badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.25rem;
+                padding: 0.15rem 0.5rem;
+                border-radius: 999px;
+                font-size: 0.72rem;
+                border: 1px solid var(--border-color);
+                background: rgba(0,0,0,0.03);
+                color: var(--twitter-black);
+                white-space: nowrap;
+            }
+
+            .badge.university {
+                background: #e8f4ff;
+                border-color: #cfe7ff;
+                color: #0b5cab;
+            }
+            .badge.course {
+                background: #eafaf3;
+                border-color: #d2f5e3;
+                color: #0a7a4b;
+            }
+            .badge.tag {
+                background: #f4f4f5;
+                border-color: #e5e7eb;
+                color: #374151;
+            }
+        }
+
         .tweet-bottom {
             max-width: 400px;
             display: flex;

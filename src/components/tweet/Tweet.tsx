@@ -187,6 +187,21 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
                         )}
                     </div>
                 )}
+
+                {(displayedTweet.university || displayedTweet.course || (Array.isArray(displayedTweet.tags) && displayedTweet.tags.length > 0)) && (
+                    <div className="tweet-badges" onClick={handlePropagation}>
+                        {displayedTweet.university && (
+                            <span className="badge university" title="University">{displayedTweet.university}</span>
+                        )}
+                        {displayedTweet.course && (
+                            <span className="badge course" title="Major/Course">{displayedTweet.course}</span>
+                        )}
+                        {Array.isArray(displayedTweet.tags) && displayedTweet.tags.slice(0, 4).map((t: string) => (
+                            <span className="badge tag" key={t}>#{t}</span>
+                        ))}
+                    </div>
+                )}
+
                 <div onClick={handlePropagation} className="tweet-bottom">
                     <Reply tweet={displayedTweet} />
                     <Retweet tweetId={displayedTweet.id} tweetAuthor={displayedTweet.author.username} />

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, Avatar } from "@mui/material";
+import { TextField, Avatar, FormControlLabel, Switch, MenuItem, Autocomplete, Chip } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -14,6 +14,8 @@ import Uploader from "../misc/Uploader";
 import ProgressCircle from "../misc/ProgressCircle";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
 
+import { universityOptions, majorOptions } from "@/constants/academics";
+
 export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const [showPicker, setShowPicker] = useState(false);
     const [showDropzone, setShowDropzone] = useState(false);
@@ -23,8 +25,8 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const queryClient = useQueryClient();
 
     const mutation = useMutation({
-        mutationFn: ({ authorId, text, photoFile }: { authorId: string; text: string; photoFile?: File }) => 
-            createTweet(authorId, text, photoFile),
+        mutationFn: ({ authorId, text, photoFile, extras }: { authorId: string; text: string; photoFile?: File; extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string } }) => 
+            createTweet(authorId, text, photoFile, undefined, extras),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["tweets"] });
         },
@@ -47,13 +49,31 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
             text: "",
             authorId: token.id,
             photoUrl: "",
+            tagsText: "",
+            isAcademic: true,
+            university: "",
+            majors: [] as string[],
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
+            const tags = values.tagsText
+                .split(',')
+                .map((t) => t.trim())
+                .filter((t) => t.length > 0);
             mutation.mutate({
                 authorId: values.authorId,
                 text: values.text,
-                photoFile: photoFile || undefined
+                photoFile: photoFile || undefined,
+                extras: {
+                    tags,
+                    isAcademic: values.isAcademic,
+                    university: values.university || undefined,
+                    course: values.isAcademic
+                        ? ((values as any).majors && (values as any).majors.length > 0
+                            ? (values as any).majors.join(", ")
+                            : undefined)
+                        : undefined,
+                }
             });
             resetForm();
             setCount(0);
@@ -99,6 +119,80 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                         helperText={formik.touched.text && formik.errors.text}
                     />
                 </div>
+                {/* Tagging and academic context */}
+                <div className="input" style={{ marginTop: 8 }}>
+                    <TextField
+                        placeholder="Tags (comma-separated, e.g. hackathon, advice, internship)"
+                        hiddenLabel
+                        variant="standard"
+                        fullWidth
+                        name="tagsText"
+                        value={(formik.values as any).tagsText}
+                        onChange={formik.handleChange}
+                    />
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 8 }}>
+                        <FormControlLabel
+                            control={
+                                <Switch
+                                    checked={(formik.values as any).isAcademic}
+                                    onChange={(e) => formik.setFieldValue('isAcademic', e.target.checked)}
+                                    name="isAcademic"
+                                />
+                            }
+                            label="Academic post"
+                        />
+                        <TextField
+                            select
+                            fullWidth
+                            hiddenLabel
+                            variant="standard"
+                            name="university"
+                            value={(formik.values as any).university}
+                            onChange={formik.handleChange}
+                            SelectProps={{
+                                displayEmpty: true,
+                                renderValue: (selected) => {
+                                    if (!selected) {
+                                        return 'Select a university';
+                                    }
+                                    return selected as string;
+                                },
+                            }}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {universityOptions.map((u) => (
+                                <MenuItem key={u} value={u}>{u}</MenuItem>
+                            ))}
+                        </TextField>
+                        {(formik.values as any).isAcademic && (
+                            <Autocomplete
+                                multiple
+                                options={majorOptions}
+                                value={(formik.values as any).majors || []}
+                                onChange={(_, value) => formik.setFieldValue('majors', value)}
+                                fullWidth
+                                renderTags={(value: readonly string[], getTagProps) =>
+                                    value.map((option: string, index: number) => (
+                                        <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
+                                    ))
+                                }
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        fullWidth
+                                        hiddenLabel
+                                        variant="standard"
+                                        placeholder={(formik.values as any).majors?.length > 0 ? '' : 'Select one or more majors'}
+                                        helperText="You can select multiple majors"
+                                    />
+                                )}
+                            />
+                        )}
+                    </div>
+                </div>
+
                 <div className="input-additions">
                     <button
                         onClick={(e) => {

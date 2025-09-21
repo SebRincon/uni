@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-west-2_QVFfN2Zaq",
+    "user_pool_id": "us-west-2_CCAhPAl1s",
     "aws_region": "us-west-2",
-    "user_pool_client_id": "1nhivm62djjef4045mpi6n9r4p",
-    "identity_pool_id": "us-west-2:3595d132-24a5-4c08-b590-d59ac94846b8",
+    "user_pool_client_id": "2b1tlb0ucplvgie6eda8egppus",
+    "identity_pool_id": "us-west-2:a79bb61c-a55d-4388-840c-8dc7250801fe",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -27,9 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://6d3oovem6jgrln6t5utmhtrjua.appsync-api.us-west-2.amazonaws.com/graphql",
+    "url": "https://dilbcc3qkfditinmtrfxk73ogu.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
-    "api_key": "da2-g4miywbjmjh45cbyfvb26mcnuu",
+    "api_key": "da2-o5dxeot6bbgpnkdtjkasrszu3a",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -392,6 +392,35 @@
               "name": "isSensitive",
               "isArray": false,
               "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "tags": {
+              "name": "tags",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "isAcademic": {
+              "name": "isAcademic",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "university": {
+              "name": "university",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "course": {
+              "name": "course",
+              "isArray": false,
+              "type": "String",
               "isRequired": false,
               "attributes": []
             },
@@ -2018,11 +2047,11 @@
   },
   "storage": {
     "aws_region": "us-west-2",
-    "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-jascyfeyowno",
+    "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-53tivtiwrrwb",
     "buckets": [
       {
         "name": "twitter-clone-media",
-        "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-jascyfeyowno",
+        "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-53tivtiwrrwb",
         "aws_region": "us-west-2",
         "paths": {
           "media/*": {

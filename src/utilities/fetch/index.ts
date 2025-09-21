@@ -13,6 +13,7 @@ export {
   getTweetsByMajor,
   getRelatedTweets,
   search,
+  searchAdvanced,
   getMessages,
   getNotifications
 } from './amplify-fetch';

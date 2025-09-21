@@ -14,6 +14,7 @@ import { useHeaderUrl, useStorageUrl } from "@/hooks/useStorageUrl";
 import CustomSnackbar from "../misc/CustomSnackbar";
 import { SnackbarProps } from "@/types/SnackbarProps";
 import { checkBlueFromServer } from "@/utilities/misc/checkBlue";
+import { universityOptions, majorOptions } from "@/constants/academics";
 
 export default function EditProfile({ profile, refreshToken }: { profile: UserProps; refreshToken: () => void }) {
     const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -62,54 +63,6 @@ const validationSchema = yup.object({
         headerUrl: yup.string(),
     });
 
-const universityOptions = [
-        "Rice University",
-        "University of Houston",
-        "University of Houston–Downtown",
-        "University of Houston–Clear Lake",
-        "Texas Southern University",
-        "University of St. Thomas",
-        "Houston Christian University",
-        "Prairie View A&M University",
-        "Sam Houston State University",
-        "Texas A&M University at Galveston",
-        "UTHealth Houston",
-        "Baylor College of Medicine",
-        "Houston Community College",
-        "Lone Star College",
-        "San Jacinto College",
-        "Lee College",
-        "Galveston College",
-        "Texas Woman's University (Houston Center)",
-        "DeVry University (Houston)",
-        "Remington College (Houston)",
-    ];
-
-    const majorOptions = [
-        "Computer Science",
-        "Software Engineering",
-        "Data Science",
-        "Information Systems",
-        "Business Administration",
-        "Finance",
-        "Accounting",
-        "Marketing",
-        "Economics",
-        "Biology",
-        "Chemistry",
-        "Physics",
-        "Mathematics",
-        "Mechanical Engineering",
-        "Electrical Engineering",
-        "Civil Engineering",
-        "Nursing",
-        "Psychology",
-        "Political Science",
-        "Communications",
-        "English",
-        "Sociology",
-        "History",
-    ];
 
     const formik = useFormik({
         initialValues: {

@@ -1,105 +1,142 @@
 "use client";
 
-import { useInfiniteQuery } from "@tanstack/react-query";
-import { useContext, useMemo, useState } from "react";
-import InfiniteScroll from "react-infinite-scroll-component";
+import { useQuery } from "@tanstack/react-query";
+import React, { useContext, useMemo } from "react";
+import { Autocomplete, Chip, MenuItem, TextField } from "@mui/material";
 
-import { getAllTweets, getTweetsByUniversity, getTweetsByMajor } from "@/utilities/fetch";
+import { getAllTweets, searchAdvanced } from "@/utilities/fetch";
+import { universityOptions as MASTER_UNIVERSITIES, majorOptions as MASTER_MAJORS } from "@/constants/academics";
 import NewTweet from "@/components/tweet/NewTweet";
 import Tweets from "@/components/tweet/Tweets";
-import FeedTabs from "@/components/layout/FeedTabs";
 import { AuthContext } from "../auth-context";
 import CircularLoading from "@/components/misc/CircularLoading";
 import { dedupeAndSortByCreatedAtDesc } from "@/utilities/tweet/sort";
+import { TweetProps } from "@/types/TweetProps";
 
 export default function ExplorePage() {
     const { token, isPending } = useContext(AuthContext);
-    const [activeTab, setActiveTab] = useState("for_you");
 
-    // Dynamically define tabs based on user profile
-    const tabs = useMemo(() => {
-        const tabList = [{ label: "For You", value: "for_you" }];
-        
-        // Check for university - not just truthy but also not empty string
-        if (token?.university && token.university.trim() !== '') {
-            tabList.push({ label: token.university, value: "university" });
-        }
-        
-        // Check for majors array with actual content
-        if (token?.majors && token.majors.length > 0 && token.majors[0].trim() !== '') {
-            // Using the first major for the tab
-            tabList.push({ label: token.majors[0], value: "major" });
-        }
-        
-        console.log('User token:', token); // Debug log
-        console.log('Generated tabs:', tabList); // Debug log
-        
-        return tabList;
-    }, [token]);
+    // Option catalogs from a sample of tweets
+    const { data: catalogData, isLoading: isLoadingCatalog } = useQuery({
+        queryKey: ["tweets", "catalog"],
+        queryFn: () => getAllTweets(),
+    });
 
-    // Function to fetch tweets based on active tab
-    const fetchTweetsByTab = () => {
-        switch (activeTab) {
-            case "university":
-                return getTweetsByUniversity(token!.university!);
-            case "major":
-                return getTweetsByMajor(token!.majors![0]);
-            case "for_you":
-            default:
-                return getAllTweets();
-        }
-    };
+    const [selectedUniversity, setSelectedUniversity] = React.useState<string>(""); // empty = All universities
+    const [selectedMajors, setSelectedMajors] = React.useState<string[]>(["All"]);
 
-    const { data, fetchNextPage, isLoading, hasNextPage } = useInfiniteQuery(
-        ["tweets", activeTab],
-        async ({ pageParam = 1 }) => fetchTweetsByTab(),
-        {
-            getNextPageParam: () => undefined, // No pagination support yet
-            enabled: !isPending,
-        }
-    );
+    const universities = useMemo(() => {
+        const u = new Set<string>(MASTER_UNIVERSITIES);
+        (catalogData || []).forEach((t: any) => {
+            if (t.university && typeof t.university === 'string' && t.university.trim() !== '') u.add(t.university);
+        });
+        return Array.from(u).sort((a, b) => a.localeCompare(b));
+    }, [catalogData]);
 
-    const allTweets = useMemo(
-        () => {
-            const tweets = data?.pages.flat() || [];
-            // Map then dedupe and sort by createdAt descending (newest first)
-            return dedupeAndSortByCreatedAtDesc(
-                tweets
-                    .map((tweet: any) => ({
-                        ...tweet,
-                        likedBy: [],
-                        retweets: [],
-                        replies: [],
-                        retweetedBy: [],
-                        retweetedById: '',
-                        // Preserve retweetOf if backend provided it
-                        retweetOf: tweet.retweetOf || null,
-                        repliedTo: tweet.repliedTo || null,
-                        createdAt: new Date(tweet.createdAt)
-                    }))
-            );
-        },
-        [data]
-    );
+    const availableMajors = useMemo(() => {
+        const m = new Set<string>(MASTER_MAJORS);
+        (catalogData || [])
+            .filter((t: any) => !selectedUniversity || t.university === selectedUniversity)
+            .forEach((t: any) => {
+                const c = t.course;
+                if (c && typeof c === 'string' && c.trim() !== '') {
+                    c.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((part: string) => m.add(part));
+                }
+            });
+        return Array.from(m).sort((a, b) => a.localeCompare(b));
+    }, [catalogData, selectedUniversity]);
+
+    // Tweets to show based on selected filters
+    const { data, isLoading } = useQuery({
+        queryKey: ["tweets", "explore", selectedUniversity, [...selectedMajors].sort().join('|')],
+        queryFn: () => searchAdvanced({
+            university: selectedUniversity || undefined,
+            course: selectedMajors.includes('All') ? undefined : selectedMajors,
+        }),
+        select: (res: any) => res?.tweets ?? res
+    });
+
+    const tweets = useMemo((): TweetProps[] => {
+        const mapped = (data || []).map((tweet: any) => ({
+            ...tweet,
+            likedBy: [],
+            retweets: [],
+            replies: [],
+            retweetedBy: [],
+            retweetedById: '',
+            retweetOf: tweet.retweetOf || null,
+            repliedTo: tweet.repliedTo || null,
+            createdAt: new Date(tweet.createdAt)
+        })) as TweetProps[];
+        return dedupeAndSortByCreatedAtDesc<TweetProps>(mapped);
+    }, [data]);
 
     if (isPending) return <CircularLoading />;
 
     return (
         <main>
             <h1 className="page-name">Explore</h1>
-            <FeedTabs tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-            {activeTab === "for_you" && token && <NewTweet token={token} />}
-            {isLoading ? (
+            {token && <NewTweet token={token} />}
+
+            <div style={{ display: 'grid', gap: 8, margin: '8px 0 12px' }}>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+                    <span className="text-muted">University:</span>
+                    <TextField
+                        select
+                        value={selectedUniversity}
+                        onChange={(e) => { setSelectedUniversity(e.target.value); setSelectedMajors(['All']); }}
+                        size="small"
+                        label="University"
+                        sx={{ minWidth: 260 }}
+                    >
+                        <MenuItem value="">All universities</MenuItem>
+                        {universities.map((u) => (
+                            <MenuItem key={u} value={u}>{u}</MenuItem>
+                        ))}
+                    </TextField>
+                    {selectedUniversity && (
+                        <Chip label={selectedUniversity} size="small" variant="outlined" />
+                    )}
+                </div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <span className="text-muted">Majors:</span>
+                    <div style={{ minWidth: 280, flex: '1 1 280px', maxWidth: 520 }}>
+                        <Autocomplete
+                            multiple
+                            options={["All", ...availableMajors]}
+                            value={selectedMajors}
+                            onChange={(_, value) => {
+                                const vals = Array.from(new Set(value));
+                                if (vals.length === 0) {
+                                    setSelectedMajors(["All"]);
+                                } else if (vals.includes("All")) {
+                                    setSelectedMajors(["All"]);
+                                } else {
+                                    setSelectedMajors(vals);
+                                }
+                            }}
+                            renderTags={(value: readonly string[], getTagProps) =>
+                                value.map((option: string, index: number) => (
+                                    <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
+                                ))
+                            }
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Majors"
+                                    placeholder={selectedMajors.length > 0 && !selectedMajors.includes("All") ? '' : 'Select one or more majors'}
+                                    helperText="Filter explore by majors"
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {isLoadingCatalog || isLoading ? (
                 <CircularLoading />
             ) : (
-                <InfiniteScroll
-                    dataLength={allTweets.length}
-                    next={() => fetchNextPage()}
-                    hasMore={false} // No pagination support yet
-                    loader={<CircularLoading />}
-                >
-                    <Tweets tweets={allTweets} />
-                </InfiniteScroll>
+                <Tweets tweets={tweets} />
             )}
         </main>
     );

@@ -185,6 +185,21 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
                             )}
                         </>
                     )}
+
+                    {(tweet.university || tweet.course || (Array.isArray(tweet.tags) && tweet.tags.length > 0)) && (
+                        <div className="tweet-badges">
+                            {tweet.university && (
+                                <span className="badge university" title="University">{tweet.university}</span>
+                            )}
+                            {tweet.course && (
+                                <span className="badge course" title="Major/Course">{tweet.course}</span>
+                            )}
+                            {Array.isArray(tweet.tags) && tweet.tags.map((t: string) => (
+                                <span className="badge tag" key={t}>#{t}</span>
+                            ))}
+                        </div>
+                    )}
+
                     <span className="text-muted date">{formatDateExtended(tweet.createdAt)}</span>
                     <Counters tweet={tweet} />
                     <div className="tweet-bottom">

@@ -68,15 +68,39 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    const systemPrompt = `You are a content moderation classifier. Analyze the user text and return JSON according to the schema.
-Categories: ${SENSITIVE_CATEGORIES.join(', ')}.
-Severity scale: none, low, medium, high.
-- "present" means the category is present.
-- "severity" reflects intensity/likelihood of harm.
-- "isSensitive" is true if ANY category meets or exceeds its threshold:
-  ${Object.entries(CATEGORY_SENSITIVITY_THRESHOLD).map(([k,v]) => `${k}: >= ${v}`).join('; ')}.
-- "block" true only for extreme cases suitable for removal (e.g., credible threats, sexual content involving minors, explicit instructions for self-harm).
-Return concise rationale.`;
+    const systemPrompt = `You are a sophisticated content moderation AI for an educational discussion platform used by university students and faculty. Your primary goal is to foster a safe and constructive environment for academic discourse while allowing for the intellectual exploration of sensitive subjects.
+
+    The key is to differentiate between the academic discussion OF a topic versus the promotion, incitement, or glorification OF harmful acts.
+
+    Analyze the user text and return JSON according to the schema.
+
+    ---
+    **Guiding Principles & Examples:**
+
+    1.  **Academic Context is Permitted:**
+        * A history student analyzing violent events in a war IS NOT promoting violence.
+        * A literature student quoting a text with explicit language IS NOT harassment.
+        * A sociology class discussing drug policy IS NOT promoting drug use.
+
+    2.  **Intent Matters:**
+        * **Low Severity:** Passing mentions, clinical descriptions, quoted materials for analysis.
+        * **Medium Severity:** In-depth discussion that could be uncomfortable but is clearly academic.
+        * **High Severity / Block:** Direct threats, targeted harassment, hate speech, promoting self-harm, or clear violations of academic integrity.
+
+    ---
+    **Your Task:**
+
+    Categories: ${SENSITIVE_CATEGORIES.join(', ')}.
+    Severity scale: none, low, medium, high.
+
+    - "isSensitive" is true if ANY category meets or exceeds its threshold:
+      ${Object.entries(CATEGORY_SENSITIVITY_THRESHOLD)
+        .map(([k, v]) => `${k}: >= ${v}`)
+        .join('; ')}.
+
+    - "block" is true ONLY for content that actively endangers users or violates core academic principles. This includes credible threats, targeted harassment, promotion of self-harm, and clear violations of academic integrity (plagiarism, sharing exam answers).
+
+    Return a concise rationale explaining your decision based on these principles.`;
 
     const input = [
       { role: 'user', parts: [{ text: systemPrompt }] },
@@ -85,6 +109,7 @@ Return concise rationale.`;
 
     const res = await model.generateContent({ contents: input });
     const parsed = JSON.parse(res.response.text());
+    console.log(parsed);
 
     // Normalize categories and enforce thresholds server-side as a guard
     const categories: { name: CategoryName; present: boolean; severity: Severity }[] = SENSITIVE_CATEGORIES.map((name) => {

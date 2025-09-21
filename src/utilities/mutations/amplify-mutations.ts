@@ -91,7 +91,8 @@ export async function createTweet(
   authorId: string,
   text: string,
   photoFile?: File,
-  repliedToId?: string
+  repliedToId?: string,
+  extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string }
 ) {
   try {
     let photoUrl: string | undefined;
@@ -113,7 +114,12 @@ export async function createTweet(
       isReply: !!repliedToId,
       repliedToId,
       isRetweet: false,
-      isSensitive: mod.isSensitive
+      isSensitive: mod.isSensitive,
+      // New optional fields
+      tags: extras?.tags,
+      isAcademic: typeof extras?.isAcademic === 'boolean' ? extras?.isAcademic : undefined,
+      university: extras?.university,
+      course: extras?.course
     });
     
     // Create notification for reply
