@@ -70,11 +70,11 @@ async function moderateClientSide(text: string): Promise<{ isSensitive: boolean;
   try {
     // Special handling for @Korn mentions - these should not be flagged as sensitive
     // since they are legitimate AI assistant interactions
-    const hasKornMention = /@[Kk]orn\b/.test(text);
+    const hasKornMention = /@[Kk]orn(?=\s|$|[^a-zA-Z0-9])/.test(text);
     if (hasKornMention) {
       console.log('🤖 @Korn mention detected, bypassing sensitivity check');
       // Check if it's JUST a @Korn mention without other potentially harmful content
-      const textWithoutKorn = text.replace(/@[Kk]orn\b/g, '').trim();
+      const textWithoutKorn = text.replace(/@[Kk]orn(?=\s|$|[^a-zA-Z0-9])/g, '').trim();
       if (textWithoutKorn.length < 100) { // Short messages with @Korn are likely innocent
         return { isSensitive: false, block: false, overallSeverity: 'none', categories: [] };
       }
