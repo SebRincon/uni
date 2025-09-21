@@ -244,6 +244,271 @@
     }
 }
 
+// New Group Dialog Styles
+.new-group-dialog {
+    // Ensure no horizontal overflow
+    .MuiDialog-paper {
+        max-width: 450px !important;
+        margin: 1rem;
+    }
+    
+    .MuiDialogContent-root {
+        padding: 1rem 1.5rem;
+        overflow-x: hidden;
+    }
+    
+    .input-section {
+        margin-bottom: 1.5rem;
+        
+        .MuiTextField-root {
+            width: 100%;
+            
+            .MuiOutlinedInput-root {
+                border-radius: 0.5rem;
+            }
+        }
+    }
+    
+    .selected-users-section {
+        margin-bottom: 1.5rem;
+        
+        h4 {
+            color: var(--twitter-black);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 1rem 0;
+        }
+        
+        .selected-users-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .selected-user-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background-color: var(--twitter-blue);
+            color: white;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease-in-out;
+            
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                flex: 1;
+                
+                .user-avatar {
+                    width: 32px;
+                    height: 32px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+                
+                .user-name {
+                    font-weight: 600;
+                    font-size: 0.9rem;
+                }
+                
+                .user-username {
+                    color: rgba(255, 255, 255, 0.8);
+                    font-size: 0.8rem;
+                    margin-left: 0.5rem;
+                }
+            }
+            
+            .remove-user-btn {
+                background: none;
+                border: none;
+                color: white;
+                cursor: pointer;
+                padding: 0.25rem;
+                border-radius: 50%;
+                transition: background-color 0.2s ease-in-out;
+                
+                &:hover {
+                    background-color: rgba(255, 255, 255, 0.2);
+                }
+            }
+        }
+    }
+    
+    .add-people-section {
+        margin-bottom: 2rem;
+        
+        .section-header {
+            margin-bottom: 1rem;
+            
+            h4 {
+                color: var(--twitter-black);
+                font-size: 1rem;
+                font-weight: 600;
+                margin: 0 0 0.25rem 0;
+            }
+            
+            .section-subtitle {
+                color: var(--twitter-muted);
+                font-size: 0.85rem;
+            }
+        }
+        
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 100%;
+            
+            .search-input-wrapper {
+                position: relative;
+                width: 100%;
+                
+                .search-icon {
+                    position: absolute;
+                    left: 0.75rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--twitter-muted);
+                    font-size: 0.85rem;
+                    z-index: 1;
+                }
+                
+                .search-input {
+                    width: 100%;
+                    max-width: 100%;
+                    box-sizing: border-box;
+                    padding: 0.6rem 0.75rem 0.6rem 2.25rem;
+                    border: 2px solid var(--border-color);
+                    border-radius: 0.4rem;
+                    font-size: 0.85rem;
+                    background-color: var(--background-primary);
+                    color: var(--twitter-black);
+                    transition: border-color 0.2s ease-in-out;
+                    
+                    &:focus {
+                        outline: none;
+                        border-color: var(--twitter-blue);
+                    }
+                    
+                    &::placeholder {
+                        color: var(--twitter-muted);
+                    }
+                }
+            }
+            
+            .search-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background-color: var(--background-primary);
+                border: 1px solid var(--border-color);
+                border-radius: 0.5rem;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                z-index: 1000;
+                max-height: 300px;
+                overflow-y: auto;
+                margin-top: 0.25rem;
+                
+                .search-loading {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                    padding: 1rem;
+                    color: var(--twitter-muted);
+                    font-size: 0.9rem;
+                }
+                
+                .search-result-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.75rem;
+                    padding: 0.75rem 1rem;
+                    cursor: pointer;
+                    transition: background-color 0.2s ease-in-out;
+                    border-bottom: 1px solid var(--border-color);
+                    
+                    &:hover {
+                        background-color: var(--hover);
+                    }
+                    
+                    &:last-child {
+                        border-bottom: none;
+                    }
+                    
+                    .result-avatar {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    }
+                    
+                    .result-info {
+                        flex: 1;
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.25rem;
+                        
+                        .result-name {
+                            font-weight: 600;
+                            font-size: 0.9rem;
+                            color: var(--twitter-black);
+                        }
+                        
+                        .result-username {
+                            color: var(--twitter-muted);
+                            font-size: 0.8rem;
+                        }
+                    }
+                    
+                    .add-icon {
+                        color: var(--twitter-blue);
+                        font-size: 1rem;
+                    }
+                }
+                
+                .no-results,
+                .search-placeholder {
+                    padding: 1rem;
+                    text-align: center;
+                    color: var(--twitter-muted);
+                    font-size: 0.9rem;
+                }
+            }
+        }
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: flex-end;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border-color);
+        
+        .btn {
+            min-width: 100px;
+            
+            &:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
+        }
+    }
+    
+    .error-message {
+        color: var(--twitter-red);
+        font-size: 0.85rem;
+        text-align: center;
+        padding: 0.5rem;
+        background-color: var(--twitter-light-red);
+        border-radius: 0.25rem;
+        margin-top: 1rem;
+    }
+}
+
 // User wrapper for general user display with friend button
 .user-wrapper-extend {
     width: 100%;
