@@ -13,6 +13,7 @@ import { NewTweetProps } from "@/types/TweetProps";
 import Uploader from "../misc/Uploader";
 import ProgressCircle from "../misc/ProgressCircle";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
+import { useKornMentionDetection } from "@/hooks/useKornAI";
 
 import { universityOptions, majorOptions } from "@/constants/academics";
 
@@ -23,12 +24,62 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const [count, setCount] = useState(0);
 
     const queryClient = useQueryClient();
+    const { shouldTriggerKornResponse } = useKornMentionDetection();
+
+    // Function to process Korn AI mentions
+    const processKornMention = async (tweetData: any, tweetText: string) => {
+        if (shouldTriggerKornResponse(tweetText, token.username)) {
+            try {
+                console.log('🤖 Processing @Korn mention for tweet:', tweetData.id);
+                
+                const response = await fetch('/api/ai/korn-mention', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        tweetId: tweetData.id,
+                        authorId: token.id,
+                        authorUsername: token.username,
+                        content: tweetText,
+                        isReply: false
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.response.responseContent) {
+                    console.log('🤖 Korn AI responded:', result.response.responseContent);
+                    
+                    // Create Korn's reply tweet
+                    await createTweet(
+                        'korn-ai', // You might need to create a Korn AI user account
+                        result.response.responseContent,
+                        undefined, // no photo
+                        tweetData.id // reply to the original tweet
+                    );
+                    
+                    // Refresh tweets to show the AI response
+                    queryClient.invalidateQueries({ queryKey: ["tweets"] });
+                } else {
+                    console.log('🤖 Korn AI processing failed or no response');
+                }
+            } catch (error) {
+                console.error('🤖 Error processing Korn mention:', error);
+            }
+        }
+    };
 
     const mutation = useMutation({
         mutationFn: ({ authorId, text, photoFile, extras }: { authorId: string; text: string; photoFile?: File; extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string } }) => 
             createTweet(authorId, text, photoFile, undefined, extras),
-        onSuccess: () => {
+        onSuccess: async (tweetData, variables) => {
             queryClient.invalidateQueries({ queryKey: ["tweets"] });
+            
+            // Process @Korn mentions after tweet is created
+            if (tweetData) {
+                await processKornMention(tweetData, variables.text);
+            }
         },
         onError: (error) => console.log(error),
     });

@@ -9,13 +9,14 @@ import Picker from "@emoji-mart/react";
 import Link from "next/link";
 
 import CircularLoading from "../misc/CircularLoading";
-import { createReply } from "@/utilities/fetch";
+import { createReply, createTweet } from "@/utilities/fetch";
 import Uploader from "../misc/Uploader";
 import { getFullURL } from "@/utilities/misc/getFullURL";
 import { uploadFile } from "@/utilities/storage";
 import { UserProps } from "@/types/UserProps";
 import { TweetProps } from "@/types/TweetProps";
 import ProgressCircle from "../misc/ProgressCircle";
+import { useKornMentionDetection } from "@/hooks/useKornAI";
 
 export default function NewReply({ token, tweet }: { token: UserProps; tweet: TweetProps }) {
     const [showPicker, setShowPicker] = useState(false);
@@ -24,14 +25,66 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
     const [count, setCount] = useState(0);
 
     const queryClient = useQueryClient();
+    const { shouldTriggerKornResponse } = useKornMentionDetection();
 
     const queryKey = ["tweets", tweet.author.username, tweet.id];
+
+    // Function to process Korn AI mentions in replies
+    const processKornMention = async (replyData: any, replyText: string) => {
+        if (shouldTriggerKornResponse(replyText, token.username)) {
+            try {
+                console.log('🤖 Processing @Korn mention in reply:', replyData.id);
+                
+                const response = await fetch('/api/ai/korn-mention', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        tweetId: replyData.id,
+                        authorId: token.id,
+                        authorUsername: token.username,
+                        content: replyText,
+                        isReply: true,
+                        parentTweetId: tweet.id
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success && result.response.responseContent) {
+                    console.log('🤖 Korn AI replied:', result.response.responseContent);
+                    
+                    // Create Korn's reply to the reply
+                    await createTweet(
+                        'korn-ai',
+                        result.response.responseContent,
+                        undefined,
+                        replyData.id // reply to the user's reply
+                    );
+                    
+                    // Refresh the tweet thread to show the AI response
+                    queryClient.invalidateQueries({ queryKey: queryKey });
+                    queryClient.invalidateQueries({ queryKey: ["tweets"] });
+                } else {
+                    console.log('🤖 Korn AI processing failed or no response');
+                }
+            } catch (error) {
+                console.error('🤖 Error processing Korn mention in reply:', error);
+            }
+        }
+    };
 
     const mutation = useMutation({
         mutationFn: (data: { text: string; photoFile?: File }) => 
             createReply(token.id, { ...data, repliedToId: tweet.id }),
-        onSuccess: () => {
+        onSuccess: async (replyData, variables) => {
             queryClient.invalidateQueries({ queryKey: queryKey });
+            
+            // Process @Korn mentions after reply is created
+            if (replyData) {
+                await processKornMention(replyData, variables.text);
+            }
         },
         onError: (error) => console.log(error),
     });
