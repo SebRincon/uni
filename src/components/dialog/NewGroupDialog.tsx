@@ -25,7 +25,7 @@ export default function NewGroupDialog({ open, handleNewMessageClose, token }: N
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
-  const [searchResults, setSearchResults] = useState<UserProps[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
@@ -47,11 +47,11 @@ export default function NewGroupDialog({ open, handleNewMessageClose, token }: N
         setIsSearching(true);
         const results = await search(query);
         // Filter out already selected users and current user
-        const filteredUsers = (results.users || []).filter((user: UserProps) => 
+        const filteredUsers = (results.users || []).filter((user: any) => 
           user.username !== token.username && 
           !selectedUsers.some(selected => selected.id === user.username)
         );
-        setSearchResults(filteredUsers);
+        setSearchResults(filteredUsers as any[]);
       } catch (error) {
         console.error('Search error:', error);
         setSearchResults([]);
@@ -129,114 +129,116 @@ export default function NewGroupDialog({ open, handleNewMessageClose, token }: N
     <Dialog className="dialog new-group-dialog" open={open} onClose={handleNewMessageClose} fullWidth maxWidth="xs">
       <DialogTitle className="title">New Group</DialogTitle>
       <DialogContent>
-        {/* Group Name Input */}
-        <div className="input-section">
-          <TextField
-            fullWidth
-            placeholder="Group name (optional)"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+        <>
+          {/* Group Name Input */}
+          <div className="input-section">
+            <TextField
+              fullWidth
+              placeholder="Group name (optional)"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </div>
 
-        {/* Selected Users */}
-        {selectedUsers.length > 0 && (
-          <div className="selected-users-section">
-            <h4>Selected People ({selectedUsers.length}/4):</h4>
-            <div className="selected-users-list">
-              {selectedUsers.map(user => (
-                <div key={user.id} className="selected-user-item">
-                  <div className="user-info">
-                    <span className="user-name">{user.name || user.username}</span>
-                    <span className="user-username">@{user.username}</span>
+          {/* Selected Users */}
+          {selectedUsers.length > 0 ? (
+            <div className="selected-users-section">
+              <h4>Selected People ({selectedUsers.length}/4):</h4>
+              <div className="selected-users-list">
+                {selectedUsers.map(user => (
+                  <div key={user.id} className="selected-user-item">
+                    <div className="user-info">
+                      <span className="user-name">{user.name || user.username}</span>
+                      <span className="user-username">@{user.username}</span>
+                    </div>
+                    <button 
+                      className="remove-user-btn"
+                      onClick={() => handleRemoveUser(user.id)}
+                    >
+                      <FaTimes />
+                    </button>
                   </div>
-                  <button 
-                    className="remove-user-btn"
-                    onClick={() => handleRemoveUser(user.id)}
-                  >
-                    <FaTimes />
-                  </button>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          ) : null}
 
-        {/* Add People Section */}
-        <div className="add-people-section">
-          <div className="section-header">
-            <h4>Add People</h4>
-            <span className="section-subtitle">Search and add up to 4 people to your group</span>
-          </div>
-          
-          <div className="search-container">
-            <div className="search-input-wrapper">
-              <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="Search by name or username..."
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                onBlur={handleSearchBlur}
-                className="search-input"
-              />
+          {/* Add People Section */}
+          <div className="add-people-section">
+            <div className="section-header">
+              <h4>Add People</h4>
+              <span className="section-subtitle">Search and add up to 4 people to your group</span>
             </div>
             
-            {/* Search Dropdown */}
-            {showSearchDropdown && (
-              <div className="search-dropdown">
-                {isSearching ? (
-                  <div className="search-loading">
-                    <CircularLoading />
-                    <span>Searching...</span>
-                  </div>
-                ) : searchResults.length > 0 ? (
-                  searchResults.map(user => (
-                    <div 
-                      key={user.username} 
-                      className="search-result-item"
-                      onClick={() => handleAddUser(user)}
-                    >
-                      <div className="result-info">
-                        <span className="result-name">{user.name || user.username}</span>
-                        <span className="result-username">@{user.username}</span>
-                      </div>
-                      <FaPlus className="add-icon" />
-                    </div>
-                  ))
-                ) : searchQuery.length >= 2 ? (
-                  <div className="no-results">No users found</div>
-                ) : (
-                  <div className="search-placeholder">Type at least 2 characters to search</div>
-                )}
+            <div className="search-container">
+              <div className="search-input-wrapper">
+                <FaSearch className="search-icon" />
+                <input
+                  type="text"
+                  placeholder="Search by name or username..."
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                  onFocus={handleSearchFocus}
+                  onBlur={handleSearchBlur}
+                  className="search-input"
+                />
               </div>
-            )}
+              
+              {/* Search Dropdown */}
+              {showSearchDropdown && (
+                <div className="search-dropdown">
+                  {isSearching ? (
+                    <div className="search-loading">
+                      <CircularLoading />
+                      <span>Searching...</span>
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    searchResults.map(user => (
+                      <div 
+                        key={user.username} 
+                        className="search-result-item"
+                        onClick={() => handleAddUser(user)}
+                      >
+                        <div className="result-info">
+                          <span className="result-name">{user.name || user.username}</span>
+                          <span className="result-username">@{user.username}</span>
+                        </div>
+                        <FaPlus className="add-icon" />
+                      </div>
+                    ))
+                  ) : searchQuery.length >= 2 ? (
+                    <div className="no-results">No users found</div>
+                  ) : (
+                    <div className="search-placeholder">Type at least 2 characters to search</div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="action-buttons">
-          <button 
-            className="btn btn-light" 
-            onClick={handleNewMessageClose}
-          >
-            Cancel
-          </button>
-          <button 
-            className="btn btn-dark" 
-            onClick={() => mutation.mutate()} 
-            disabled={mutation.isLoading || selectedUsers.length === 0}
-          >
-            {mutation.isLoading ? "Creating..." : `Create Group (${selectedUsers.length})`}
-          </button>
-        </div>
-        
-        {mutation.error && (
-          <div className="error-message">
-            {(mutation.error as Error).message}
+          {/* Action Buttons */}
+          <div className="action-buttons">
+            <button 
+              className="btn btn-light" 
+              onClick={handleNewMessageClose}
+            >
+              Cancel
+            </button>
+            <button 
+              className="btn btn-dark" 
+              onClick={() => mutation.mutate()} 
+              disabled={mutation.isLoading || selectedUsers.length === 0}
+            >
+              {mutation.isLoading ? "Creating..." : `Create Group (${selectedUsers.length})`}
+            </button>
           </div>
-        )}
+          
+          {mutation.error && (
+            <div className="error-message">
+              {(mutation.error as Error).message}
+            </div>
+          )}
+        </>
       </DialogContent>
     </Dialog>
   );

@@ -1,16 +1,9 @@
 {
   "auth": {
-<<<<<<< HEAD
     "user_pool_id": "us-west-2_DQI0m4Vq4",
     "aws_region": "us-west-2",
     "user_pool_client_id": "64ieka27ckqd5k1q7g05gq9clh",
     "identity_pool_id": "us-west-2:282392df-0b8d-49c6-a790-fabaac5238ee",
-=======
-    "user_pool_id": "us-west-2_Dj8coZ4G5",
-    "aws_region": "us-west-2",
-    "user_pool_client_id": "77f2jqc8mbc4juqchaja0okedm",
-    "identity_pool_id": "us-west-2:86faa7a1-0a66-467a-9e1b-d993b15ec1fa",
->>>>>>> 569a749 (feat(home,explore): improve majors filter UX (handle 'All', allow clearing) and show empty state on Explore; chore: delete Amplify sandbox and refresh outputs; misc: minor tweaks in UI components)
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -34,15 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-<<<<<<< HEAD
     "url": "https://23brh46btvhz7ohr62ds7ls2ii.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
     "api_key": "da2-mt6r2dsf7vdqhonqgbfw5awgsm",
-=======
-    "url": "https://u4a5v5p5o5bcnlvkwyhatd5meq.appsync-api.us-west-2.amazonaws.com/graphql",
-    "aws_region": "us-west-2",
-    "api_key": "da2-bdg7ik32avgk3p6qjijrivhodm",
->>>>>>> 569a749 (feat(home,explore): improve majors filter UX (handle 'All', allow clearing) and show empty state on Explore; chore: delete Amplify sandbox and refresh outputs; misc: minor tweaks in UI components)
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",

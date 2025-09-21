@@ -26,7 +26,7 @@ export default function FriendRequestsPage() {
   const [activeTab, setActiveTab] = useState<TabType>('incoming');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<UserProps[]>([]);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<UserProps[]>([]);
   const queryClient = useQueryClient();
@@ -51,12 +51,12 @@ export default function FriendRequestsPage() {
         const results = await search(query);
         // Filter out current user, already selected users, and existing friends/pending requests
         const currentUser = data;
-        const filteredUsers = (results.users || []).filter((user: UserProps) => {
+        const filteredUsers = (results.users || []).filter((user: any) => {
           const isCurrentUser = user.username === token?.username;
           const isAlreadySelected = selectedUsers.some(selected => selected.username === user.username);
-          const isFriend = currentUser?.friends?.some((friend: UserProps) => friend.username === user.username);
-          const isPendingIncoming = currentUser?.pendingIncoming?.some((pending: UserProps) => pending.username === user.username);
-          const isPendingOutgoing = currentUser?.pendingOutgoing?.some((pending: UserProps) => pending.username === user.username);
+          const isFriend = (currentUser as any)?.friends?.some((friend: any) => friend.username === user.username);
+          const isPendingIncoming = (currentUser as any)?.pendingIncoming?.some((pending: any) => pending.username === user.username);
+          const isPendingOutgoing = (currentUser as any)?.pendingOutgoing?.some((pending: any) => pending.username === user.username);
           
           return !isCurrentUser && !isAlreadySelected && !isFriend && !isPendingIncoming && !isPendingOutgoing;
         });
