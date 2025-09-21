@@ -16,7 +16,7 @@ export default function RightSidebar() {
         <aside className="right-sidebar">
             <div className="fixed">
                 <Search />
-                {token && <WhoToFollow />}
+               {/*  {token && <WhoToFollow />} */}
                 {token && <CompleteProfileReminder token={token} />}
                 {!isPending && !token && (
                     <div className="reminder">

@@ -48,7 +48,109 @@
             display: flex;
             gap: 0.5rem;
             justify-content: flex-end;
-            margin-top: auto; // Pushes buttons to the bottom
+            margin-top: auto;
+        }
+    }
+}
+
+// User wrapper for general user display with friend button
+.user-wrapper-extend {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    transition: background-color 0.2s ease-in-out;
+    
+    &:hover {
+        background-color: var(--hover);
+    }
+    
+    .user {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        
+        .user-profile {
+            flex: 1;
+            
+            .flex {
+                width: 100%;
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                
+                .flex-left {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.15rem;
+                }
+            }
+        }
+    }
+    
+    .friend-actions {
+        flex-shrink: 0;
+        margin-left: auto;
+    }
+}
+
+// User wrapper for suggested friends - centered layout
+.user-wrapper-column {
+    justify-content: center !important;
+    transition: none !important;
+    
+    &:hover {
+        background-color: transparent !important;
+    }
+    
+    .user {
+        .user-profile {
+            .flex {
+                justify-content: center !important;
+                text-align: center;
+                
+                .flex-left {
+                    align-items: center;
+                }
+            }
+        }
+    }
+    
+    .friend-actions {
+        margin-left: 0 !important;
+        margin-top: 0.5rem;
+    }
+}
+
+// Override hover effects specifically for suggested friends
+.who-to-follow {
+    .user-wrapper-extend.user-wrapper-column,
+    .user-wrapper-extend,
+    .user-wrapper,
+    .user-wrapper-column {
+        transition: none !important;
+        
+        &:hover {
+            background-color: transparent !important;
+        }
+    }
+    
+    // Also override any nested hover effects
+    .user-wrapper-extend.user-wrapper-column .user,
+    .user-wrapper-extend .user,
+    .user-wrapper .user {
+        &:hover {
+            background-color: transparent !important;
+        }
+    }
+    
+    // Override user-list hover effects if they exist
+    .user-wrapper-extend,
+    .user-wrapper {
+        &:hover {
+            background-color: transparent !important;
+            transition: none !important;
         }
     }
 }
@@ -578,7 +680,7 @@ main {
                         }
                     }
 
-                    .user-desc {
+            .user-desc {
                         display: none;
                     }
                 }
@@ -1399,6 +1501,35 @@ main {
     align-items: center;
     height: 100vh;
     background-color: var(--background-blue);
+
+    .loading-animation {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .pulse-circle {
+        animation: pulse 1.5s ease-in-out infinite;
+        z-index: 3;
+        position: relative;
+    }
+
+    .ripple {
+        position: absolute;
+        border: 2px solid white;
+        border-radius: 50%;
+        width: 64px;
+        height: 64px;
+        
+        &.ripple-1 {
+            animation: ripple 2s ease-out infinite;
+        }
+        
+        &.ripple-2 {
+            animation: ripple-delay 2s ease-out infinite 0.5s;
+        }
+    }
 
     .bird {
         animation: zoom-in 1.5s forwards;
@@ -2277,6 +2408,43 @@ button.icon-hoverable {
     100% {
         transform: scale(5);
         opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes ripple {
+    0% {
+        transform: scale(1);
+        opacity: 0.6;
+    }
+    100% {
+        transform: scale(3);
+        opacity: 0;
+    }
+}
+
+@keyframes ripple-delay {
+    0% {
+        transform: scale(1);
+        opacity: 0.4;
+    }
+    100% {
+        transform: scale(4);
+        opacity: 0;
     }
 }
 
