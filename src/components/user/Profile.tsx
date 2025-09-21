@@ -103,11 +103,13 @@ export default function Profile({ profile }: { profile: UserProps }) {
             </div>
             <div className="profile">
                 <div className="profile-header">
-                    <img
+                    <Image
                         onClick={handleImageClick}
                         className="div-link"
                         alt="profile-header"
                         src={headerUrl}
+                        width={600}
+                        height={200}
                         style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                     <div className="avatar-wrapper">

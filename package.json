@@ -30,6 +30,7 @@
         "@google/generative-ai": "^0.24.1",
         "@livekit/components-react": "^2.9.14",
         "@livekit/components-styles": "^1.1.6",
+        "@mui/icons-material": "^5.18.0",
         "@mui/material": "^5.13.1",
         "@tanstack/react-query": "^4.29.7",
         "@types/node": "^18.16.13",

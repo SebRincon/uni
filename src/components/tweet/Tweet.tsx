@@ -35,6 +35,10 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
         displayedTweet = tweet.retweetOf;
     }
 
+    // Move hooks to top level to avoid conditional calls
+    const avatarUrl = useStorageUrl(displayedTweet.author?.photoUrl);
+    const tweetImageUrl = useStorageUrl(displayedTweet.photoUrl);
+
     const isSensitiveDisplay = tweet.isRetweet && tweet.retweetOf
         ? (tweet.retweetOf as any)?.isSensitive ?? (tweet as any)?.isSensitive
         : (displayedTweet as any)?.isSensitive;
@@ -44,9 +48,6 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
         console.warn('Tweet author is null for tweet:', displayedTweet.id);
         return null; // or return a placeholder component
     }
-    
-    const avatarUrl = useStorageUrl(displayedTweet.author.photoUrl);
-    const tweetImageUrl = useStorageUrl(displayedTweet.photoUrl);
 
     const handleTweetClick = () => {
         router.push(`/${displayedTweet.author.username}/tweets/${displayedTweet.id}`);
