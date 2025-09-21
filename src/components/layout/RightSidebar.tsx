@@ -32,7 +32,6 @@ export default function RightSidebar() {
                         </div>
                     </div>
                 )}
-                <Legal />
             </div>
         </aside>
     );

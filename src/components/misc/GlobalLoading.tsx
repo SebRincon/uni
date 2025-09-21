@@ -1,9 +1,9 @@
-import { FaTwitter } from "react-icons/fa";
+import Image from "next/image";
 
 export default function GlobalLoading() {
     return (
         <div className="global-loading-wrapper">
-            <FaTwitter className="bird" />
+            <Image src="/assets/unicorn-head-white.png" alt="" width={40} height={40} className="bird" />
         </div>
     );
 }

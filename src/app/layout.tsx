@@ -6,7 +6,12 @@ import Providers from "./providers";
 import ConfigureAmplifyClientSide from "@/components/ConfigureAmplify";
 
 export const metadata = {
-    title: "Fettan | Twitter",
+    title: "Uni",
+    icons: {
+        icon: "/assets/unicorn-head-purple.png",
+        shortcut: "/assets/unicorn-head-purple.png",
+        apple: "/assets/unicorn-head-purple.png",
+    },
 };
 
 const roboto = localFont({

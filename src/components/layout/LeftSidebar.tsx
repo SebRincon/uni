@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useContext, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Avatar, Menu, MenuItem } from "@mui/material";
-import { FaHome, FaBell, FaEnvelope, FaUser, FaCog, FaHashtag, FaEllipsisH, FaTwitter, FaUserPlus, FaBook } from "react-icons/fa";
+import { FaHome, FaBell, FaEnvelope, FaUser, FaCog, FaHashtag, FaEllipsisH, FaUserPlus, FaBook } from "react-icons/fa";
 import { AiFillTwitterCircle } from "react-icons/ai";
 
 import NewTweetDialog from "../dialog/NewTweetDialog";
@@ -61,11 +61,13 @@ export default function LeftSidebar() {
         <>
             <aside className="left-sidebar">
                 <div className="fixed">
-                    <Link href="/explore" className="twitter-icon">
-                        <FaTwitter />
-                    </Link>
+
                     <nav>
                         <ul>
+                            <li>
+                            </li>
+                             <li>
+                            </li>
                             {token && (
                                 <li>
                                     <Link href="/home">
@@ -144,7 +146,7 @@ export default function LeftSidebar() {
                     {token && (
                         <>
                             <button onClick={handleNewTweetClick} className="btn btn-tweet">
-                                Tweet
+                                Post
                             </button>
                             <button onClick={handleAnchorClick} className="side-profile">
                                 <div>

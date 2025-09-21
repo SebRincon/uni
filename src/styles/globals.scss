@@ -55,9 +55,9 @@
 
 :root {
     --background-primary: #ffffff;
-    --background-blue: #1da1f2;
-    --twitter-blue: #1da1f2;
-    --twitter-dark-blue: #1b90dd;
+    --background-blue: #ad26c1;
+    --twitter-blue: #ad26c1;
+    --twitter-dark-blue: #9922a8;
     --twitter-gray: #657786;
     --twitter-light-gray: #d1dce4;
     --twitter-black: #14171a;
@@ -77,18 +77,18 @@
     --twitter-like-background: #f918801a;
     --twitter-retweet: #17bf63;
     --twitter-retweet-background: #13e29d1a;
-    --twitter-reply: #1da1f2;
-    --twitter-reply-background: #158cd11a;
-    --twitter-share: #1da1f2;
-    --twitter-share-background: #158cd11a;
-    --twitter-bird: #1da1f2;
+    --twitter-reply: #ad26c1;
+    --twitter-reply-background: #ad26c11a;
+    --twitter-share: #ad26c1;
+    --twitter-share-background: #ad26c11a;
+    --twitter-bird: #ad26c1;
 }
 
 [data-theme="dark"] {
     --background-primary: #000000;
     --background-blue: #000000;
-    --twitter-blue: #1976d2;
-    --twitter-dark-blue: #1d5fa1;
+    --twitter-blue: #c644e3;
+    --twitter-dark-blue: #ad26c1;
     --twitter-gray: #9898a3;
     --twitter-light-gray: #303030;
     --twitter-black: #f8f8f8;
@@ -108,10 +108,10 @@
     --twitter-like-background: #57183599;
     --twitter-retweet: #008559;
     --twitter-retweet-background: #13aa751a;
-    --twitter-reply: #4179a9;
-    --twitter-reply-background: #1c455f70;
-    --twitter-share: #4179a9;
-    --twitter-share-background: #1c455f70;
+    --twitter-reply: #c644e3;
+    --twitter-reply-background: #ad26c170;
+    --twitter-share: #c644e3;
+    --twitter-share-background: #ad26c170;
     --twitter-bird: #f5f8fa;
 }
 

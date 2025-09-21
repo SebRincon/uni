@@ -258,7 +258,7 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                     <dialog open className="get-blue-modal">
                         {profile.isPremium ? (
                             <div className="blue-user">
-                                <Image src="/assets/favicon.png" alt="" width={75} height={75} />
+                                <Image src="/assets/unicorn-head-purple.png" alt="" width={75} height={75} />
                                 <h1>You have already got Blue status.</h1>
                                 <p>Thank you for participating.</p>
                                 <button
