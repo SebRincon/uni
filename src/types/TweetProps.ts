@@ -23,6 +23,10 @@ export type TweetProps = {
     isAcademic?: boolean;
     university?: string;
     course?: string;
+    // Demo attachments (arrays)
+    attachments?: string[];
+    attachmentTypes?: string[];
+    attachmentNames?: string[];
 };
 
 export type TweetsArray = {

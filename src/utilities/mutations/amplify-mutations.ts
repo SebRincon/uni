@@ -114,13 +114,47 @@ export async function createTweet(
   text: string,
   photoFile?: File,
   repliedToId?: string,
-  extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string }
+  extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string; attachFiles?: File[] }
 ) {
   try {
     let photoUrl: string | undefined;
-    
+    let attachments: string[] | undefined;
+    let attachmentTypes: string[] | undefined;
+    let attachmentNames: string[] | undefined;
+
+    // Single photo (legacy)
     if (photoFile) {
       photoUrl = await uploadMedia(photoFile) || undefined;
+    }
+
+    // Multi-attachments (images, PDFs)
+    if (extras?.attachFiles && Array.isArray(extras.attachFiles) && extras.attachFiles.length > 0) {
+      const uploaded: { path: string | null }[] = [];
+      const paths: string[] = [];
+      const types: string[] = [];
+      const names: string[] = [];
+      for (const f of extras.attachFiles.slice(0, 4)) { // limit 4
+        // Enforce lightweight limits here if needed (type/size)
+        const okType = f.type.startsWith('image/') || f.type === 'application/pdf';
+        const okSize = f.size <= 10 * 1024 * 1024; // 10MB
+        if (!okType || !okSize) continue;
+        const p = await uploadMedia(f);
+        uploaded.push({ path: p });
+        if (p) {
+          paths.push(p);
+          types.push(f.type || 'application/octet-stream');
+          names.push(f.name || 'file');
+        }
+      }
+      if (paths.length > 0) {
+        attachments = paths;
+        attachmentTypes = types;
+        attachmentNames = names;
+        // Back-compat: if no explicit photoUrl and first is image, set photoUrl
+        if (!photoUrl && types[0]?.startsWith('image/')) {
+          photoUrl = paths[0];
+        }
+      }
     }
     
     // Pre-publish moderation
@@ -141,7 +175,10 @@ export async function createTweet(
       tags: extras?.tags,
       isAcademic: typeof extras?.isAcademic === 'boolean' ? extras?.isAcademic : undefined,
       university: extras?.university,
-      course: extras?.course
+      course: extras?.course,
+      attachments,
+      attachmentTypes,
+      attachmentNames
     });
     
     // Create notification for reply

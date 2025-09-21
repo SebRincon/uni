@@ -20,7 +20,7 @@ export default function Search() {
                 className="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search Twitter"
+                placeholder="Search Uni"
                 required
             />
             <BsSearch />

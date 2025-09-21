@@ -9,10 +9,9 @@ import Picker from "@emoji-mart/react";
 import Link from "next/link";
 
 import CircularLoading from "../misc/CircularLoading";
-import { createReply, createTweet } from "@/utilities/fetch";
+import { createTweet } from "@/utilities/fetch";
 import Uploader from "../misc/Uploader";
 import { getFullURL } from "@/utilities/misc/getFullURL";
-import { uploadFile } from "@/utilities/storage";
 import { UserProps } from "@/types/UserProps";
 import { TweetProps } from "@/types/TweetProps";
 import ProgressCircle from "../misc/ProgressCircle";
@@ -22,6 +21,7 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
     const [showPicker, setShowPicker] = useState(false);
     const [showDropzone, setShowDropzone] = useState(false);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [attachFiles, setAttachFiles] = useState<File[]>([]);
     const [count, setCount] = useState(0);
 
     const queryClient = useQueryClient();
@@ -82,14 +82,15 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
         }
     };
 
-    const mutation = useMutation({
-        mutationFn: (data: { text: string; photoFile?: File }) => 
-            createReply(token.id, { ...data, repliedToId: tweet.id }),
+const mutation = useMutation({
+        mutationFn: (data: { text: string }) =>
+            createTweet(token.id, data.text, undefined, tweet.id, { attachFiles }),
         onSuccess: async (replyData, variables) => {
             queryClient.invalidateQueries({ queryKey: queryKey });
-            
+            queryClient.invalidateQueries({ queryKey: ["tweets"] });
+
             // Process @Korn mentions after reply is created
-            if (replyData) {
+            if (replyData && variables?.text) {
                 await processKornMention(replyData, variables.text);
             }
         },
@@ -115,14 +116,9 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
-            if (photoFile) {
-                const path: string | void = await uploadFile(photoFile);
-                if (!path) throw new Error("Error uploading image.");
-                values.photoUrl = path;
-                setPhotoFile(null);
-            }
-            mutation.mutate({ text: values.text, photoFile: photoFile || undefined });
+            mutation.mutate({ text: values.text });
             resetForm();
+            setAttachFiles([]);
             setShowDropzone(false);
             setShowPicker(false);
             setCount(0);
@@ -149,7 +145,7 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
             <form onSubmit={formik.handleSubmit}>
                 <div className="input">
                     <TextField
-                        placeholder="Tweet your reply"
+                        placeholder="Post your reply"
                         multiline
                         minRows={1}
                         variant="standard"
@@ -162,16 +158,56 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
                         hiddenLabel
                     />
                 </div>
-                <div className="input-additions">
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setShowDropzone(true);
-                        }}
-                        className="icon-hoverable"
-                    >
-                        <FaRegImage />
-                    </button>
+            {/* Attachment previews */}
+            {attachFiles.length > 0 && (
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                    {attachFiles.map((f, idx) => (
+                        <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-color)', borderRadius: 8, padding: '4px 8px' }}>
+                            {f.type.startsWith('image/') ? (
+                                <img src={URL.createObjectURL(f)} alt={f.name} style={{ width: 40, height: 40, objectFit: 'cover', borderRadius: 6 }} />
+                            ) : (
+                                <span style={{ fontSize: 12 }}>PDF: {f.name}</span>
+                            )}
+                            <button
+                                className="btn btn-white"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    setAttachFiles((prev) => prev.filter((_, i) => i !== idx));
+                                }}
+                            >
+                                Remove
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+
+            <div className="input-additions">
+                <input
+                    type="file"
+                    multiple
+                    accept="image/*,application/pdf"
+                    style={{ display: 'none' }}
+                    id="reply-attachments-input"
+                    onChange={(e) => {
+                        const files = Array.from(e.target.files || []);
+                        const filtered = files.filter((f) => (f.type.startsWith('image/') || f.type === 'application/pdf') && f.size <= 10 * 1024 * 1024);
+                        setAttachFiles((prev) => {
+                            const merged = [...prev, ...filtered];
+                            return merged.slice(0, 4);
+                        });
+                    }}
+                />
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        const input = document.getElementById('reply-attachments-input') as HTMLInputElement | null;
+                        input?.click();
+                    }}
+                    className="icon-hoverable"
+                >
+                    <FaRegImage />
+                </button>
                     <button
                         onClick={(e) => {
                             e.preventDefault();
@@ -198,7 +234,7 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
                         />
                     </div>
                 )}
-                {showDropzone && <Uploader handlePhotoChange={handlePhotoChange} />}
+            {false && showDropzone && <Uploader handlePhotoChange={handlePhotoChange} />}
                 {
                     <Link className="reply-to" href={`/${tweet.author.username}`}>
                         Replying to <span className="mention">@{tweet.author.username}</span>

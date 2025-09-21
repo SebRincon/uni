@@ -29,13 +29,13 @@ export default function CompleteProfileReminder({ token }: { token: UserProps })
                             </button>
                         </h1>
                         <p>
-                            Complete your Twitter profile to make the most of your presence! Here are a few things you have
+                            Complete your Uni profile to make the most of your presence! Here are a few things you have
                             not filled out yet:
                         </p>
                         <ol>
                             {!token.name && (
                                 <Tooltip
-                                    title="Don't forget to add your name to your profile! Let others know who you are and personalize your Twitter experience. Take a moment to fill in your name now and make meaningful connections."
+                                    title="Don't forget to add your name to your profile! Let others know who you are and personalize your Uni experience. Take a moment to fill in your name now and make meaningful connections."
                                     placement="top"
                                 >
                                     <li>Add your name:</li>
@@ -61,7 +61,7 @@ export default function CompleteProfileReminder({ token }: { token: UserProps })
                             )}
                             {!token.location && (
                                 <Tooltip
-                                    title="Let others know where you're tweeting from and connect with users in your area. Take a moment to update your location and make your Twitter experience more engaging."
+                                    title="Let others know where you're posting from and connect with users in your area. Take a moment to update your location and make your Uni experience more engaging."
                                     placement="top"
                                 >
                                     <li>Your location</li>

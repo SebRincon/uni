@@ -5,6 +5,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { AiFillTwitterCircle } from "react-icons/ai";
+import AttachmentPdfChip from "@/components/tweet/AttachmentPdfChip";
+import AttachmentImage from "@/components/tweet/AttachmentImage";
 
 import { TweetProps } from "@/types/TweetProps";
 import { formatDate, formatDateExtended } from "@/utilities/date";
@@ -16,6 +18,7 @@ import Share from "./Share";
 import PreviewDialog from "../dialog/PreviewDialog";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
 import { AuthContext } from "@/app/(twitter)/auth-context";
+import { getFullURL } from "@/utilities/misc/getFullURL";
 import RetweetIcon from "../misc/RetweetIcon";
 import ProfileCard from "../user/ProfileCard";
 import SensitiveGate from "../misc/SensitiveGate";
@@ -154,6 +157,34 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
                         <>{displayedTweet.text}</>
                     )}
                 </div>
+                {/* Attachments (images + pdfs) */}
+                {Array.isArray((displayedTweet as any).attachments) && (displayedTweet as any).attachments.length > 0 && (
+                    <div className="attachments" onClick={handlePropagation}>
+                        <div className="attachments-grid">
+                            {((displayedTweet as any).attachments as string[]).map((path: string, idx: number) => {
+                                const type = (displayedTweet as any).attachmentTypes?.[idx] || '';
+                                if (type.startsWith('image/')) {
+                                    return (
+                                        <div key={idx} className="tweet-image">
+                                            <AttachmentImage
+                                                path={path}
+                                                alt={`attachment-${idx}`}
+                                                onClick={handleImageClick}
+                                            />
+                                        </div>
+                                    );
+                                } else {
+                                    const name = (displayedTweet as any).attachmentNames?.[idx] || 'attachment.pdf';
+                                    return (
+                                        <AttachmentPdfChip key={idx} path={path} name={name} />
+                                    );
+                                }
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Legacy single photo */}
                 {displayedTweet.photoUrl && tweetImageUrl && (
                     <div onClick={handlePropagation}>
                         {isSensitiveDisplay ? (

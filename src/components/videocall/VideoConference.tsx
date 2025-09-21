@@ -10,6 +10,7 @@ import {
 } from '@livekit/components-react';
 import '@livekit/components-styles';
 import { useRouter } from 'next/navigation';
+import { TranscriptionOverlay } from './TranscriptionOverlay';
 
 const LiveKitRoom = LiveKitRoomComponent as any;
 
@@ -92,6 +93,8 @@ export function VideoConference({ roomName, username, onLeave }: VideoConference
         <LiveKitVideoConference
           chatMessageFormatter={formatChatMessageLinks}
         />
+        {/* Transcription controls & live transcript (uses LiveKit Room context) */}
+        <TranscriptionOverlay />
       </LiveKitRoom>
     </main>
   );

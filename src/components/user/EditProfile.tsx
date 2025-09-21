@@ -156,9 +156,6 @@ const validationSchema = yup.object({
         <div className="edit-profile">
             <div className="profile-header">
                 <div className="get-blue">
-                    <button onClick={() => setIsBlueOpen(true)}>
-                        Twitter Blue? <FaTwitter />
-                    </button>
                 </div>
                 <Image
                     alt=""
@@ -279,11 +276,18 @@ const validationSchema = yup.object({
                             value={formik.values.majors}
                             onChange={(_, value) => formik.setFieldValue('majors', value)}
                             renderTags={(value: readonly string[], getTagProps) =>
-                                value.map((option: string, index: number) => (
-                                    <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
-                                ))
+                                value.map((option: string, index: number) => {
+                                    const { key, ...chipProps } = getTagProps({ index });
+                                    return (
+                                        <Chip key={`${option}-${index}`} variant="outlined" label={option} {...chipProps} />
+                                    );
+                                })
                             }
-renderInput={(params) => (
+                            renderOption={(props, option) => {
+                                const { key, ...liProps } = props as any;
+                                return <li key={key as any} {...liProps}>{option}</li>;
+                            }}
+                            renderInput={(params) => (
                                 <TextField
                                     {...params}
                                     label="Majors"
@@ -314,7 +318,7 @@ renderInput={(params) => (
                     <dialog open className="get-blue-modal">
                         {profile.isPremium ? (
                             <div className="blue-user">
-                                <Image src="/assets/favicon.png" alt="" width={75} height={75} />
+                                <Image src="/assets/unicorn-head-purple.png" alt="" width={75} height={75} />
                                 <h1>You have already got Blue status.</h1>
                                 <p>Thank you for participating.</p>
                                 <button

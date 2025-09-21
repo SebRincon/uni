@@ -2,8 +2,8 @@
 
 import React, { useContext } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Autocomplete, Chip, TextField } from "@mui/material";
-import { majorOptions as MASTER_MAJOR_OPTIONS } from "@/constants/academics";
+import { Autocomplete, Chip, MenuItem, TextField } from "@mui/material";
+import { majorOptions as MASTER_MAJOR_OPTIONS, universityOptions as MASTER_UNIVERSITIES } from "@/constants/academics";
 
 import Tweets from "@/components/tweet/Tweets";
 import { getAllTweets, searchAdvanced } from "@/utilities/fetch";
@@ -18,40 +18,47 @@ export default function HomePage() {
     const userUniversity = token?.university?.trim() || "";
     const userMajors = Array.isArray(token?.majors) ? token!.majors : [];
 
-    // Multi-select majors: default to user's majors; if none, default to ["All"]
+    // Filters state: default to user's context for Home
+    const [selectedUniversity, setSelectedUniversity] = React.useState<string>(userUniversity);
     const [selectedMajors, setSelectedMajors] = React.useState<string[]>(() => (userMajors && userMajors.length > 0 ? userMajors : ["All"]));
 
-    // Catalog for major options (within user's university if present, else global)
+    // Catalog for option building
     const { data: catalogData } = useQuery({
         queryKey: ["tweets", "catalog", userUniversity || "all"],
         queryFn: () => getAllTweets(),
     });
 
+    // University options (match Explore formatting)
+    const universities = React.useMemo(() => {
+        const u = new Set<string>(MASTER_UNIVERSITIES);
+        (catalogData || []).forEach((t: any) => {
+            if (t.university && typeof t.university === 'string' && t.university.trim() !== '') u.add(t.university);
+        });
+        return Array.from(u).sort((a, b) => a.localeCompare(b));
+    }, [catalogData]);
+
+    // Major options: keep Home behavior (not restricted by selected university)
     const availableMajors = React.useMemo(() => {
         const set = new Set<string>(MASTER_MAJOR_OPTIONS);
-        (catalogData || [])
-            .forEach((t: any) => {
-                if (t.course && typeof t.course === 'string' && t.course.trim() !== '') {
-                    t.course.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => set.add(c));
-                }
-            });
+        (catalogData || []).forEach((t: any) => {
+            if (t.course && typeof t.course === 'string' && t.course.trim() !== '') {
+                t.course.split(',').map((s: string) => s.trim()).filter(Boolean).forEach((c: string) => set.add(c));
+            }
+        });
         // Ensure user's majors appear even if not in catalog
         userMajors.forEach((m) => set.add(m));
         return Array.from(set).sort((a, b) => a.localeCompare(b));
     }, [catalogData, userMajors]);
 
-    const queryKey = ["tweets", "home", userUniversity, [...selectedMajors].sort().join('|')];
+    // Query: keep Home-specific behavior (defaulting to user's university if present)
+    const queryKey = ["tweets", "home", selectedUniversity, [...selectedMajors].sort().join('|')];
 
     const { isLoading, data } = useQuery({
         queryKey,
         queryFn: () => {
-            const courses = selectedMajors.includes("All") ? undefined : selectedMajors;
-            if (userUniversity) {
-                return searchAdvanced({ university: userUniversity, course: courses });
-            }
-            // No university on profile: show across all universities
-            return searchAdvanced({ course: courses });
-        },
+                const courses = (selectedMajors.length === 0 || selectedMajors.includes("All")) ? undefined : selectedMajors;
+                return searchAdvanced({ university: selectedUniversity || undefined, course: courses });
+            },
         select: (res: any) => res?.tweets ?? res // normalize
     });
 
@@ -70,58 +77,78 @@ export default function HomePage() {
     })).sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
 
     return (
-        <main>
-            <h1 className="page-name">Home</h1>
-            {token && <NewTweet token={token} />}
+        <main className="page">
+            <div className="page-header">
+                <h1>Home</h1>
+            </div>
 
-            <div style={{ display: 'grid', gap: 8, margin: '8px 0 12px' }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    {userUniversity ? (
-                        <>
-                            <span className="text-muted">University:</span>
-                            <Chip label={userUniversity} size="small" variant="outlined" color="primary" />
-                        </>
-                    ) : (
-                        <span className="text-muted">Showing all universities</span>
-                    )}
+            <section className="page-filters">
+                <div className="filters-row">
+                    <span className="label">University</span>
+                    <div className="field">
+<TextField
+                            select
+                            value={selectedUniversity}
+                            onChange={(e) => { setSelectedUniversity(e.target.value); setSelectedMajors(['All']); }}
+size="small"
+                            fullWidth
+                        >
+                            <MenuItem value="">All universities</MenuItem>
+                            {universities.map((u) => (
+                                <MenuItem key={u} value={u}>{u}</MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span className="text-muted">Majors:</span>
-                    <div style={{ minWidth: 280, flex: '1 1 280px', maxWidth: 520 }}>
-                        <Autocomplete
+                <div className="filters-row">
+                    <span className="label">Majors</span>
+                    <div className="field">
+<Autocomplete
                             multiple
                             options={["All", ...availableMajors]}
-                            value={selectedMajors}
-                            onChange={(_, value) => {
-                                const vals = Array.from(new Set(value));
-                                if (vals.length === 0) {
+value={selectedMajors}
+                            fullWidth
+                            onChange={(_, value, reason, details) => {
+                                let vals = Array.from(new Set(value));
+                                // If user explicitly selected 'All', make it the sole selection
+                                if (reason === 'selectOption' && details && (details as any).option === 'All') {
                                     setSelectedMajors(["All"]);
-                                } else if (vals.includes("All")) {
-                                    setSelectedMajors(["All"]);
-                                } else {
-                                    setSelectedMajors(vals);
+                                    return;
                                 }
+                                // If 'All' is present with other majors, drop 'All'
+                                if (vals.includes("All") && vals.length > 1) {
+                                    vals = vals.filter((v) => v !== "All");
+                                }
+                                // Allow clearing to an empty selection (treated as no filter)
+                                setSelectedMajors(vals);
                             }}
                             renderTags={(value: readonly string[], getTagProps) =>
-                                value.map((option: string, index: number) => (
-                                    <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
-                                ))
+                                value.map((option: string, index: number) => {
+                                    const { key, ...chipProps } = getTagProps({ index });
+                                    return (
+                                        <Chip key={`${option}-${index}`} variant="outlined" label={option} {...chipProps} />
+                                    );
+                                })
                             }
+                            renderOption={(props, option) => {
+                                const { key, ...liProps } = props as any;
+                                return <li key={key as any} {...liProps}>{option}</li>;
+                            }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}
-                                    label="Majors"
                                     placeholder={selectedMajors.length > 0 && !selectedMajors.includes("All") ? '' : 'Select one or more majors'}
-                                    helperText="Filter timeline by majors"
                                 />
                             )}
                         />
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {tweets.length === 0 && <NothingToShow />}
-            <Tweets tweets={tweets} />
+            <section className="content-section">
+                {tweets.length === 0 && <NothingToShow />}
+                <Tweets tweets={tweets} />
+            </section>
         </main>
     );
 }

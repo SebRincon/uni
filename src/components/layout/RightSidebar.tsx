@@ -16,23 +16,26 @@ export default function RightSidebar() {
         <aside className="right-sidebar">
             <div className="fixed">
                 <Search />
+                <div className="trending-section">
+                    <h2>Trending</h2>
+                    {/* Add trending topics here */}
+                </div>
                 {token && <WhoToFollow />}
                 {token && <CompleteProfileReminder token={token} />}
                 {!isPending && !token && (
-                    <div className="reminder">
-                        <h1>Don’t miss what’s happening</h1>
-                        <p>People on Twitter are the first to know.</p>
+                    <div className="new-to-twitter">
+                        <h2>New to Twitter?</h2>
+                        <p>Sign up now to get your own personalized timeline!</p>
                         <div className="reminder-buttons">
-                            <Link href="/" className="btn btn-white">
-                                Log In
-                            </Link>
                             <Link href="/" className="btn btn-dark">
                                 Sign Up
+                            </Link>
+                            <Link href="/" className="btn btn-white">
+                                Log In
                             </Link>
                         </div>
                     </div>
                 )}
-                <Legal />
             </div>
         </aside>
     );

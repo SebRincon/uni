@@ -19,6 +19,8 @@ import { VerifiedToken } from "@/types/TokenProps";
 import { deleteTweet } from "@/utilities/fetch";
 import PreviewDialog from "../dialog/PreviewDialog";
 import { shimmer } from "@/utilities/misc/shimmer";
+import AttachmentPdfChip from "@/components/tweet/AttachmentPdfChip";
+import AttachmentImage from "@/components/tweet/AttachmentImage";
 import NewReply from "./NewReply";
 import Replies from "./Replies";
 import CustomSnackbar from "../misc/CustomSnackbar";
@@ -145,6 +147,34 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
                             <>{tweet.text}</>
                         )}
                     </div>
+                    {/* Attachments (images + pdfs) */}
+                    {Array.isArray((tweet as any).attachments) && (tweet as any).attachments.length > 0 && (
+                        <div className="attachments">
+                            <div className="attachments-grid">
+                                {((tweet as any).attachments as string[]).map((path: string, idx: number) => {
+                                    const type = (tweet as any).attachmentTypes?.[idx] || '';
+                                    if (type.startsWith('image/')) {
+                                        return (
+                                            <div key={idx} className="tweet-image">
+                                                <AttachmentImage
+                                                    path={path}
+                                                    alt={`attachment-${idx}`}
+                                                    onClick={handleImageClick}
+                                                />
+                                            </div>
+                                        );
+                                    } else {
+                                        const name = (tweet as any).attachmentNames?.[idx] || 'attachment.pdf';
+                                        return (
+                                            <AttachmentPdfChip key={idx} path={path} name={name} />
+                                        );
+                                    }
+                                })}
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Legacy single photo */}
                     {tweet.photoUrl && (
                         <>
                             {tweet.isSensitive ? (

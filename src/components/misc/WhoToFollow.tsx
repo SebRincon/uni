@@ -37,16 +37,16 @@ export default function WhoToFollow() {
                             <AiOutlineClose />
                         </button>
                     </h1>
-                    <div className="user-wrapper">
+                    <div className="user-wrapper-extend user-wrapper-column user-wrapper">
                         <User user={{...data[0], friends: [], pendingIncoming: [], pendingOutgoing: []} as UserProps} />
                     </div>
                     {data.length > 1 && (
-                        <div className="user-wrapper">
+                        <div className="user-wrapper-extend  user-wrapper-column user-wrapper">
                             <User user={{...data[1], friends: [], pendingIncoming: [], pendingOutgoing: []} as UserProps} />
                         </div>
                     )}
                     {data.length > 2 && (
-                        <div className="user-wrapper">
+                        <div className="user-wrapper-extend  user-wrapper-column user-wrapper">
                             <User user={{...data[2], friends: [], pendingIncoming: [], pendingOutgoing: []} as UserProps} />
                         </div>
                     )}

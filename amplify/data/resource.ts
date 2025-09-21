@@ -41,6 +41,10 @@ const schema = a
       isAcademic: a.boolean().default(true),
       university: a.string(),
       course: a.string(),
+      // New attachments (demo): arrays of paths, mime types, and names
+      attachments: a.string().array(),
+      attachmentTypes: a.string().array(),
+      attachmentNames: a.string().array(),
       // Relationships
       authorId: a.id().required(),
       author: a.belongsTo("User", "authorId"),
