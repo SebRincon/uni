@@ -48,7 +48,7 @@ export default function useAuth(): AuthProps {
             const dbUser = users[0];
             console.log('✅ Found user in database:', dbUser);
 
-            const userSelectionSet = ['username', 'name', 'description', 'location', 'website', 'photoUrl', 'headerUrl', 'isPremium', 'createdAt', 'updatedAt'] as const;
+const userSelectionSet = ['username', 'name', 'description', 'location', 'website', 'photoUrl', 'headerUrl', 'isPremium', 'university', 'majors', 'createdAt', 'updatedAt'] as const;
 
             // Build friends and pending via Friendship model
             const { data: friendshipsA } = await publicClient.models.Friendship.list({
@@ -89,13 +89,15 @@ export default function useAuth(): AuthProps {
                 }
             }
 
-            const userProfile: UserProps = {
+const userProfile: UserProps = {
               id: (dbUser as any).username,
               username: (dbUser as any).username,
               name: (dbUser as any).name || '',
               description: (dbUser as any).description || '',
               location: (dbUser as any).location || '',
               website: (dbUser as any).website || '',
+              university: (dbUser as any).university || '',
+              majors: (dbUser as any).majors || [],
               isPremium: (dbUser as any).isPremium || false,
               photoUrl: (dbUser as any).photoUrl || '',
               headerUrl: (dbUser as any).headerUrl || '',
@@ -118,23 +120,27 @@ export default function useAuth(): AuthProps {
             });
             
             try {
-              const createResult = await authedClient.models.User.create({
+const createResult = await authedClient.models.User.create({
                 username: username,
                 name: attributes.name || username,
                 isPremium: false,
+                university: '',
+                majors: [],
               });
               console.log('✅ Create result:', createResult);
               const newUser = createResult?.data;
               console.log('✅ Created new user:', newUser);
             
               if (newUser) {
-                const userProfile: UserProps = {
+const userProfile: UserProps = {
                   id: (newUser as any).username, // username is the primary key in Amplify
                   username: (newUser as any).username,
                   name: (newUser as any).name || '',
                   description: (newUser as any).description || '',
                   location: (newUser as any).location || '',
                   website: (newUser as any).website || '',
+                  university: (newUser as any).university || '',
+                  majors: (newUser as any).majors || [],
                   isPremium: (newUser as any).isPremium || false,
                   photoUrl: (newUser as any).photoUrl || '',
                   headerUrl: (newUser as any).headerUrl || '',

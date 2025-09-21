@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-west-2_Tt5mgrBi5",
+    "user_pool_id": "us-west-2_QVFfN2Zaq",
     "aws_region": "us-west-2",
-    "user_pool_client_id": "3a4t6q4s8bd5mbpcjlr6egsrp2",
-    "identity_pool_id": "us-west-2:f477247b-f735-4a04-999d-9923c45b43e5",
+    "user_pool_client_id": "1nhivm62djjef4045mpi6n9r4p",
+    "identity_pool_id": "us-west-2:3595d132-24a5-4c08-b590-d59ac94846b8",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -27,9 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://ifjglunmljcz5lind5f3ddhkse.appsync-api.us-west-2.amazonaws.com/graphql",
+    "url": "https://6d3oovem6jgrln6t5utmhtrjua.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
-    "api_key": "da2-nohgdwqblrb5rmzpq565zwn3ni",
+    "api_key": "da2-g4miywbjmjh45cbyfvb26mcnuu",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -96,6 +96,21 @@
               "type": "Boolean",
               "isRequired": false,
               "attributes": []
+            },
+            "university": {
+              "name": "university",
+              "isArray": false,
+              "type": "String",
+              "isRequired": false,
+              "attributes": []
+            },
+            "majors": {
+              "name": "majors",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
             },
             "createdTweets": {
               "name": "createdTweets",
@@ -2003,11 +2018,11 @@
   },
   "storage": {
     "aws_region": "us-west-2",
-    "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-uzshgnv7q1gt",
+    "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-jascyfeyowno",
     "buckets": [
       {
         "name": "twitter-clone-media",
-        "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-uzshgnv7q1gt",
+        "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-jascyfeyowno",
         "aws_region": "us-west-2",
         "paths": {
           "media/*": {

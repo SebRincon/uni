@@ -2,6 +2,7 @@
 import { publicClient as client } from '@/lib/amplify-client';
 import { SelectionSet } from 'aws-amplify/data';
 import type { Schema } from '@/lib/amplify-client';
+import type { UserProps } from '@/types/UserProps';
 
 type User = any; // Models['User']['type'];
 type Tweet = any; // Models['Tweet']['type'];
@@ -10,13 +11,13 @@ type Notification = any; // Models['Notification']['type'];
 
 // Selection sets for complex queries
 const userSelectionSet = ['username', 'name', 'description', 'location', 
-  'website', 'photoUrl', 'headerUrl', 'isPremium', 'createdAt', 'updatedAt'] as const;
+  'website', 'photoUrl', 'headerUrl', 'isPremium', 'university', 'majors', 'createdAt', 'updatedAt'] as const;
 
 const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 'isSensitive', 
   'createdAt', 'updatedAt', 'authorId', 'retweetOfId', 'repliedToId'] as const;
 
 // User-related fetch functions
-export async function getUser(username: string) {
+export async function getUser(username: string): Promise<UserProps | null> {
   try {
     const { data: users } = await client.models.User.list({
       filter: { username: { eq: username } },
@@ -56,16 +57,26 @@ export async function getUser(username: string) {
       }
     }
 
-    return {
-      ...user,
+    const normalizedUser: UserProps = {
       id: user.username,
+      username: user.username,
+      name: user.name || '',
+      description: user.description || '',
+      location: user.location || '',
+      website: user.website || '',
+      university: (user as any).university || '',
+      majors: Array.isArray((user as any).majors) ? ((user as any).majors as any[]).filter((m) => typeof m === 'string') as string[] : [],
       friends,
       pendingIncoming,
       pendingOutgoing,
       isPremium: user.isPremium || false,
+      photoUrl: user.photoUrl || '',
+      headerUrl: user.headerUrl || '',
       createdAt: new Date(user.createdAt),
       updatedAt: new Date(user.updatedAt),
     };
+
+    return normalizedUser;
   } catch (error) {
     console.error('Error fetching user:', error);
     return null;

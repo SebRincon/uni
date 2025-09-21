@@ -15,7 +15,7 @@ import Like from "./Like";
 import Share from "./Share";
 import PreviewDialog from "../dialog/PreviewDialog";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import RetweetIcon from "../misc/RetweetIcon";
 import ProfileCard from "../user/ProfileCard";
 import SensitiveGate from "../misc/SensitiveGate";

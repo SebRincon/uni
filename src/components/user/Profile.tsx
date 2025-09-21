@@ -7,11 +7,12 @@ import { usePathname } from "next/navigation";
 import { FaArrowLeft, FaRegEnvelope } from "react-icons/fa";
 import { Avatar, Dialog, DialogContent, DialogTitle } from "@mui/material";
 import { BiCalendarCheck } from "react-icons/bi";
+import { FaUniversity, FaBook } from "react-icons/fa";
 import { GoLocation } from "react-icons/go";
 import { AiFillTwitterCircle, AiOutlineLink } from "react-icons/ai";
 
 import { formatDateForProfile } from "@/utilities/date";
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import { UserProps } from "@/types/UserProps";
 import TweetArrayLength from "../tweet/TweetArrayLength";
 import Friend from "./Friend";
@@ -136,9 +137,19 @@ export default function Profile({ profile }: { profile: UserProps }) {
                     </div>
                     {profile.description && <div className="profile-info-desc">{profile.description}</div>}
                     <div className="profile-info-optional text-muted">
-                        {profile.location && (
+{profile.location && (
                             <div>
                                 <GoLocation /> {profile.location}
+                            </div>
+                        )}
+                        {profile.university && (
+                            <div>
+                                <FaUniversity /> {profile.university}
+                            </div>
+                        )}
+                        {profile.majors && profile.majors.length > 0 && (
+                            <div>
+                                <FaBook /> {profile.majors.join(', ')}
                             </div>
                         )}
                         {profile.website && (

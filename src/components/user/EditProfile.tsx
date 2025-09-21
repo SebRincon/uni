@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import { useFormik } from "formik";
 import { useQueryClient } from "@tanstack/react-query";
-import { Avatar, TextField } from "@mui/material";
+import { Avatar, TextField, Select, MenuItem, Autocomplete, Chip } from "@mui/material";
 import { MdOutlineAddAPhoto } from "react-icons/md";
 import { FaTwitter } from "react-icons/fa";
 import * as yup from "yup";
@@ -51,14 +51,65 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
         photoUploadInputRef.current?.click();
     };
 
-    const validationSchema = yup.object({
+const validationSchema = yup.object({
         name: yup.string().max(50, "Name should be of maximum 50 characters length."),
         description: yup.string().max(160, "Description should be of maximum 160 characters length."),
         location: yup.string().max(30, "Location should be of maximum 30 characters length."),
         website: yup.string().max(30, "Website should be of maximum 30 characters length."),
+        university: yup.string().max(100, "University should be of maximum 100 characters length."),
+        majors: yup.array().of(yup.string().max(100)).max(5, "You can select up to 5 majors."),
         photoUrl: yup.string(),
         headerUrl: yup.string(),
     });
+
+const universityOptions = [
+        "Rice University",
+        "University of Houston",
+        "University of Houston–Downtown",
+        "University of Houston–Clear Lake",
+        "Texas Southern University",
+        "University of St. Thomas",
+        "Houston Christian University",
+        "Prairie View A&M University",
+        "Sam Houston State University",
+        "Texas A&M University at Galveston",
+        "UTHealth Houston",
+        "Baylor College of Medicine",
+        "Houston Community College",
+        "Lone Star College",
+        "San Jacinto College",
+        "Lee College",
+        "Galveston College",
+        "Texas Woman's University (Houston Center)",
+        "DeVry University (Houston)",
+        "Remington College (Houston)",
+    ];
+
+    const majorOptions = [
+        "Computer Science",
+        "Software Engineering",
+        "Data Science",
+        "Information Systems",
+        "Business Administration",
+        "Finance",
+        "Accounting",
+        "Marketing",
+        "Economics",
+        "Biology",
+        "Chemistry",
+        "Physics",
+        "Mathematics",
+        "Mechanical Engineering",
+        "Electrical Engineering",
+        "Civil Engineering",
+        "Nursing",
+        "Psychology",
+        "Political Science",
+        "Communications",
+        "English",
+        "Sociology",
+        "History",
+    ];
 
     const formik = useFormik({
         initialValues: {
@@ -66,18 +117,22 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
             description: profile.description ?? "",
             location: profile.location ?? "",
             website: profile.website ?? "",
+            university: profile.university ?? "",
+            majors: profile.majors ?? [],
             headerUrl: profile.headerUrl ?? "",
             photoUrl: profile.photoUrl ?? "",
         },
         validationSchema: validationSchema,
         onSubmit: async (values) => {
             try {
-                // Prepare update object
+// Prepare update object
                 const updates: any = {
                     name: values.name,
                     description: values.description,
                     location: values.location,
                     website: values.website,
+                    university: values.university,
+                    majors: values.majors,
                 };
                 
                 // Pass File objects directly to editUser, which will handle the upload
@@ -226,7 +281,7 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                             helperText={formik.touched.location && formik.errors.location}
                         />
                     </div>
-                    <div className="input">
+<div className="input">
                         <TextField
                             fullWidth
                             name="website"
@@ -235,6 +290,54 @@ export default function EditProfile({ profile, refreshToken }: { profile: UserPr
                             onChange={formik.handleChange}
                             error={formik.touched.website && Boolean(formik.errors.website)}
                             helperText={formik.touched.website && formik.errors.website}
+                        />
+                    </div>
+                    <div className="input">
+<TextField
+                            select
+                            fullWidth
+                            name="university"
+                            label="University"
+                            value={formik.values.university}
+                            onChange={formik.handleChange}
+                            SelectProps={{
+                                displayEmpty: true,
+                                renderValue: (selected) => {
+                                    if (!selected) {
+                                        return 'Select a university';
+                                    }
+                                    return selected as string;
+                                },
+                            }}
+                            InputLabelProps={{ shrink: true }}
+                        >
+                            <MenuItem value="">
+                                <em>None</em>
+                            </MenuItem>
+                            {universityOptions.map((u) => (
+                                <MenuItem key={u} value={u}>{u}</MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
+                    <div className="input">
+                        <Autocomplete
+                            multiple
+                            options={majorOptions}
+                            value={formik.values.majors}
+                            onChange={(_, value) => formik.setFieldValue('majors', value)}
+                            renderTags={(value: readonly string[], getTagProps) =>
+                                value.map((option: string, index: number) => (
+                                    <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
+                                ))
+                            }
+renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Majors"
+                                    placeholder={formik.values.majors.length > 0 ? '' : 'Select one or more majors'}
+                                    helperText="You can select multiple majors"
+                                />
+                            )}
                         />
                     </div>
                     {formik.isSubmitting ? (

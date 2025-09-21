@@ -5,6 +5,9 @@ export type UserProps = {
     description: string | null;
     location: string | null;
     website: string | null;
+    // New fields
+    university: string | null;
+    majors: string[];
     isPremium: boolean;
     createdAt: Date;
     updatedAt: Date;
