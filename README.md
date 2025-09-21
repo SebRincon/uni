@@ -4,6 +4,10 @@ Uni is a campus‑centric social platform for sharing updates, collaborating on 
 
 Built with **Next.js 13+ (App Router)**, **TypeScript**, **AWS Amplify (Data/Storage)**, **Material UI**, and **TanStack Query**. Deployable on **Vercel** or your preferred platform.
 
+## Production
+
+- https://main.d2384twl5hqdti.amplifyapp.com/
+
 ## Features
 
 -   Profiles: Create a profile, upload an avatar/cover, and customize your bio.
