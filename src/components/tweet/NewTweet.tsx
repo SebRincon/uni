@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { TextField, Avatar, FormControlLabel, Switch, MenuItem, Autocomplete, Chip, Button } from "@mui/material";
+import { TextField, Avatar, FormControlLabel, Switch, MenuItem, Autocomplete, Chip, Button, Box, Stack, Typography } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -184,41 +184,39 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     }
 
     return (
-        <div className="new-tweet-form">
-            <Avatar
-                className="avatar div-link"
-                sx={{ width: 50, height: 50 }}
-                alt=""
-                src={avatarUrl}
-            />
-            <form onSubmit={formik.handleSubmit}>
-                <div className="input">
-                    <TextField
-                        placeholder="What's happening?"
-                        multiline
-                        hiddenLabel
-                        minRows={3}
-                        variant="standard"
-                        fullWidth
-                        name="text"
-                        value={formik.values.text}
-                        onChange={customHandleChange}
-                        error={formik.touched.text && Boolean(formik.errors.text)}
-                        helperText={formik.touched.text && formik.errors.text}
-                    />
-                </div>
-                {/* Tagging and academic context */}
-                <div className="input" style={{ marginTop: 8 }}>
-                    <TextField
-                        placeholder="Tags (comma-separated, e.g. hackathon, advice, internship)"
-                        hiddenLabel
-                        variant="standard"
-                        fullWidth
-                        name="tagsText"
-                        value={(formik.values as any).tagsText}
-                        onChange={formik.handleChange}
-                    />
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 10, marginTop: 8 }}>
+        <Box sx={{ p: 2 }}>
+            <Typography variant="h6" sx={{ mb: 2 }}>Create a new Tweet</Typography>
+            <Stack direction="row" spacing={2}>
+                <Avatar
+                    className="avatar div-link"
+                    sx={{ width: 50, height: 50 }}
+                    alt=""
+                    src={avatarUrl}
+                />
+                <form onSubmit={formik.handleSubmit} style={{ width: "100%" }}>
+                    <Stack spacing={2}>
+                        <TextField
+                            placeholder="What's happening?"
+                            multiline
+                            hiddenLabel
+                            minRows={3}
+                            variant="outlined"
+                            fullWidth
+                            name="text"
+                            value={formik.values.text}
+                            onChange={customHandleChange}
+                            error={formik.touched.text && Boolean(formik.errors.text)}
+                            helperText={formik.touched.text && formik.errors.text}
+                        />
+                        <TextField
+                            placeholder="Tags (comma-separated, e.g. hackathon, advice, internship)"
+                            hiddenLabel
+                            variant="outlined"
+                            fullWidth
+                            name="tagsText"
+                            value={(formik.values as any).tagsText}
+                            onChange={formik.handleChange}
+                        />
                         <FormControlLabel
                             control={
                                 <Switch
@@ -233,7 +231,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                             select
                             fullWidth
                             hiddenLabel
-                            variant="standard"
+                            variant="outlined"
                             name="university"
                             value={(formik.values as any).university}
                             onChange={formik.handleChange}
@@ -278,107 +276,106 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                                         {...params}
                                         fullWidth
                                         hiddenLabel
-                                        variant="standard"
+                                        variant="outlined"
                                         placeholder={(formik.values as any).majors?.length > 0 ? '' : 'Select one or more majors'}
                                         helperText="You can select multiple majors"
                                     />
                                 )}
                             />
                         )}
-                    </div>
-                </div>
-
-                {/* Attachment previews */}
-                {attachFiles.length > 0 && (
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
-                        {attachFiles.map((f, idx) => (
-                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-color)', borderRadius: 8, padding: '4px 8px' }}>
-                                {f.type.startsWith('image/') ? (
-                                    <img src={URL.createObjectURL(f)} alt={f.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
-                                ) : (
-                                    <span style={{ fontSize: 12 }}>PDF: {f.name}</span>
-                                )}
-                                <button
-                                    className="btn btn-white"
+                        {attachFiles.length > 0 && (
+                            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                                {attachFiles.map((f, idx) => (
+                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-color)', borderRadius: 8, padding: '4px 8px' }}>
+                                        {f.type.startsWith('image/') ? (
+                                            <img src={URL.createObjectURL(f)} alt={f.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                                        ) : (
+                                            <span style={{ fontSize: 12 }}>PDF: {f.name}</span>
+                                        )}
+                                        <button
+                                            className="btn btn-white"
+                                            onClick={(e) => {
+                                                e.preventDefault();
+                                                setAttachFiles((prev) => prev.filter((_, i) => i !== idx));
+                                            }}
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                        <Stack direction="row" justifyContent="space-between" alignItems="center">
+                            <Stack direction="row" spacing={1}>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        setAttachFiles((prev) => prev.filter((_, i) => i !== idx));
+                                        setShowCanvasDialog(true);
                                     }}
                                 >
-                                    Remove
+                                    Attach from Canvas
+                                </Button>
+                                <input
+                                    type="file"
+                                    multiple
+                                    accept="image/*,application/pdf"
+                                    style={{ display: 'none' }}
+                                    id="tweet-attachments-input"
+                                    onChange={(e) => {
+                                        const files = Array.from(e.target.files || []);
+                                        const filtered = files.filter((f) => (f.type.startsWith('image/') || f.type === 'application/pdf') && f.size <= 10 * 1024 * 1024);
+                                        setAttachFiles((prev) => {
+                                            const merged = [...prev, ...filtered];
+                                            return merged.slice(0, 4);
+                                        });
+                                    }}
+                                />
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        const input = document.getElementById('tweet-attachments-input') as HTMLInputElement | null;
+                                        input?.click();
+                                    }}
+                                    className="icon-hoverable"
+                                >
+                                    <FaRegImage />
                                 </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                <div className="input-additions">
-                    <Button
-                        variant="outlined"
-                        size="small"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setShowCanvasDialog(true);
-                        }}
-                        style={{ marginRight: 8 }}
-                    >
-                        Attach from Canvas
-                    </Button>
-                    <input
-                        type="file"
-                        multiple
-                        accept="image/*,application/pdf"
-                        style={{ display: 'none' }}
-                        id="tweet-attachments-input"
-                        onChange={(e) => {
-                            const files = Array.from(e.target.files || []);
-                            const filtered = files.filter((f) => (f.type.startsWith('image/') || f.type === 'application/pdf') && f.size <= 10 * 1024 * 1024);
-                            setAttachFiles((prev) => {
-                                const merged = [...prev, ...filtered];
-                                return merged.slice(0, 4);
-                            });
-                        }}
-                    />
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            const input = document.getElementById('tweet-attachments-input') as HTMLInputElement | null;
-                            input?.click();
-                        }}
-                        className="icon-hoverable"
-                    >
-                        <FaRegImage />
-                    </button>
-                    <button
-                        onClick={(e) => {
-                            e.preventDefault();
-                            setShowPicker(!showPicker);
-                        }}
-                        className="icon-hoverable"
-                    >
-                        <FaRegSmile />
-                    </button>
-                    <ProgressCircle maxChars={280} count={count} />
-                    <button className={`btn ${formik.isValid ? "" : "disabled"}`} disabled={!formik.isValid} type="submit">
-                        Post
-                    </button>
-                </div>
-                {showPicker && (
-                    <div className="emoji-picker">
-                        <Picker
-                            data={data}
-                            onEmojiSelect={(emoji: any) => {
-                                formik.setFieldValue("text", formik.values.text + emoji.native);
-                                setShowPicker(false);
-                                setCount(count + emoji.native.length);
-                            }}
-                            previewPosition="none"
-                        />
-                    </div>
-                )}
-                {/* Deprecated dropzone retained for legacy; hidden when using file input */}
-                {false && showDropzone && <Uploader handlePhotoChange={handlePhotoChange} />}
-            </form>
+                                <button
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setShowPicker(!showPicker);
+                                    }}
+                                    className="icon-hoverable"
+                                >
+                                    <FaRegSmile />
+                                </button>
+                            </Stack>
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                <ProgressCircle maxChars={280} count={count} />
+                                <Button variant="contained" disabled={!formik.isValid} type="submit">
+                                    Tweet
+                                </Button>
+                            </Stack>
+                        </Stack>
+                    </Stack>
+                    {showPicker && (
+                        <div className="emoji-picker">
+                            <Picker
+                                data={data}
+                                onEmojiSelect={(emoji: any) => {
+                                    formik.setFieldValue("text", formik.values.text + emoji.native);
+                                    setShowPicker(false);
+                                    setCount(count + emoji.native.length);
+                                }}
+                                previewPosition="none"
+                            />
+                        </div>
+                    )}
+                    {false && showDropzone && <Uploader handlePhotoChange={handlePhotoChange} />}
+                </form>
+            </Stack>
             <AttachFromCanvasDialog
                 open={showCanvasDialog}
                 onClose={() => setShowCanvasDialog(false)}
@@ -389,6 +386,6 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                     });
                 }}
             />
-        </div>
+        </Box>
     );
 }

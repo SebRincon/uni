@@ -10,6 +10,7 @@ import NewTweet from "@/components/tweet/NewTweet";
 import Tweets from "@/components/tweet/Tweets";
 import { AuthContext } from "../auth-context";
 import CircularLoading from "@/components/misc/CircularLoading";
+import NothingToShow from "@/components/misc/NothingToShow";
 import { dedupeAndSortByCreatedAtDesc } from "@/utilities/tweet/sort";
 import { TweetProps } from "@/types/TweetProps";
 
@@ -51,7 +52,7 @@ export default function ExplorePage() {
         queryKey: ["tweets", "explore", selectedUniversity, [...selectedMajors].sort().join('|')],
         queryFn: () => searchAdvanced({
             university: selectedUniversity || undefined,
-            course: selectedMajors.includes('All') ? undefined : selectedMajors,
+            course: (selectedMajors.length === 0 || selectedMajors.includes('All')) ? undefined : selectedMajors,
         }),
         select: (res: any) => res?.tweets ?? res
     });
@@ -74,46 +75,49 @@ export default function ExplorePage() {
     if (isPending) return <CircularLoading />;
 
     return (
-        <main>
-            <h1 className="page-name">Explore</h1>
-            {token && <NewTweet token={token} />}
+        <main className="page">
+            <div className="page-header">
+                <h1>Explore</h1>
+            </div>
 
-            <div style={{ display: 'grid', gap: 8, margin: '8px 0 12px' }}>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span className="text-muted">University:</span>
-                    <TextField
-                        select
-                        value={selectedUniversity}
-                        onChange={(e) => { setSelectedUniversity(e.target.value); setSelectedMajors(['All']); }}
-                        size="small"
-                        label="University"
-                        sx={{ minWidth: 260 }}
-                    >
-                        <MenuItem value="">All universities</MenuItem>
-                        {universities.map((u) => (
-                            <MenuItem key={u} value={u}>{u}</MenuItem>
-                        ))}
-                    </TextField>
-                    {selectedUniversity && (
-                        <Chip label={selectedUniversity} size="small" variant="outlined" />
-                    )}
+            <section className="page-filters">
+                <div className="filters-row">
+                    <span className="label">University</span>
+                    <div className="field">
+                        <TextField
+                            select
+                            value={selectedUniversity}
+                            onChange={(e) => { setSelectedUniversity(e.target.value); setSelectedMajors(['All']); }}
+                            size="small"
+                            fullWidth
+                        >
+                            <MenuItem value="">All universities</MenuItem>
+                            {universities.map((u) => (
+                                <MenuItem key={u} value={u}>{u}</MenuItem>
+                            ))}
+                        </TextField>
+                    </div>
                 </div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                    <span className="text-muted">Majors:</span>
-                    <div style={{ minWidth: 280, flex: '1 1 280px', maxWidth: 520 }}>
+                <div className="filters-row">
+                    <span className="label">Majors</span>
+                    <div className="field">
                         <Autocomplete
                             multiple
                             options={["All", ...availableMajors]}
                             value={selectedMajors}
-                            onChange={(_, value) => {
-                                const vals = Array.from(new Set(value));
-                                if (vals.length === 0) {
+                            onChange={(_, value, reason, details) => {
+                                let vals = Array.from(new Set(value));
+                                // If user explicitly selected 'All', make it the sole selection
+                                if (reason === 'selectOption' && details && (details as any).option === 'All') {
                                     setSelectedMajors(["All"]);
-                                } else if (vals.includes("All")) {
-                                    setSelectedMajors(["All"]);
-                                } else {
-                                    setSelectedMajors(vals);
+                                    return;
                                 }
+                                // If 'All' is present with other majors, drop 'All'
+                                if (vals.includes("All") && vals.length > 1) {
+                                    vals = vals.filter((v) => v !== "All");
+                                }
+                                // Allow clearing to an empty selection (treated as no filter)
+                                setSelectedMajors(vals);
                             }}
                             renderTags={(value: readonly string[], getTagProps) =>
                                 value.map((option: string, index: number) => {
@@ -128,23 +132,27 @@ export default function ExplorePage() {
                                 return <li key={key as any} {...liProps}>{option}</li>;
                             }}
                             renderInput={(params) => (
-                                <TextField
+<TextField
                                     {...params}
-                                    label="Majors"
                                     placeholder={selectedMajors.length > 0 && !selectedMajors.includes("All") ? '' : 'Select one or more majors'}
-                                    helperText="Filter explore by majors"
                                 />
                             )}
                         />
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {isLoadingCatalog || isLoading ? (
-                <CircularLoading />
-            ) : (
-                <Tweets tweets={tweets} />
-            )}
+
+            <section className="content-section">
+                {isLoadingCatalog || isLoading ? (
+                    <CircularLoading />
+                ) : (
+                    <>
+                        {tweets.length === 0 && <NothingToShow />}
+                        <Tweets tweets={tweets} />
+                    </>
+                )}
+            </section>
         </main>
     );
 }

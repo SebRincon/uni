@@ -109,7 +109,6 @@ export async function POST(req: NextRequest) {
 
     const res = await model.generateContent({ contents: input });
     const parsed = JSON.parse(res.response.text());
-    console.log(parsed);
 
     // Normalize categories and enforce thresholds server-side as a guard
     const categories: { name: CategoryName; present: boolean; severity: Severity }[] = SENSITIVE_CATEGORIES.map((name) => {
