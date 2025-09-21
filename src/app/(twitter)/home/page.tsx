@@ -88,7 +88,7 @@ export default function HomePage() {
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                     <span className="text-muted">Majors:</span>
                     <div style={{ minWidth: 280, flex: '1 1 280px', maxWidth: 520 }}>
-                        <Autocomplete
+                    <Autocomplete
                             multiple
                             options={["All", ...availableMajors]}
                             value={selectedMajors}
@@ -103,10 +103,17 @@ export default function HomePage() {
                                 }
                             }}
                             renderTags={(value: readonly string[], getTagProps) =>
-                                value.map((option: string, index: number) => (
-                                    <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
-                                ))
+                                value.map((option: string, index: number) => {
+                                    const { key, ...chipProps } = getTagProps({ index });
+                                    return (
+                                        <Chip key={`${option}-${index}`} variant="outlined" label={option} {...chipProps} />
+                                    );
+                                })
                             }
+                            renderOption={(props, option) => {
+                                const { key, ...liProps } = props as any;
+                                return <li key={key as any} {...liProps}>{option}</li>;
+                            }}
                             renderInput={(params) => (
                                 <TextField
                                     {...params}

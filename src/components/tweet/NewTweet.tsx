@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { TextField, Avatar, FormControlLabel, Switch, MenuItem, Autocomplete, Chip } from "@mui/material";
+import { TextField, Avatar, FormControlLabel, Switch, MenuItem, Autocomplete, Chip, Button } from "@mui/material";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { FaRegImage, FaRegSmile } from "react-icons/fa";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
+import AttachFromCanvasDialog from "@/components/canvas/AttachFromCanvasDialog";
 
 import CircularLoading from "../misc/CircularLoading";
 import { createTweet } from "@/utilities/fetch";
@@ -22,7 +23,9 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const [showPicker, setShowPicker] = useState(false);
     const [showDropzone, setShowDropzone] = useState(false);
     const [photoFile, setPhotoFile] = useState<File | null>(null);
+    const [attachFiles, setAttachFiles] = useState<File[]>([]);
     const [count, setCount] = useState(0);
+    const [showCanvasDialog, setShowCanvasDialog] = useState(false);
 
     const queryClient = useQueryClient();
     const { shouldTriggerKornResponse } = useKornMentionDetection();
@@ -95,7 +98,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     };
 
     const mutation = useMutation({
-        mutationFn: ({ authorId, text, photoFile, extras }: { authorId: string; text: string; photoFile?: File; extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string } }) => 
+        mutationFn: ({ authorId, text, photoFile, extras }: { authorId: string; text: string; photoFile?: File; extras?: { tags?: string[]; isAcademic?: boolean; university?: string; course?: string; attachFiles?: File[] } }) => 
             createTweet(authorId, text, photoFile, undefined, extras),
         onSuccess: async (tweetData, variables) => {
             queryClient.invalidateQueries({ queryKey: ["tweets"] });
@@ -109,7 +112,15 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     });
 
     const handlePhotoChange = (file: File) => {
+        // legacy single-photo path
         setPhotoFile(file);
+        // also add to attachments for unified handling
+        if (file && (file.type.startsWith('image/'))) {
+            setAttachFiles((prev) => {
+                const next = [...prev, file].slice(0, 4);
+                return next;
+            });
+        }
     };
 
     const validationSchema = yup.object({
@@ -148,12 +159,14 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                             ? (values as any).majors.join(", ")
                             : undefined)
                         : undefined,
+                    attachFiles: attachFiles
                 }
             });
             resetForm();
             setCount(0);
             setShowDropzone(false);
             setPhotoFile(null);
+            setAttachFiles([]);
             if (handleSubmit) handleSubmit();
         },
     });
@@ -249,10 +262,17 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                                 onChange={(_, value) => formik.setFieldValue('majors', value)}
                                 fullWidth
                                 renderTags={(value: readonly string[], getTagProps) =>
-                                    value.map((option: string, index: number) => (
-                                        <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
-                                    ))
+                                    value.map((option: string, index: number) => {
+                                        const { key, ...chipProps } = getTagProps({ index });
+                                        return (
+                                            <Chip key={`${option}-${index}`} variant="outlined" label={option} {...chipProps} />
+                                        );
+                                    })
                                 }
+                                renderOption={(props, option) => {
+                                    const { key, ...liProps } = props as any;
+                                    return <li key={key as any} {...liProps}>{option}</li>;
+                                }}
                                 renderInput={(params) => (
                                     <TextField
                                         {...params}
@@ -268,11 +288,62 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                     </div>
                 </div>
 
+                {/* Attachment previews */}
+                {attachFiles.length > 0 && (
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginTop: 8 }}>
+                        {attachFiles.map((f, idx) => (
+                            <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid var(--border-color)', borderRadius: 8, padding: '4px 8px' }}>
+                                {f.type.startsWith('image/') ? (
+                                    <img src={URL.createObjectURL(f)} alt={f.name} style={{ width: 48, height: 48, objectFit: 'cover', borderRadius: 6 }} />
+                                ) : (
+                                    <span style={{ fontSize: 12 }}>PDF: {f.name}</span>
+                                )}
+                                <button
+                                    className="btn btn-white"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setAttachFiles((prev) => prev.filter((_, i) => i !== idx));
+                                    }}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 <div className="input-additions">
+                    <Button
+                        variant="outlined"
+                        size="small"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowCanvasDialog(true);
+                        }}
+                        style={{ marginRight: 8 }}
+                    >
+                        Attach from Canvas
+                    </Button>
+                    <input
+                        type="file"
+                        multiple
+                        accept="image/*,application/pdf"
+                        style={{ display: 'none' }}
+                        id="tweet-attachments-input"
+                        onChange={(e) => {
+                            const files = Array.from(e.target.files || []);
+                            const filtered = files.filter((f) => (f.type.startsWith('image/') || f.type === 'application/pdf') && f.size <= 10 * 1024 * 1024);
+                            setAttachFiles((prev) => {
+                                const merged = [...prev, ...filtered];
+                                return merged.slice(0, 4);
+                            });
+                        }}
+                    />
                     <button
                         onClick={(e) => {
                             e.preventDefault();
-                            setShowDropzone(true);
+                            const input = document.getElementById('tweet-attachments-input') as HTMLInputElement | null;
+                            input?.click();
                         }}
                         className="icon-hoverable"
                     >
@@ -305,8 +376,19 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                         />
                     </div>
                 )}
-                {showDropzone && <Uploader handlePhotoChange={handlePhotoChange} />}
+                {/* Deprecated dropzone retained for legacy; hidden when using file input */}
+                {false && showDropzone && <Uploader handlePhotoChange={handlePhotoChange} />}
             </form>
+            <AttachFromCanvasDialog
+                open={showCanvasDialog}
+                onClose={() => setShowCanvasDialog(false)}
+                onAttach={(file) => {
+                    setAttachFiles((prev) => {
+                        const merged = [...prev, file];
+                        return merged.slice(0, 4);
+                    });
+                }}
+            />
         </div>
     );
 }

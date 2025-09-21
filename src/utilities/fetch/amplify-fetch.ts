@@ -14,6 +14,7 @@ const userSelectionSet = ['username', 'name', 'description', 'location',
   'website', 'photoUrl', 'headerUrl', 'isPremium', 'university', 'majors', 'createdAt', 'updatedAt'] as const;
 
 const tweetSelectionSet = ['id', 'text', 'photoUrl', 'isRetweet', 'isReply', 'isSensitive', 'tags', 'isAcademic', 'university', 'course',
+  'attachments', 'attachmentTypes', 'attachmentNames',
   'createdAt', 'updatedAt', 'authorId', 'retweetOfId', 'repliedToId'] as const;
 
 // User-related fetch functions

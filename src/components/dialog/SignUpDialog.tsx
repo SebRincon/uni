@@ -246,10 +246,17 @@ await signIn({
                                     value={formik.values.majors}
                                     onChange={(_, value) => formik.setFieldValue('majors', value)}
                                     renderTags={(value: readonly string[], getTagProps) =>
-                                        value.map((option: string, index: number) => (
-                                            <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
-                                        ))
+                                        value.map((option: string, index: number) => {
+                                            const { key, ...chipProps } = getTagProps({ index });
+                                            return (
+                                                <Chip key={`${option}-${index}`} variant="outlined" label={option} {...chipProps} />
+                                            );
+                                        })
                                     }
+                                    renderOption={(props, option) => {
+                                        const { key, ...liProps } = props as any;
+                                        return <li key={key as any} {...liProps}>{option}</li>;
+                                    }}
 renderInput={(params) => (
                                         <TextField
                                             {...params}

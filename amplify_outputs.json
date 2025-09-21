@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-west-2_xMZYk3mL7",
+    "user_pool_id": "us-west-2_DQI0m4Vq4",
     "aws_region": "us-west-2",
-    "user_pool_client_id": "lf3tq2dff1kak8evemkldl7i6",
-    "identity_pool_id": "us-west-2:0fb71852-eedb-4001-a475-fab0c27229e5",
+    "user_pool_client_id": "64ieka27ckqd5k1q7g05gq9clh",
+    "identity_pool_id": "us-west-2:282392df-0b8d-49c6-a790-fabaac5238ee",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -27,9 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://7y6lrtagubbirf6iqcdxlb2cda.appsync-api.us-west-2.amazonaws.com/graphql",
+    "url": "https://23brh46btvhz7ohr62ds7ls2ii.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
-    "api_key": "da2-jkdo7ztgqzccpdiilfqscgkdpa",
+    "api_key": "da2-mt6r2dsf7vdqhonqgbfw5awgsm",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -423,6 +423,30 @@
               "type": "String",
               "isRequired": false,
               "attributes": []
+            },
+            "attachments": {
+              "name": "attachments",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "attachmentTypes": {
+              "name": "attachmentTypes",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
+            },
+            "attachmentNames": {
+              "name": "attachmentNames",
+              "isArray": true,
+              "type": "String",
+              "isRequired": false,
+              "attributes": [],
+              "isArrayNullable": true
             },
             "authorId": {
               "name": "authorId",
@@ -2047,11 +2071,11 @@
   },
   "storage": {
     "aws_region": "us-west-2",
-    "bucket_name": "amplify-ddfybarxpa7k8-mai-twitterclonemediabucket8-z7c9ylgrtmog",
+    "bucket_name": "amplify-twitter-attachdem-twitterclonemediabucket8-fnz60ubv62ad",
     "buckets": [
       {
         "name": "twitter-clone-media",
-        "bucket_name": "amplify-ddfybarxpa7k8-mai-twitterclonemediabucket8-z7c9ylgrtmog",
+        "bucket_name": "amplify-twitter-attachdem-twitterclonemediabucket8-fnz60ubv62ad",
         "aws_region": "us-west-2",
         "paths": {
           "media/*": {
