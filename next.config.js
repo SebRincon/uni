@@ -5,6 +5,19 @@ const nextConfig = {
     experimental: {
         serverActions: true,
     },
+    env: {
+        // Explicitly expose environment variables for serverless functions
+        KORN_AI_ENABLED: process.env.KORN_AI_ENABLED,
+        CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
+        CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN,
+        CLOUDFLARE_AI_MODEL: process.env.CLOUDFLARE_AI_MODEL,
+        CLOUDFLARE_STT_MODEL: process.env.CLOUDFLARE_STT_MODEL || '@cf/openai/whisper',
+        GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+        CANVAS_API_KEY: process.env.CANVAS_API_KEY,
+        LIVEKIT_API_KEY: process.env.LIVEKIT_API_KEY,
+        LIVEKIT_API_SECRET: process.env.LIVEKIT_API_SECRET,
+        LIVEKIT_URL: process.env.LIVEKIT_URL,
+    },
     images: {
         domains: [
             "localhost", // For development

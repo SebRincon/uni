@@ -3,28 +3,13 @@
 import { CloudflareAIConfig, AIServiceConfig } from '@/types/ai/cloudflare-types';
 import { CloudflareAIService } from './cloudflare-ai-service';
 import { KornMentionService } from './korn-mention-service';
+import { getEnvironmentVariable, requireEnvironmentVariable, validateKornAIEnvironment } from '@/lib/env-loader';
 
-// Environment validation helper
-const validateEnvironment = (): { isValid: boolean; missing: string[] } => {
-  const required = {
-    KORN_AI_ENABLED: process.env.KORN_AI_ENABLED,
-    CLOUDFLARE_ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID,
-    CLOUDFLARE_API_TOKEN: process.env.CLOUDFLARE_API_TOKEN
-  };
-  
-  const missing = Object.entries(required)
-    .filter(([key, value]) => !value)
-    .map(([key]) => key);
-    
-  return {
-    isValid: missing.length === 0,
-    missing
-  };
-};
+// Environment validation is now handled by env-loader
 
 // Default configuration for Korn AI
 export const DEFAULT_AI_CONFIG: AIServiceConfig = {
-  enabled: process.env.KORN_AI_ENABLED === 'true',
+  enabled: getEnvironmentVariable('KORN_AI_ENABLED') === 'true',
   maxResponseLength: 280, // Twitter character limit
   rateLimitPerMinute: 10, // Conservative rate limiting
   temperature: 0.7,
@@ -49,15 +34,11 @@ Remember: You're responding to public tweets, so be mindful of the public nature
 
 // Cloudflare configuration from environment variables
 export const getCloudflareConfig = (): CloudflareAIConfig => {
-  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-  const model = process.env.CLOUDFLARE_AI_MODEL || '@cf/meta/llama-2-7b-chat-int8';
+  const accountId = requireEnvironmentVariable('CLOUDFLARE_ACCOUNT_ID');
+  const apiToken = requireEnvironmentVariable('CLOUDFLARE_API_TOKEN');
+  const model = getEnvironmentVariable('CLOUDFLARE_AI_MODEL') || '@cf/meta/llama-2-7b-chat-int8';
 
-  if (!accountId || !apiToken) {
-    throw new Error(
-      'Missing required Cloudflare configuration. Please set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN environment variables.'
-    );
-  }
+  // Error handling is now done by requireEnvironmentVariable
 
   return {
     accountId,
@@ -77,11 +58,11 @@ export const initializeKornAI = (): KornMentionService => {
 
   try {
     // Validate environment first
-    const envCheck = validateEnvironment();
+    const envCheck = validateKornAIEnvironment();
     if (!envCheck.isValid) {
       throw new Error(
         `❌ Missing required environment variables for Korn AI: ${envCheck.missing.join(', ')}\n` +
-        `Please check your .env.local file and ensure these are set:\n` +
+        `Please check your environment configuration and ensure these are set:\n` +
         `- KORN_AI_ENABLED=true\n` +
         `- CLOUDFLARE_ACCOUNT_ID=your-account-id\n` +
         `- CLOUDFLARE_API_TOKEN=your-api-token`

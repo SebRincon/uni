@@ -7,6 +7,12 @@ backend:
         - npx ampx pipeline-deploy --branch $AWS_BRANCH --app-id $AWS_APP_ID
 frontend:
   phases:
+    preBuild:
+      commands:
+        - echo "Environment variables check:"
+        - echo "KORN_AI_ENABLED=$KORN_AI_ENABLED"
+        - echo "CLOUDFLARE_ACCOUNT_ID length=${#CLOUDFLARE_ACCOUNT_ID}"
+        - echo "CLOUDFLARE_API_TOKEN length=${#CLOUDFLARE_API_TOKEN}"
     build:
       commands:
         - npm run build
