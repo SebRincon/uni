@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       // language: 'en',
     } as Record<string, unknown>;
 
-    async function callModelWithBody(m: string, body: Record<string, unknown>) {
+    const callModelWithBody = async (m: string, body: Record<string, unknown>) => {
       const ep = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${m}`;
       const ac = new AbortController();
       const t = setTimeout(() => ac.abort(), 15000); // 15s timeout
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       } finally {
         clearTimeout(t);
       }
-    }
+    };
 
     // Prefer the cheapest (env-provided) model; fallback to generic '@cf/openai/whisper' if not available
     const url = new URL(request.url);
