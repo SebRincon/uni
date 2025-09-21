@@ -51,16 +51,23 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                 if (result.success && result.response.responseContent) {
                     console.log('🤖 Korn AI responded:', result.response.responseContent);
                     
-                    // Create Korn's reply tweet
-                    await createTweet(
-                        'KornAI', // Korn AI user account
-                        result.response.responseContent,
-                        undefined, // no photo
-                        tweetData.id // reply to the original tweet
-                    );
-                    
-                    // Refresh tweets to show the AI response
-                    queryClient.invalidateQueries({ queryKey: ["tweets"] });
+                    try {
+                        // Create Korn's reply tweet
+                        await createTweet(
+                            'KornAI', // Korn AI user account
+                            result.response.responseContent,
+                            undefined, // no photo
+                            tweetData.id // reply to the original tweet
+                        );
+                        
+                        console.log('✅ Korn AI reply posted successfully');
+                        
+                        // Refresh tweets to show the AI response
+                        queryClient.invalidateQueries({ queryKey: ["tweets"] });
+                    } catch (createError) {
+                        console.error('❌ Error creating Korn AI reply:', createError);
+                        console.error('💡 Make sure the "KornAI" user account exists in your database');
+                    }
                 } else {
                     console.log('🤖 Korn AI processing failed or no response');
                 }

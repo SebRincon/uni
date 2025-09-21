@@ -39,6 +39,12 @@ export default function Tweet({ tweet }: { tweet: TweetProps }) {
         ? (tweet.retweetOf as any)?.isSensitive ?? (tweet as any)?.isSensitive
         : (displayedTweet as any)?.isSensitive;
     
+    // Add null check for author to prevent crashes
+    if (!displayedTweet.author) {
+        console.warn('Tweet author is null for tweet:', displayedTweet.id);
+        return null; // or return a placeholder component
+    }
+    
     const avatarUrl = useStorageUrl(displayedTweet.author.photoUrl);
     const tweetImageUrl = useStorageUrl(displayedTweet.photoUrl);
 

@@ -55,17 +55,24 @@ export default function NewReply({ token, tweet }: { token: UserProps; tweet: Tw
                 if (result.success && result.response.responseContent) {
                     console.log('🤖 Korn AI replied:', result.response.responseContent);
                     
-                    // Create Korn's reply to the reply
-                    await createTweet(
-                        'KornAI',
-                        result.response.responseContent,
-                        undefined,
-                        replyData.id // reply to the user's reply
-                    );
-                    
-                    // Refresh the tweet thread to show the AI response
-                    queryClient.invalidateQueries({ queryKey: queryKey });
-                    queryClient.invalidateQueries({ queryKey: ["tweets"] });
+                    try {
+                        // Create Korn's reply to the reply
+                        await createTweet(
+                            'KornAI',
+                            result.response.responseContent,
+                            undefined,
+                            replyData.id // reply to the user's reply
+                        );
+                        
+                        console.log('✅ Korn AI reply posted successfully');
+                        
+                        // Refresh the tweet thread to show the AI response
+                        queryClient.invalidateQueries({ queryKey: queryKey });
+                        queryClient.invalidateQueries({ queryKey: ["tweets"] });
+                    } catch (createError) {
+                        console.error('❌ Error creating Korn AI reply:', createError);
+                        console.error('💡 Make sure the "KornAI" user account exists in your database');
+                    }
                 } else {
                     console.log('🤖 Korn AI processing failed or no response');
                 }
