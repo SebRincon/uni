@@ -1,7 +1,7 @@
 "use client";
 
 import { useContext } from "react";
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import WhoToFollow from "../misc/WhoToFollow";
 
 export default function LeftSidePanel() {

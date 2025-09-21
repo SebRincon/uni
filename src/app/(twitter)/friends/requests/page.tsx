@@ -5,7 +5,7 @@ import { useContext, useState, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import User from "@/components/user/User";
 
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import { UserProps } from "@/types/UserProps";
 import { getUser, acceptFriendRequest, declineFriendRequest, cancelFriendRequest, search, sendFriendRequest } from "@/utilities/fetch";
 import CircularLoading from "@/components/misc/CircularLoading";

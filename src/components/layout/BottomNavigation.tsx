@@ -7,7 +7,7 @@ import { Avatar, Menu, MenuItem, Fab } from "@mui/material";
 import { FaHome, FaBell, FaEnvelope, FaUser, FaCog, FaHashtag, FaUserPlus, FaBook, FaPlus, FaEllipsisH } from "react-icons/fa";
 import Image from "next/image";
 
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import UnreadNotificationsBadge from "../misc/UnreadNotificationsBadge";
 import NewTweetDialog from "../dialog/NewTweetDialog";
 import LogOutDialog from "../dialog/LogOutDialog";

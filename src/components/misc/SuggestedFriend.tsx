@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { UserProps } from "@/types/UserProps";
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import Friend from "../user/Friend";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
 

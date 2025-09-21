@@ -147,7 +147,6 @@ export default function NewGroupDialog({ open, handleNewMessageClose, token }: N
               {selectedUsers.map(user => (
                 <div key={user.id} className="selected-user-item">
                   <div className="user-info">
-                    <img src={user.photoUrl || '/default-avatar.png'} alt={user.username} className="user-avatar" />
                     <span className="user-name">{user.name || user.username}</span>
                     <span className="user-username">@{user.username}</span>
                   </div>
@@ -199,7 +198,6 @@ export default function NewGroupDialog({ open, handleNewMessageClose, token }: N
                       className="search-result-item"
                       onClick={() => handleAddUser(user)}
                     >
-                      <img src={user.photoUrl || '/default-avatar.png'} alt={user.username} className="result-avatar" />
                       <div className="result-info">
                         <span className="result-name">{user.name || user.username}</span>
                         <span className="result-username">@{user.username}</span>
