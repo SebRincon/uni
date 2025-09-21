@@ -147,7 +147,7 @@ await signIn({
 
     return (
         <Dialog className="dialog" open={open} onClose={handleSignUpClose}>
-            <Image className="dialog-icon" src="/assets/favicon.png" alt="" width={40} height={40} />
+            <Image className="dialog-icon" src="/assets/unicorn-head-purple.png" alt="" width={40} height={40} />
             <DialogTitle className="title">
                 {isConfirmationStep ? "Confirm your account" : "Create your account"}
             </DialogTitle>

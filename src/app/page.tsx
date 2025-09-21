@@ -64,13 +64,12 @@ export default function RootPage() {
                 <div className="root-left">
                     <Image src="/assets/root.png" alt="" fill />
                     <div className="root-left-logo">
-                        <Image src="/assets/favicon-white.png" alt="" width={140} height={140} />
+                        <Image src="/assets/unicorn-head-white.png" alt="" width={140} height={140} />
                     </div>
                 </div>
                 <div className="root-right">
-                    <Image src="/assets/favicon.png" alt="" width={40} height={40} />
                     <h1>See what&apos;s happening in the world right now</h1>
-                    <p>Join Twitter today.</p>
+                    <p>Join Uni today.</p>
                     <div className="button-group">
                         <button className="btn" onClick={handleSignUpClick}>
                             Create account
@@ -78,14 +77,6 @@ export default function RootPage() {
                         <button className="btn btn-light" onClick={handleLogInClick}>
                             Sign in
                         </button>
-                        <Tooltip
-                            title="You can log in as test account to get full user priviliges if you don't have time to sign up. You can ALSO just look around without even being logged in, just like real Twitter!"
-                            placement="bottom"
-                        >
-                            <button onClick={handleTestLogin} className="btn btn-light">
-                                <span>Test account (Hover here!)</span>
-                            </button>
-                        </Tooltip>
                     </div>
                 </div>
             </main>

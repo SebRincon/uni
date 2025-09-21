@@ -15,7 +15,7 @@ export default function Footer() {
             <footer className="footer">
                 <div className="footer-div">
                     <h1>Don’t miss what’s happening</h1>
-                    <p>People on Twitter are the first to know.</p>
+                    <p>People on Uni are the first to know.</p>
                 </div>
                 <div>
                     <Link href="/" className="btn ">

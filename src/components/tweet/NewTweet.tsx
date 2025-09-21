@@ -106,8 +106,8 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
     const validationSchema = yup.object({
         text: yup
             .string()
-            .max(280, "Tweet text should be of maximum 280 characters length.")
-            .required("Tweet text can't be empty."),
+            .max(280, "Post text should be of maximum 280 characters length.")
+            .required("Post text can't be empty."),
     });
 
     const formik = useFormik({
@@ -280,7 +280,7 @@ export default function NewTweet({ token, handleSubmit }: NewTweetProps) {
                     </button>
                     <ProgressCircle maxChars={280} count={count} />
                     <button className={`btn ${formik.isValid ? "" : "disabled"}`} disabled={!formik.isValid} type="submit">
-                        Tweet
+                        Post
                     </button>
                 </div>
                 {showPicker && (

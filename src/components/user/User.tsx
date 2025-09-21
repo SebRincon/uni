@@ -20,7 +20,7 @@ export default function User({ user, showFriendButton = true }: { user: UserProp
     };
 
     return (
-        <div className="user-wrapper-internal">
+        <div className="user-wrapper-extend user-wrapper-internal">
             <Link href={`/${user.username}`}>
                 <Avatar
                     className="avatar"
