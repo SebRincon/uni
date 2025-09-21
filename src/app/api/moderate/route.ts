@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,9 +10,14 @@ const SENSITIVE_CATEGORIES = [
   'self_harm_or_suicide',
   'drug_use',
   'explicit_language',
-];
+] as const;
 
-const CATEGORY_SENSITIVITY_THRESHOLD: Record<string, 'low' | 'medium' | 'high'> = {
+type CategoryName = typeof SENSITIVE_CATEGORIES[number];
+
+const order = { none: 0, low: 1, medium: 2, high: 3 } as const;
+type Severity = keyof typeof order;
+
+const CATEGORY_SENSITIVITY_THRESHOLD: Record<CategoryName, Exclude<Severity, 'none'>> = {
   sexual_content: 'low',
   violence_or_gore: 'low',
   hate_or_harassment: 'low',
@@ -20,8 +25,6 @@ const CATEGORY_SENSITIVITY_THRESHOLD: Record<string, 'low' | 'medium' | 'high'> 
   drug_use: 'medium',
   explicit_language: 'low',
 };
-
-const order = { none: 0, low: 1, medium: 2, high: 3 } as const;
 
 export async function POST(req: NextRequest) {
   try {
@@ -41,24 +44,24 @@ export async function POST(req: NextRequest) {
       generationConfig: {
         responseMimeType: 'application/json',
         responseSchema: {
-          type: 'object',
+          type: SchemaType.OBJECT,
           properties: {
-            isSensitive: { type: 'boolean' },
-            block: { type: 'boolean' },
-            overallSeverity: { type: 'string', enum: ['none', 'low', 'medium', 'high'] },
+            isSensitive: { type: SchemaType.BOOLEAN },
+            block: { type: SchemaType.BOOLEAN },
+            overallSeverity: { type: SchemaType.STRING, format: 'enum', enum: ['none', 'low', 'medium', 'high'] },
             categories: {
-              type: 'array',
+              type: SchemaType.ARRAY,
               items: {
-                type: 'object',
+                type: SchemaType.OBJECT,
                 properties: {
-                  name: { type: 'string' },
-                  present: { type: 'boolean' },
-                  severity: { type: 'string', enum: ['none', 'low', 'medium', 'high'] },
+                  name: { type: SchemaType.STRING },
+                  present: { type: SchemaType.BOOLEAN },
+                  severity: { type: SchemaType.STRING, format: 'enum', enum: ['none', 'low', 'medium', 'high'] },
                 },
                 required: ['name', 'present', 'severity'],
               },
             },
-            rationale: { type: 'string' },
+            rationale: { type: SchemaType.STRING },
           },
           required: ['isSensitive', 'block', 'overallSeverity', 'categories', 'rationale'],
         },
@@ -84,14 +87,14 @@ Return concise rationale.`;
     const parsed = JSON.parse(res.response.text());
 
     // Normalize categories and enforce thresholds server-side as a guard
-    const categories = SENSITIVE_CATEGORIES.map((name) => {
+    const categories: { name: CategoryName; present: boolean; severity: Severity }[] = SENSITIVE_CATEGORIES.map((name) => {
       const found = (parsed.categories || []).find((c: any) => c.name === name);
-      return found || { name, present: false, severity: 'none' };
+      return (found as { name: CategoryName; present: boolean; severity: Severity }) || { name, present: false, severity: 'none' };
     });
 
-    const isSensitive = categories.some((c: any) => c.present && order[c.severity] >= order[CATEGORY_SENSITIVITY_THRESHOLD[c.name]]);
+    const isSensitive = categories.some((c) => c.present && order[c.severity] >= order[CATEGORY_SENSITIVITY_THRESHOLD[c.name]]);
 
-    const block = Boolean(categories.find((c: any) => c.present && c.severity === 'high')) || Boolean(parsed.block);
+    const block = Boolean(categories.find((c) => c.present && c.severity === 'high')) || Boolean(parsed.block);
 
     return NextResponse.json({
       isSensitive,
