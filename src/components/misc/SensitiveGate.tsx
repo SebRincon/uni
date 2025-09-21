@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { FaEyeSlash } from "react-icons/fa";
 
 export default function SensitiveGate({
   text,
@@ -10,34 +11,41 @@ export default function SensitiveGate({
   categories?: string[];
 }) {
   const [revealed, setRevealed] = useState(false);
+
   if (revealed) {
     return (
-      <div>
+      <>
         {text}
         {image}
-      </div>
+      </>
     );
   }
+
   return (
-    <div
-      style={{ border: "1px solid #333", padding: 12, borderRadius: 12, background: "#111", color: "#ddd" }}
-      onClick={(e) => e.stopPropagation()}
-    >
-      <strong>Sensitive content</strong>
-      {categories && categories.length > 0 && (
-        <div style={{ fontSize: 12, opacity: 0.8, marginTop: 4 }}>
-          Categories: {categories.join(", ")}
+    <div className="sensitive-gate" onClick={(e) => e.stopPropagation()}>
+      <div className="gate-content">
+        <div className="icon">
+          <FaEyeSlash />
         </div>
-      )}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setRevealed(true);
-        }}
-        style={{ marginTop: 8 }}
-      >
-        View anyway
-      </button>
+        <div className="gate-text">
+          <strong>Potentially sensitive content</strong>
+          <p>This content may not be suitable for all audiences.</p>
+          {categories && categories.length > 0 && (
+            <div className="categories">
+              Categories: {categories.join(", ")}
+            </div>
+          )}
+        </div>
+        <button
+          className="btn btn-white"
+          onClick={(e) => {
+            e.stopPropagation();
+            setRevealed(true);
+          }}
+        >
+          View
+        </button>
+      </div>
     </div>
   );
 }

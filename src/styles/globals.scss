@@ -26,12 +26,16 @@
 }
 
 .page-filters {
+  /* Ensure the container never bleeds outside the page column */
   width: 100%;
+  box-sizing: border-box;
+  max-width: 100%;
   margin: 6px 0; /* small top/bottom margin; full width inside .page */
   padding: 6px 12px; /* tighter vertical padding */
   border: 1px solid var(--border-color);
   border-radius: 10px;
   background: var(--background-primary); /* blend with theme background */
+  overflow: hidden; /* guard against fractional overflow */
 
   /* Normalize MUI field spacing inside filters */
   :global(.MuiFormControl-root) { margin: 0 !important; }
@@ -42,17 +46,20 @@
 
   .filters-row {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    & + .filters-row { margin-top: 8px; }
-    .label { color: var(--twitter-muted); font-size: 0.9rem; }
-    .field { min-width: 280px; flex: 1 1 480px; max-width: 100%; }
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    & + .filters-row { margin-top: 16px; }
 
-    &.stacked {
-      flex-direction: column;
-      align-items: stretch;
-      gap: 6px;
+    .label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--twitter-black);
+      padding-left: 4px;
+    }
+
+    .field {
+      width: 100%;
     }
   }
 }
@@ -906,7 +913,7 @@
             .flex {
                 width: 100%;
                 display: flex;
-                justify-content: flex-start;
+                justify-content: space-between; /* push name block left and button right */
                 align-items: center;
                 
                 .flex-left {
@@ -924,9 +931,9 @@
     }
 }
 
-// User wrapper for suggested friends - centered layout
+// User wrapper for suggested friends - left avatar, right-aligned action button
 .user-wrapper-column {
-    justify-content: center !important;
+    justify-content: flex-start !important;
     transition: none !important;
     
     &:hover {
@@ -936,19 +943,20 @@
     .user {
         .user-profile {
             .flex {
-                justify-content: center !important;
-                text-align: center;
+                justify-content: space-between !important;
+                align-items: center;
+                text-align: left;
                 
                 .flex-left {
-                    align-items: center;
+                    align-items: flex-start;
                 }
             }
         }
     }
     
     .friend-actions {
-        margin-left: 0 !important;
-        margin-top: 0.5rem;
+        margin-left: auto !important;
+        margin-top: 0;
     }
 }
 
@@ -3525,6 +3533,56 @@ button.icon-hoverable {
     .tweet .tweet-main .tweet-image img {
         max-height: 200px;
     }
+}
+
+.sensitive-gate {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  
+  .gate-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    background: color-mix(in srgb, var(--background-primary) 50%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  
+  .icon {
+    font-size: 2rem;
+    color: var(--twitter-muted);
+    margin-bottom: 0.5rem;
+  }
+  
+  .gate-text {
+    strong {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--twitter-black);
+    }
+    
+    p {
+      font-size: 0.9rem;
+      color: var(--twitter-muted);
+      margin-top: 0.25rem;
+    }
+  }
+  
+  .categories {
+    font-size: 0.8rem;
+    color: var(--twitter-muted);
+    opacity: 0.8;
+    margin-top: 0.75rem;
+  }
+  
+  .btn {
+    margin-top: 1rem;
+    font-weight: 600;
+  }
 }
 
 /* Add this to the end of the file */
