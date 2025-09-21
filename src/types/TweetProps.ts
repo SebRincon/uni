@@ -17,6 +17,7 @@ export type TweetProps = {
     isReply: boolean;
     repliedTo: TweetProps;
     repliedToId: string;
+    isSensitive?: boolean;
 };
 
 export type TweetsArray = {

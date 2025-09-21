@@ -26,6 +26,7 @@ import { SnackbarProps } from "@/types/SnackbarProps";
 import CircularLoading from "../misc/CircularLoading";
 import { sleepFunction } from "@/utilities/misc/sleep";
 import { useStorageUrl } from "@/hooks/useStorageUrl";
+import SensitiveGate from "../misc/SensitiveGate";
 
 export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token: VerifiedToken }) {
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -138,26 +139,50 @@ export default function SingleTweet({ tweet, token }: { tweet: TweetProps; token
                                 <span className="mention">@{tweet.repliedTo.author.username}</span>
                             </Link>
                         )}{" "}
-                        {tweet.text}
+                        {tweet.isSensitive ? (
+                            <SensitiveGate text={<span>{tweet.text}</span>} />
+                        ) : (
+                            <>{tweet.text}</>
+                        )}
                     </div>
                     {tweet.photoUrl && (
                         <>
-                            <div className="tweet-image">
-                                <Image
-                                    onClick={handleImageClick}
-                                    src={getFullURL(tweet.photoUrl)}
-                                    alt="tweet image"
-                                    placeholder="blur"
-                                    blurDataURL={shimmer(500, 500)}
-                                    height={500}
-                                    width={500}
+                            {tweet.isSensitive ? (
+                              <SensitiveGate
+                                image={(
+                                  <div className="tweet-image">
+                                    <Image
+                                      onClick={handleImageClick}
+                                      src={getFullURL(tweet.photoUrl)}
+                                      alt="tweet image"
+                                      placeholder="blur"
+                                      blurDataURL={shimmer(500, 500)}
+                                      height={500}
+                                      width={500}
+                                    />
+                                  </div>
+                                )}
+                              />
+                            ) : (
+                              <>
+                                <div className="tweet-image">
+                                    <Image
+                                        onClick={handleImageClick}
+                                        src={getFullURL(tweet.photoUrl)}
+                                        alt="tweet image"
+                                        placeholder="blur"
+                                        blurDataURL={shimmer(500, 500)}
+                                        height={500}
+                                        width={500}
+                                    />
+                                </div>
+                                <PreviewDialog
+                                    open={isPreviewOpen}
+                                    handlePreviewClose={handlePreviewClose}
+                                    url={tweet.photoUrl}
                                 />
-                            </div>
-                            <PreviewDialog
-                                open={isPreviewOpen}
-                                handlePreviewClose={handlePreviewClose}
-                                url={tweet.photoUrl}
-                            />
+                              </>
+                            )}
                         </>
                     )}
                     <span className="text-muted date">{formatDateExtended(tweet.createdAt)}</span>

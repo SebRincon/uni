@@ -1,9 +1,9 @@
 {
   "auth": {
-    "user_pool_id": "us-west-2_xMZYk3mL7",
+    "user_pool_id": "us-west-2_Tt5mgrBi5",
     "aws_region": "us-west-2",
-    "user_pool_client_id": "lf3tq2dff1kak8evemkldl7i6",
-    "identity_pool_id": "us-west-2:0fb71852-eedb-4001-a475-fab0c27229e5",
+    "user_pool_client_id": "3a4t6q4s8bd5mbpcjlr6egsrp2",
+    "identity_pool_id": "us-west-2:f477247b-f735-4a04-999d-9923c45b43e5",
     "mfa_methods": [],
     "standard_required_attributes": [
       "email",
@@ -27,9 +27,9 @@
     "unauthenticated_identities_enabled": true
   },
   "data": {
-    "url": "https://7y6lrtagubbirf6iqcdxlb2cda.appsync-api.us-west-2.amazonaws.com/graphql",
+    "url": "https://ifjglunmljcz5lind5f3ddhkse.appsync-api.us-west-2.amazonaws.com/graphql",
     "aws_region": "us-west-2",
-    "api_key": "da2-jkdo7ztgqzccpdiilfqscgkdpa",
+    "api_key": "da2-nohgdwqblrb5rmzpq565zwn3ni",
     "default_authorization_type": "API_KEY",
     "authorization_types": [
       "AMAZON_COGNITO_USER_POOLS",
@@ -368,6 +368,13 @@
             },
             "isReply": {
               "name": "isReply",
+              "isArray": false,
+              "type": "Boolean",
+              "isRequired": false,
+              "attributes": []
+            },
+            "isSensitive": {
+              "name": "isSensitive",
               "isArray": false,
               "type": "Boolean",
               "isRequired": false,
@@ -1996,11 +2003,11 @@
   },
   "storage": {
     "aws_region": "us-west-2",
-    "bucket_name": "amplify-ddfybarxpa7k8-mai-twitterclonemediabucket8-z7c9ylgrtmog",
+    "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-uzshgnv7q1gt",
     "buckets": [
       {
         "name": "twitter-clone-media",
-        "bucket_name": "amplify-ddfybarxpa7k8-mai-twitterclonemediabucket8-z7c9ylgrtmog",
+        "bucket_name": "amplify-twitter-kshan-san-twitterclonemediabucket8-uzshgnv7q1gt",
         "aws_region": "us-west-2",
         "paths": {
           "media/*": {
@@ -2019,5 +2026,5 @@
       }
     ]
   },
-  "version": "1.3"
+  "version": "1.4"
 }
