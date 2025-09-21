@@ -3,7 +3,7 @@
 import { useContext } from "react";
 import Link from "next/link";
 
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 import Search from "../misc/Search";
 import WhoToFollow from "../misc/WhoToFollow";
 import CompleteProfileReminder from "../misc/CompleteProfileReminder";

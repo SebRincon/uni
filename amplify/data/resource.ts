@@ -11,6 +11,9 @@ const schema = a
       photoUrl: a.string(),
       headerUrl: a.string(),
       isPremium: a.boolean().default(false),
+      // New profile fields
+      university: a.string(),
+      majors: a.string().array(),
       // Relationships
       createdTweets: a.hasMany("Tweet", "authorId"),
       notifications: a.hasMany("Notification", "userId"),

@@ -4,7 +4,7 @@ import { useContext } from "react";
 
 import { getNotifications } from "@/utilities/fetch";
 import { NotificationProps } from "@/types/NotificationProps";
-import { AuthContext } from "@/app/(twitter)/layout";
+import { AuthContext } from "@/app/(twitter)/auth-context";
 
 export default function UnreadNotificationsBadge() {
     const { token } = useContext(AuthContext);

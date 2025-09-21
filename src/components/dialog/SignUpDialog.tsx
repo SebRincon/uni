@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
-import { Dialog, DialogContent, DialogTitle, InputAdornment, TextField } from "@mui/material";
+import { Dialog, DialogContent, DialogTitle, InputAdornment, TextField, MenuItem, Autocomplete, Chip } from "@mui/material";
 import * as yup from "yup";
 import Image from "next/image";
 import { signUp, signIn, confirmSignUp } from 'aws-amplify/auth';
+import { updateUser } from "@/utilities/fetch";
 
 import { SignUpDialogProps } from "@/types/DialogProps";
 import CircularLoading from "../misc/CircularLoading";
@@ -18,7 +19,7 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
 
     const router = useRouter();
 
-    const validationSchema = yup.object({
+const validationSchema = yup.object({
         username: yup
             .string()
             .min(3, "Username should be of minimum 3 characters length.")
@@ -35,6 +36,8 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
             .max(100, "Password should be of maximum 100 characters length.")
             .required("Password is required."),
         name: yup.string().max(50, "Name should be of maximum 50 characters length."),
+        university: yup.string().max(100),
+        majors: yup.array().of(yup.string().max(100)).max(5),
     });
 
     const confirmationSchema = yup.object({
@@ -44,12 +47,63 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
             .required("Confirmation code is required."),
     });
 
+const universityOptions = [
+        "Rice University",
+        "University of Houston",
+        "University of Houston–Downtown",
+        "University of Houston–Clear Lake",
+        "Texas Southern University",
+        "University of St. Thomas",
+        "Houston Christian University",
+        "Prairie View A&M University",
+        "Sam Houston State University",
+        "Texas A&M University at Galveston",
+        "UTHealth Houston",
+        "Baylor College of Medicine",
+        "Houston Community College",
+        "Lone Star College",
+        "San Jacinto College",
+        "Lee College",
+        "Galveston College",
+        "Texas Woman's University (Houston Center)",
+        "DeVry University (Houston)",
+        "Remington College (Houston)",
+    ];
+
+    const majorOptions = [
+        "Computer Science",
+        "Software Engineering",
+        "Data Science",
+        "Information Systems",
+        "Business Administration",
+        "Finance",
+        "Accounting",
+        "Marketing",
+        "Economics",
+        "Biology",
+        "Chemistry",
+        "Physics",
+        "Mathematics",
+        "Mechanical Engineering",
+        "Electrical Engineering",
+        "Civil Engineering",
+        "Nursing",
+        "Psychology",
+        "Political Science",
+        "Communications",
+        "English",
+        "Sociology",
+        "History",
+    ];
+
     const formik = useFormik({
         initialValues: {
             username: "",
             email: "",
             password: "",
             name: "",
+            university: "",
+            majors: [] as string[],
         },
         validationSchema: validationSchema,
         onSubmit: async (values, { resetForm }) => {
@@ -66,7 +120,7 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                     },
                 });
                 
-                if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
+if (nextStep.signUpStep === 'CONFIRM_SIGN_UP') {
                     // Store credentials for auto-signin after confirmation
                     setTempCredentials({ username: values.email, password: values.password });
                     setIsConfirmationStep(true);
@@ -74,6 +128,17 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                 } else if (isSignUpComplete) {
                     // If no confirmation needed, sign in directly
                     await signIn({ username: values.email, password: values.password });
+                    // Try to persist university/majors to our User model
+                    try {
+                        // small delay to allow DB user creation via auth hook
+                        await new Promise(res => setTimeout(res, 500));
+                        await updateUser(values.username, {
+                            university: values.university || '',
+                            majors: values.majors || [],
+                        } as any);
+                    } catch (e) {
+                        console.warn('Could not immediately save university/majors after sign up:', e);
+                    }
                     resetForm();
                     handleSignUpClose();
                     router.push("/explore");
@@ -98,10 +163,22 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                 });
                 
                 // Auto sign in after successful confirmation
-                await signIn({ 
+await signIn({ 
                     username: tempCredentials.username, 
                     password: tempCredentials.password 
                 });
+                
+                // Try to persist university/majors to our User model
+                try {
+                    // small delay to allow DB user creation via auth hook
+                    await new Promise(res => setTimeout(res, 500));
+                    await updateUser(formik.values.username, {
+                        university: formik.values.university || '',
+                        majors: formik.values.majors || [],
+                    } as any);
+                } catch (e) {
+                    console.warn('Could not immediately save university/majors after confirmation:', e);
+                }
                 
                 formik.resetForm();
                 confirmFormik.resetForm();
@@ -170,7 +247,7 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                                     helperText={formik.touched.password && formik.errors.password}
                                 />
                             </div>
-                            <div className="input">
+<div className="input">
                                 <div className="info">Your public name</div>
                                 <TextField
                                     fullWidth
@@ -180,6 +257,54 @@ export default function SignUpDialog({ open, handleSignUpClose }: SignUpDialogPr
                                     onChange={formik.handleChange}
                                     error={formik.touched.name && Boolean(formik.errors.name)}
                                     helperText={formik.touched.name && formik.errors.name}
+                                />
+                            </div>
+                            <div className="input">
+<TextField
+                                    select
+                                    fullWidth
+                                    name="university"
+                                    label="University"
+                                    value={formik.values.university}
+                                    onChange={formik.handleChange}
+                                    SelectProps={{
+                                        displayEmpty: true,
+                                        renderValue: (selected) => {
+                                            if (!selected) {
+                                                return 'Select a university';
+                                            }
+                                            return selected as string;
+                                        },
+                                    }}
+                                    InputLabelProps={{ shrink: true }}
+                                >
+                                    <MenuItem value="">
+                                        <em>None</em>
+                                    </MenuItem>
+                                    {universityOptions.map((u) => (
+                                        <MenuItem key={u} value={u}>{u}</MenuItem>
+                                    ))}
+                                </TextField>
+                            </div>
+                            <div className="input">
+                                <Autocomplete
+                                    multiple
+                                    options={majorOptions}
+                                    value={formik.values.majors}
+                                    onChange={(_, value) => formik.setFieldValue('majors', value)}
+                                    renderTags={(value: readonly string[], getTagProps) =>
+                                        value.map((option: string, index: number) => (
+                                            <Chip variant="outlined" label={option} {...getTagProps({ index })} key={option} />
+                                        ))
+                                    }
+renderInput={(params) => (
+                                        <TextField
+                                            {...params}
+                                            label="Majors"
+                                            placeholder={formik.values.majors.length > 0 ? '' : 'Select one or more majors'}
+                                            helperText="You can select multiple majors"
+                                        />
+                                    )}
                                 />
                             </div>
                         </div>

@@ -1,14 +1,10 @@
 "use client";
 
-import { createContext } from "react";
-
 import Footer from "@/components/layout/Footer";
 import LeftSidebar from "@/components/layout/LeftSidebar";
 import RightSidebar from "@/components/layout/RightSidebar";
-import { AuthProps } from "@/types/TokenProps";
 import useAuth from "@/hooks/useAuth";
-
-const AuthContext = createContext<AuthProps>({ token: null, isPending: true, refreshToken: async () => {} });
+import { AuthContext } from "./auth-context";
 
 export default function HomeLayout({ children }: { children: React.ReactNode }) {
     const auth = useAuth();
@@ -32,4 +28,3 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
     );
 }
 
-export { AuthContext };
